@@ -22,6 +22,11 @@ Route::post('login', [\App\Http\Controllers\Auth\LoginController::class, 'login'
 # forgot-password - request password reset link
 Route::post('forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'forgotPassword']);
 
+# waitlist - new waitlist
+Route::prefix('waitlist')->group(function () {
+    Route::post('', [\App\Http\Controllers\WaitlistController::class, 'store']);
+});
+
 # protected routes
 Route::middleware('auth:sanctum')->group(function () {
 
