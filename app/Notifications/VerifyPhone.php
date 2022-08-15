@@ -42,6 +42,7 @@ class VerifyPhone extends Notification
     public function toVonage($notifiable)
     {
         return (new VonageMessage)
+            ->clientReference(config('app.name'))
             ->content($notifiable->code . ' is your verification code. To keep your account safe, never forward this code.');
     }
 
