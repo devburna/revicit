@@ -7,6 +7,7 @@ use App\Http\Requests\RegisterRequest;
 use App\Mail\UserMailable;
 use App\Models\Referral;
 use App\Models\User;
+use App\Models\Waitlist;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -54,6 +55,13 @@ class RegisterController extends Controller
                 Referral::create([
                     'user_id' => $referral->id,
                     'referred_user_id' => $user->id,
+                ]);
+            }
+
+            //update waitlist to active if exists
+            if ($waitlist = Waitlist::where('email', $user->email)->first()) {
+                $waitlist->update([
+                    'active' => true
                 ]);
             }
 
