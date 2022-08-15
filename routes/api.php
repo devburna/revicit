@@ -95,7 +95,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'company');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('destroy', 'company')->withTrashed();
+            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'company')->withTrashed();
         });
     });
 });
