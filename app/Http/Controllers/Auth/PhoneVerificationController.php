@@ -51,17 +51,24 @@ class PhoneVerificationController extends Controller
             ]);
         }
 
-        // generate and save code
-        $code = rand(000000, 999999);
-        $key = $request->user()->username . '-phone-verification-code';
-        Cache::put($key,  $code, now()->addMinutes(10));
-        $request->user()->code = $code;
+        try {
 
-        // send code to user via sms
-        $request->user()->notify(new VerifyPhone($request->user()));
+            // generate and save code
+            $code = rand(000000, 999999);
+            $key = $request->user()->username . '-phone-verification-code';
+            Cache::put($key,  $code, now()->addMinutes(10));
+            $request->user()->code = $code;
 
-        return response()->json([
-            'message' => trans('auth.resend_phone_verification_code'),
-        ]);
+            // send code to user via sms
+            $request->user()->notify(new VerifyPhone($request->user()));
+
+            return response()->json([
+                'message' => trans('auth.resend_phone_verification_code'),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'message' => 'Error occured, please contact support.',
+            ], 422);
+        }
     }
 }
