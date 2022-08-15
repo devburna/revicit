@@ -24,7 +24,7 @@ class PhoneVerificationController extends Controller
             ]);
         }
 
-        $value = Cache::get($request->user()->username . 'phone-verification');
+        $value = Cache::get($request->user()->username . 'phone-verification-code');
 
         if (!$value || $value != $request->code) {
             throw ValidationException::withMessages([
