@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\UserMailable;
+use App\Notifications\VerifyEmail;
+use App\Notifications\Welcome;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
 class EmailVerificationController extends Controller
@@ -25,7 +25,7 @@ class EmailVerificationController extends Controller
         ]);
 
         // send email notification
-        Mail::to($request->user()->email)->send(new UserMailable($request->user(), 'email-verified', 'Welcome to ' . config('app.name')));
+        $request->user()->notify(new Welcome($request->user()));
 
         // Revoke the token that was used to authenticate the current request...
         $request->user()->currentAccessToken()->delete();
@@ -48,7 +48,7 @@ class EmailVerificationController extends Controller
         $request->user()->token = $request->user()->createToken('email-verification', ['verify-email-address'])->plainTextToken;
 
         // send email verification link
-        Mail::to($request->user()->email)->send(new UserMailable($request->user(), 'email-verification', 'Please Verify Your Email Address'));
+        $request->user()->notify(new VerifyEmail($request->user()));
 
         return response()->json([
             'message' => trans('auth.resend_email_verification_link'),

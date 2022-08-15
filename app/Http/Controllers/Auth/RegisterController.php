@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
-use App\Mail\UserMailable;
 use App\Models\Referral;
 use App\Models\User;
 use App\Models\Waitlist;
+use App\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
@@ -68,8 +67,7 @@ class RegisterController extends Controller
             // create email verification token
             $user->token = $user->createToken('email-verification', ['verify-email-address'])->plainTextToken;
 
-            // send email verification link
-            Mail::to($user->email)->send(new UserMailable($user, 'email-verification', 'Please Verify Your Email Address'));
+            $user->notify(new VerifyEmail($user));
 
             return response()->json([
                 'message' => trans('auth.register'),

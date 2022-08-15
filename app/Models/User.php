@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->hasMany(Referral::class, 'user_id');
     }
 
+    public function companies(): HasMany
+    {
+        return $this->hasMany(Company::class, 'user_id');
+    }
+
     public function referredBy(): HasOne
     {
         return $this->hasOne(Referral::class, 'referred_user_id');

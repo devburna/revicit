@@ -75,4 +75,27 @@ Route::middleware('auth:sanctum')->group(function () {
         # fetch
         Route::get('', [\App\Http\Controllers\ReferralController::class, 'index']);
     });
+
+    # companies
+    Route::prefix('companies')->group(function () {
+
+        # create
+        Route::post('', [\App\Http\Controllers\CompanyController::class, 'store']);
+
+        # fetch
+        Route::get('', [\App\Http\Controllers\CompanyController::class, 'index']);
+
+        # company
+        Route::prefix('{company}')->group(function () {
+
+            # update details
+            Route::put('', [\App\Http\Controllers\CompanyController::class, 'update']);
+
+            # update logo
+            Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo']);
+
+            # toggle
+            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->withTrashed();
+        });
+    });
 });
