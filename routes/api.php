@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,6 +13,54 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+# register - new user registration
+Route::post('register', [\App\Http\Controllers\Auth\RegisterController::class, 'register']);
+
+# login - login user account
+Route::post('login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
+
+# forgot-password - request password reset link
+Route::post('forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordController::class, 'forgotPassword']);
+
+# protected routes
+Route::middleware('auth:sanctum')->group(function () {
+
+    # reset-password - reset user's password
+    Route::post('reset-password', [\App\Http\Controllers\auth\ResetPasswordController::class, 'resetPassword'])->middleware(['ability:reset-password']);
+
+    # verify-email - verify user's email address
+    Route::prefix('verify-email')->group(function () {
+
+        # resend email verification link
+        Route::get('', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'resendEmailVerificationLink']);
+
+        # verify user's email address
+        Route::post('', [\App\Http\Controllers\Auth\EmailVerificationController::class, 'verifyEmail'])->middleware(['ability:verify-email-address']);
+    });
+
+    # verify-phone - verify user's phone number
+    Route::prefix('verify-phone')->group(function () {
+
+        # resend phone verification link
+        Route::get('', [\App\Http\Controllers\AuthController::class, 'verifyPhone']);
+
+        # verify user's phone number
+        Route::post('', [\App\Http\Controllers\AuthController::class, 'resendPhoneVerificationLink']);
+    });
+
+    # user - current user profile
+    Route::prefix('user')->group(function () {
+
+        # fetch
+        Route::get('', [\App\Http\Controllers\Auth\UserController::class, 'index']);
+
+        # update user
+        Route::put('', [\App\Http\Controllers\Auth\UserController::class, 'update']);
+
+        # update avatar
+        Route::post('', [\App\Http\Controllers\Auth\UserController::class, 'avatar']);
+    });
+
+    # logout - logout current token
+    Route::delete('logout', [\App\Http\Controllers\Auth\UserController::class, 'logout']);
 });

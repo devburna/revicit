@@ -16,5 +16,10 @@ return [
     'failed' => 'These credentials do not match our records.',
     'password' => 'The provided password is incorrect.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
+    'register' => 'Success, kindly check your mail for a verification link.',
+    'referral_code' => 'Invalid referral code, please check the code and try again.',
+    'email_verified' => "Email has already been verified.",
+    'email_success' => "Email verification was successful.",
+    'resend_email_verification_link' => "We've sent a new link to you email.",
 
 ];
