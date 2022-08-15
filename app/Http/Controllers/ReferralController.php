@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Referral;
+use Illuminate\Http\Request;
 
 class ReferralController extends Controller
 {
@@ -11,9 +12,18 @@ class ReferralController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $referrals = $request->user()->referrals;
+
+        foreach ($referrals as $referral) {
+            $referral->details;
+        }
+
+        return response()->json([
+            'data' => $referrals,
+            'message' => 'success'
+        ]);
     }
 
     /**

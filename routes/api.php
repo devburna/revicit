@@ -56,7 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     # user - current user profile
     Route::prefix('user')->group(function () {
 
-        # fetch
+        # profile
         Route::get('', [\App\Http\Controllers\Auth\UserController::class, 'index']);
 
         # update user
@@ -68,4 +68,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     # logout - logout current token
     Route::delete('logout', [\App\Http\Controllers\Auth\UserController::class, 'logout']);
+
+    # referrals - current user referrals
+    Route::prefix('referrals')->group(function () {
+
+        # fetch
+        Route::get('', [\App\Http\Controllers\ReferralController::class, 'index']);
+    });
 });

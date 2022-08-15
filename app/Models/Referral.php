@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Referral extends Model
@@ -37,4 +38,14 @@ class Referral extends Model
     protected $casts = [
         //
     ];
+
+    public function profile(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function details(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referred_user_id', 'id');
+    }
 }

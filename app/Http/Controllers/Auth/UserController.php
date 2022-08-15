@@ -13,6 +13,12 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
+        $user = $request->user();
+
+        if ($user->referredBy) {
+            $user->referredBy->profile;
+        }
+
         return response()->json([
             'data' => $request->user(),
             'message' => 'success'
