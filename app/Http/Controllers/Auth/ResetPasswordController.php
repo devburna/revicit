@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ResetPasswordRequest;
-use App\Mail\UserMailable;
+use App\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 
 class ResetPasswordController extends Controller
 {
@@ -18,7 +17,7 @@ class ResetPasswordController extends Controller
         ]);
 
         // send email notification
-        Mail::to($request->user()->email)->send(new UserMailable($request->user(), 'password-reset', 'Password Reset'));
+        $request->user()->notify(new ResetPassword($request->user()));
 
         // delete token
         $request->user()->currentAccessToken()->delete();
