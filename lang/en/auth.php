@@ -20,6 +20,10 @@ return [
     'referral_code' => 'Invalid referral code, please check the code and try again.',
     'email_verified' => "Email has already been verified.",
     'email_success' => "Email verification was successful.",
-    'resend_email_verification_link' => "We've sent a new link to you email.",
+    'resend_email_verification_link' => "We've sent a new link to your email.",
+    'phone_verified' => "Phone number has already been verified.",
+    'phone_success' => "Phone number verification was successful.",
+    'resend_phone_verification_code' => "We've sent a new code to your phone.",
+    'phone_failed' => "This verification code is invalid.",
 
 ];

@@ -47,10 +47,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('verify-phone')->group(function () {
 
         # resend phone verification link
-        Route::get('', [\App\Http\Controllers\AuthController::class, 'verifyPhone']);
+        Route::post('', [\App\Http\Controllers\Auth\PhoneVerificationController::class, 'verifyPhone']);
 
         # verify user's phone number
-        Route::post('', [\App\Http\Controllers\AuthController::class, 'resendPhoneVerificationLink']);
+        Route::get('', [\App\Http\Controllers\Auth\PhoneVerificationController::class, 'resendPhoneVerificationCode']);
     });
 
     # user - current user profile

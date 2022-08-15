@@ -52,6 +52,17 @@ class User extends Authenticatable
         'phone_verified_at' => 'datetime',
     ];
 
+    /**
+     * Route notifications for the Vonage channel.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return string
+     */
+    public function routeNotificationForVonage($notification)
+    {
+        return $this->phone;
+    }
+
     public function referrals(): HasMany
     {
         return $this->hasMany(Referral::class, 'user_id');
