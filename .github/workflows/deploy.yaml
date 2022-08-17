@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy App on Server
-        uses: appleboy/ssh-action@master
+        uses: actions/checkout@v2
         with:
           host: ${{secrets.SSH_HOST}}
           port: ${{secrets.SSH_PORT}}
