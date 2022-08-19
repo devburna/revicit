@@ -45,7 +45,7 @@ class VerifyEmail extends Notification
             ->greeting('Verify Your Email Address')
             ->line('Thank you for creating a ' . config('app.name') . ' account.')
             ->line('Verify your email below to complete your setup.')
-            ->action('Verify Email', url('?token=' . $notifiable->token))
+            ->action('Verify Email', url('/verify-email?token=' . $notifiable->token))
             ->line('Thank you for using ' . config('app.name') . '!');
     }
 
