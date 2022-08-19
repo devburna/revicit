@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CampaignType;
 use Illuminate\Foundation\Http\FormRequest;
 use BenSampo\Enum\Rules\EnumValue;
 
