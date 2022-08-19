@@ -44,14 +44,18 @@ class EmailVerificationController extends Controller
             ]);
         }
 
+        $user = $request->user();
+
         // create email verification token
-        $request->user()->token = $request->user()->createToken('email-verification', ['verify-email-address'])->plainTextToken;
+        $user->token = $user->createToken('email-verification', ['verify-email-address'])->plainTextToken;
 
         // send email verification link
-        $request->user()->notify(new VerifyEmail($request->user()));
+        $user->notify(new VerifyEmail($user));
 
         return response()->json([
+            'data' => $request->user(),
             'message' => trans('auth.resend_email_verification_link'),
+            'status' => true
         ]);
     }
 }

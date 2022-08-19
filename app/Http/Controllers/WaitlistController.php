@@ -19,7 +19,8 @@ class WaitlistController extends Controller
 
         return response()->json([
             'data' => $waitlist,
-            'message' => 'success'
+            'message' => 'success',
+            'status' => true,
         ], 201);
     }
 }

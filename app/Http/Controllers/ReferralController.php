@@ -22,7 +22,8 @@ class ReferralController extends Controller
 
         return response()->json([
             'data' => $referrals,
-            'message' => 'success'
+            'message' => 'success',
+            'status' => true,
         ]);
     }
 

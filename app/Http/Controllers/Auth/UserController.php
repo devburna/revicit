@@ -20,7 +20,8 @@ class UserController extends Controller
 
         return response()->json([
             'data' => $request->user(),
-            'message' => 'success'
+            'message' => 'success',
+            'status' => true,
         ]);
     }
 
@@ -97,7 +98,9 @@ class UserController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'success'
+            'data' => null,
+            'message' => 'success',
+            'status' => true,
         ]);
     }
 }

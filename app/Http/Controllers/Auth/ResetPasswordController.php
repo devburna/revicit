@@ -23,7 +23,9 @@ class ResetPasswordController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => trans('passwords.reset')
+            'data' => null,
+            'message' => trans('passwords.reset'),
+            'status' => true,
         ]);
     }
 }

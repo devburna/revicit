@@ -1,0 +1,33 @@
+name: Delopyment
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy App on Server
+        uses: actions/checkout@v2
+        with:
+          host: ${{secrets.SSH_HOST}}
+          port: ${{secrets.SSH_PORT}}
+          key: ${{secrets.SSH_KEY}}
+          username: ${{secrets.SSH_USERNAME}}
+
+          script: |
+            whoami
+            echo 'Change of directory'
+            cd /var/www/revicit2.0
+            echo 'Pull code'
+            git pull origin dev
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            echo 'Done with deployment'
+
+
+
