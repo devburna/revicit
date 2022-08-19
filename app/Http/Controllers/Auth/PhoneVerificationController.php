@@ -54,14 +54,15 @@ class PhoneVerificationController extends Controller
         try {
 
             // generate and save code
-            $user = $request->user();
             $code = rand(000000, 999999);
-            $key = $user->username . '-phone-verification-code';
+            $key = $request->user()->username . '-phone-verification-code';
             Cache::put($key,  $code, now()->addMinutes(10));
-            $user->code = $code;
+            $request->user()->code = $code;
 
             // send code to user via sms
-            $user->notify(new VerifyPhone($user));
+            $request->user()->notify(new VerifyPhone($request->user()));
+
+            unset($request->user()->code);
 
             return response()->json([
                 'data' => $request->user(),

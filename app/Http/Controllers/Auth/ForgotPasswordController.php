@@ -19,14 +19,15 @@ class ForgotPasswordController extends Controller
         }
 
         // creates token
-        $_user = $user;
         $user->token = $user->createToken('forgot-password', ['reset-password'])->plainTextToken;
 
         // email token
         $user->notify(new ForgotPassword($user));
 
+        unset($user->token);
+
         return response()->json([
-            'data' => $_user,
+            'data' => $user,
             'message' => trans('passwords.sent'),
             'status' => true,
         ]);
