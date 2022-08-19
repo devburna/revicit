@@ -60,7 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [\App\Http\Controllers\Auth\UserController::class, 'index']);
 
         # update user
-        Route::put('', [\App\Http\Controllers\Auth\UserController::class, 'update']);
+        Route::patch('', [\App\Http\Controllers\Auth\UserController::class, 'update']);
 
         # update avatar
         Route::post('', [\App\Http\Controllers\Auth\UserController::class, 'avatar']);
@@ -88,14 +88,71 @@ Route::middleware('auth:sanctum')->group(function () {
         # company
         Route::prefix('{company}')->group(function () {
 
+            # contacts
+            Route::prefix('contacts')->group(function () {
+                # create
+                Route::post('', [\App\Http\Controllers\ContactController::class, 'store'])->can('view', 'company');
+
+                # fetch
+                Route::get('', [\App\Http\Controllers\ContactController::class, 'index'])->can('view', 'company');
+            });
+
+            # details
+            Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company');
+
             # update details
-            Route::put('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company');
+            Route::patch('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company');
 
             # update logo
             Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'company');
 
             # toggle
             Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'company')->withTrashed();
+        });
+    });
+
+    # contacts
+    Route::prefix('contacts')->group(function () {
+
+        # fetch
+        Route::get('', [\App\Http\Controllers\ContactController::class, 'index']);
+
+        Route::prefix('{contact}')->group(function () {
+
+            # details
+            Route::get('', [\App\Http\Controllers\ContactController::class, 'show'])->can('view', 'contact');
+
+            # update details
+            Route::patch('', [\App\Http\Controllers\ContactController::class, 'update'])->can('update', 'contact');
+
+            # update logo
+            Route::post('', [\App\Http\Controllers\ContactController::class, 'logo'])->can('update', 'contact');
+
+            # toggle
+            Route::delete('', [\App\Http\Controllers\ContactController::class, 'destroy'])->can('delete', 'contact')->withTrashed();
+        });
+    });
+
+    # campaigns
+    Route::prefix('campaigns')->group(function () {
+
+        # create
+        Route::post('', [\App\Http\Controllers\CompanyController::class, 'store']);
+
+        # fetch
+        Route::get('', [\App\Http\Controllers\CompanyController::class, 'index']);
+
+        # campaigns
+        Route::prefix('{campaign}')->group(function () {
+
+            # update details
+            Route::patch('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'campaign');
+
+            # update logo
+            Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'campaign');
+
+            # toggle
+            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'campaign')->withTrashed();
         });
     });
 });

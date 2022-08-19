@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\Company;
+use App\Models\Contact;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class CompanyPolicy
+class ContactPolicy
 {
     use HandlesAuthorization;
 
@@ -25,12 +25,12 @@ class CompanyPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Company  $company
+     * @param  \App\Models\Contact  $contact
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Company $company)
+    public function view(User $user, Contact $contact)
     {
-        return $user->is($company->user);
+        return $user->is($contact->company->user);
     }
 
     /**
@@ -48,47 +48,47 @@ class CompanyPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Company  $company
+     * @param  \App\Models\Contact  $contact
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Company $company)
+    public function update(User $user, Contact $contact)
     {
-        return $this->view($user, $company);
+        return $this->view($user, $contact);
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Company  $company
+     * @param  \App\Models\Contact  $contact
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Company $company)
+    public function delete(User $user, Contact $contact)
     {
-        return $this->view($user, $company);
+        return $this->view($user, $contact);
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Company  $company
+     * @param  \App\Models\Contact  $contact
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Company $company)
+    public function restore(User $user, Contact $contact)
     {
-        return $this->view($user, $company);
+        return $this->view($user, $contact);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\Company  $company
+     * @param  \App\Models\Contact  $contact
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Company $company)
+    public function forceDelete(User $user, Contact $contact)
     {
-        return $this->view($user, $company);
+        return $this->view($user, $contact);
     }
 }

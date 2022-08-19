@@ -22,7 +22,8 @@ class CompanyController extends Controller
 
         return response()->json([
             'data' => $companies,
-            'message' => 'success'
+            'message' => 'success',
+            'status' => true
         ]);
     }
 
@@ -60,7 +61,8 @@ class CompanyController extends Controller
     {
         return response()->json([
             'data' => $company,
-            'message' => $message
+            'message' => $message,
+            'status' => true
         ], $code);
     }
 

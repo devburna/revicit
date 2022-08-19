@@ -5,10 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Company extends Model
+class Contact extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -18,14 +17,10 @@ class Company extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'user_id',
+        'company_id',
         'name',
-        'address',
         'email',
-        'phone',
-        'website',
-        'description',
-        'logo_url'
+        'phone'
     ];
 
     /**
@@ -34,8 +29,8 @@ class Company extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'user_id',
-        'user'
+        'company_id',
+        'company'
     ];
 
     /**
@@ -47,13 +42,8 @@ class Company extends Model
         //
     ];
 
-    public function user(): BelongsTo
+    public function company(): BelongsTo
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public function contacts(): HasMany
-    {
-        return $this->hasMany(Contact::class, 'company_id');
+        return $this->belongsTo(Company::class);
     }
 }

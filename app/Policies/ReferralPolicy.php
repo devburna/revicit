@@ -30,7 +30,7 @@ class ReferralPolicy
      */
     public function view(User $user, Referral $referral)
     {
-        //
+        return $user->is($referral->user);
     }
 
     /**
@@ -53,7 +53,7 @@ class ReferralPolicy
      */
     public function update(User $user, Referral $referral)
     {
-        //
+        return $this->view($user, $referral);
     }
 
     /**
@@ -65,7 +65,7 @@ class ReferralPolicy
      */
     public function delete(User $user, Referral $referral)
     {
-        //
+        return $this->view($user, $referral);
     }
 
     /**
@@ -77,7 +77,7 @@ class ReferralPolicy
      */
     public function restore(User $user, Referral $referral)
     {
-        //
+        return $this->view($user, $referral);
     }
 
     /**
@@ -89,6 +89,6 @@ class ReferralPolicy
      */
     public function forceDelete(User $user, Referral $referral)
     {
-        //
+        return $this->view($user, $referral);
     }
 }

@@ -27,7 +27,7 @@ class Referral extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        //
+        'user'
     ];
 
     /**
