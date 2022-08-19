@@ -56,4 +56,9 @@ class Company extends Model
     {
         return $this->hasMany(Contact::class, 'company_id');
     }
+
+    public function campaigns(): HasMany
+    {
+        return $this->hasMany(Campaign::class, 'company_id');
+    }
 }
