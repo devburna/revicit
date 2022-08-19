@@ -59,6 +59,8 @@ class CompanyController extends Controller
      */
     public function show(Company $company, $message = 'success', $code = 200)
     {
+        $company->owner;
+        
         return response()->json([
             'data' => $company,
             'message' => $message,

@@ -97,6 +97,15 @@ Route::middleware('auth:sanctum')->group(function () {
                 Route::get('', [\App\Http\Controllers\ContactController::class, 'index'])->can('view', 'company');
             });
 
+            # campaigns
+            Route::prefix('campaigns')->group(function () {
+                # create
+                Route::post('', [\App\Http\Controllers\CampaignController::class, 'store'])->can('view', 'company');
+
+                # fetch
+                Route::get('', [\App\Http\Controllers\CampaignController::class, 'index'])->can('view', 'company');
+            });
+
             # details
             Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company');
 

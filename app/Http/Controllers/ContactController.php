@@ -12,6 +12,7 @@ class ContactController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  \App\Models\Company  $company
      * @return \Illuminate\Http\Response
      */
     public function index(Company $company)
@@ -46,7 +47,7 @@ class ContactController extends Controller
      */
     public function show(Contact $contact, $message = 'success', $code = 200)
     {
-        $contact->company->owner;
+        $contact->company;
 
         return response()->json([
             'data' => $contact,
