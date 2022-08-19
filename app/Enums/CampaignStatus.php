@@ -7,13 +7,13 @@ namespace App\Enums;
 use BenSampo\Enum\Enum;
 
 /**
- * @method static static PENDING()
- * @method static static SUCCESS()
- * @method static static CANCELLED()
+ * @method static static DRAFT()
+ * @method static static PUBLISHED()
+ * @method static static SCHEDULED()
  */
 final class CampaignStatus extends Enum
 {
-    const PENDING = 'pending';
-    const SUCCESS = 'success';
-    const CANCELLED = 'cancelled';
+    const DRAFT = 'draft';
+    const PUBLISHED = 'published';
+    const SCHEDULED = 'scheduled';
 }

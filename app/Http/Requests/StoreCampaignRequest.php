@@ -29,8 +29,8 @@ class StoreCampaignRequest extends FormRequest
             'title' => 'required|string',
             'type' => ['required', new EnumValue(CampaignType::class)],
             'template' => 'required|string',
-            'scheduled_for' => 'date',
-            'meat' => 'string'
+            'meat' => 'string',
+            'draft' => 'boolean'
         ];
     }
 }

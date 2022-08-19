@@ -45,7 +45,18 @@ class CampaignController extends Controller
     public function store(StoreCampaignRequest $request, Company $company)
     {
         $request['company_id'] = $company->id;
-        $request['status'] = CampaignStatus::PENDING();
+        $request['status'] = CampaignStatus::PUBLISHED();
+
+        if ($request->scheduled_for) {
+            $request->validate([
+                'scheduled_for' => 'date'
+            ]);
+            $request['status'] = CampaignStatus::SCHEDULED();
+        }
+
+        if ($request->draft) {
+            $request['status'] = CampaignStatus::DRAFT();
+        }
 
         $campaign = Campaign::create($request->only([
             'company_id',
