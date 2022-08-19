@@ -14,7 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::create('campaigns', function (Blueprint $table) {
-            $table->id();
+            $table->id()->from(time());
+            $table->unsignedBigInteger('company_id');
+            $table->string('title');
+            $table->string('type');
+            $table->longText('template')->nullable();
+            $table->timestamp('scheduled_for')->nullable();
+            $table->longText('meta')->nullable();
+            $table->string('status');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
