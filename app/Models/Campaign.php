@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CampaignStatus;
 use App\Enums\CampaignType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -43,6 +44,7 @@ class Campaign extends Model
      */
     protected $casts = [
         'type' => CampaignType::class,
+        'status' => CampaignStatus::class,
     ];
 
     public function company(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CampaignStatus;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Models\Campaign;
@@ -44,6 +45,7 @@ class CampaignController extends Controller
     public function store(StoreCampaignRequest $request, Company $company)
     {
         $request['company_id'] = $company->id;
+        $request['status'] = CampaignStatus::PENDING();
 
         $campaign = Campaign::create($request->only([
             'company_id',
@@ -51,7 +53,8 @@ class CampaignController extends Controller
             'type',
             'template',
             'scheduled_for',
-            'meta'
+            'meta',
+            'status'
         ]));
 
         return $this->show($campaign, 'success', 201);
