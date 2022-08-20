@@ -30,4 +30,26 @@ class AyrshareController extends Controller
             'mediaUrls' => $media_urls,
         ])->json();
     }
+
+    public function createProfile($title)
+    {
+        return Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => "Bearer " . env('AYRSHARE_KEY')
+        ])->post(env('AYRSHARE_URL') . '/profiles/profile', [
+            'title' => $title,
+        ])->json();
+    }
+
+    public function generateToken($key)
+    {
+        return Http::withHeaders([
+            'Content-Type' => 'application/json',
+            'Authorization' => "Bearer " . env('AYRSHARE_KEY')
+        ])->post(env('AYRSHARE_URL') . '/profiles/generateJWT', [
+            'privateKey' => env('AYRSHARE_PRIVATE_KEY'), // '-----BEGIN RSA PRIVATE KEY...', // required
+            'domain' => env('AYRSHARE_DOMAIN_ID'), // requires
+            'profileKey' => $key,
+        ])->json();
+    }
 }

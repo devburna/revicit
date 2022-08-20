@@ -177,4 +177,27 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('', [\App\Http\Controllers\SocialMediaPlatformController::class, 'destroy'])->withTrashed();
         });
     });
+
+    # social-media-handles
+    Route::prefix('social-media-handles')->group(function () {
+
+        # create
+        Route::post('', [\App\Http\Controllers\SocialMediaHandleController::class, 'store']);
+
+        # fetch
+        Route::get('', [\App\Http\Controllers\SocialMediaHandleController::class, 'index']);
+
+        # social-media-platforms
+        Route::prefix('{socialMediaPlatform}')->group(function () {
+
+            # details
+            Route::get('', [\App\Http\Controllers\SocialMediaHandleController::class, 'show'])->withTrashed();
+
+            # update details
+            Route::patch('', [\App\Http\Controllers\SocialMediaHandleController::class, 'update'])->withTrashed();
+
+            # toggle
+            Route::delete('', [\App\Http\Controllers\SocialMediaHandleController::class, 'destroy'])->withTrashed();
+        });
+    });
 });

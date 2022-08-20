@@ -21,22 +21,38 @@ class SocialMediaHandleController extends Controller
     /**
      * Show the form for creating a new resource.
      *
+     * @param  \App\Http\Requests\StoreSocialMediaHandleRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(StoreSocialMediaHandleRequest $request)
     {
-        //
+        // create profile key
+        $key = (new AyrshareController())->createProfile(ucfirst($request->user()->username) . 'Profile');
+
+        return $key;
+
+        // create profile token with key
+        $token = (new AyrshareController())->createProfile($key['Profile_key']);
+
+        // store social media handle
+        $socialMediaHandle = $this->store($request);
+
+        // returns social media handle details
+        $this->show($socialMediaHandle, null, 201);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreSocialMediaHandleRequest  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(StoreSocialMediaHandleRequest $request)
     {
-        //
+        return SocialMediaHandle::create($request->only([
+            'company_id',
+            'key',
+            'token',
+        ]));
     }
 
     /**
@@ -45,9 +61,13 @@ class SocialMediaHandleController extends Controller
      * @param  \App\Models\SocialMediaHandle  $socialMediaHandle
      * @return \Illuminate\Http\Response
      */
-    public function show(SocialMediaHandle $socialMediaHandle)
+    public function show(SocialMediaHandle $socialMediaHandle, $message = 'success', $code = 200)
     {
-        //
+        return response()->json([
+            'data' => $socialMediaHandle,
+            'message' => $message,
+            'status' => true
+        ], $code);
     }
 
     /**
