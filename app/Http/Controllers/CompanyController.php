@@ -18,7 +18,7 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
-        $companies = $request->user()->companies;
+        $companies = $request->user()->companies()->paginate(20);
 
         return response()->json([
             'data' => $companies,

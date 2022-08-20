@@ -24,7 +24,12 @@ Route::post('forgot-password', [\App\Http\Controllers\Auth\ForgotPasswordControl
 
 # waitlist - new waitlist
 Route::prefix('waitlist')->group(function () {
+
+    # create
     Route::post('', [\App\Http\Controllers\WaitlistController::class, 'store']);
+
+    # fetch
+    Route::get('', [\App\Http\Controllers\WaitlistController::class, 'index']);
 });
 
 # protected routes
