@@ -6,7 +6,7 @@ use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 
-class StoreContactRequest extends FormRequest
+class ViewCompanyRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -28,9 +28,6 @@ class StoreContactRequest extends FormRequest
     {
         return [
             'company_id' => 'required|exists:companies,id',
-            'name' => 'required|string',
-            'email' => 'required|email|unique:contacts,email',
-            'phone' => 'required|unique:contacts,phone',
         ];
     }
 }

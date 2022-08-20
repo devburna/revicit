@@ -7,6 +7,7 @@ use App\Enums\CampaignStatus;
 use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
+use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
 use App\Models\Company;
 use App\Models\Contact;
@@ -21,10 +22,12 @@ class CampaignController extends Controller
      * @param  \App\Models\Company  $company
      * @return \Illuminate\Http\Response
      */
-    public function index(Company $company)
+    public function index(ViewCompanyRequest $request)
     {
+        $campaigns = Campaign::where('company_id', $request->company_id)->paginate(20);
+
         return response()->json([
-            'data' => $company->campaigns->sortBy('created_at'),
+            'data' => $campaigns,
             'message' => 'success',
             'status' => true,
         ]);
@@ -39,9 +42,6 @@ class CampaignController extends Controller
      */
     public function create(StoreCampaignRequest $request, Company $company)
     {
-        // set company id
-        $request['company_id'] = $company->id;
-
         // set status
         if ($request->has('scheduled_for')) {
             $request['status'] = CampaignStatus::SCHEDULED();
@@ -75,7 +75,7 @@ class CampaignController extends Controller
         switch ($request->type) {
             case 'social-media':
                 // send social media campaign via ayrshare.com
-                (new AyrshareController())->post($request->meta['social_media']);
+                return (new AyrshareController())->post($request->meta['social_media']);
                 break;
 
             default:
@@ -191,7 +191,6 @@ class CampaignController extends Controller
 
                 // store campaign log
                 (new CampaignLogController())->store($request);
-
             } catch (\Throwable $th) {
 
                 $request['message'] = $th->getMessage();
@@ -202,6 +201,17 @@ class CampaignController extends Controller
 
                 continue;
             }
+        }
+    }
+
+    /**
+     *
+     * @param  \App\Http\Requests\StoreCampaignRequest  $request
+     */
+    public function socialPost(StoreCampaignRequest $request)
+    {
+        foreach ($request->meta['social_media']['platforms'] as $platform) {
+            # code...
         }
     }
 }
