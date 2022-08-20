@@ -192,7 +192,7 @@ class CampaignController extends Controller
             } catch (\Throwable $th) {
                 $request['recipient_name'] = $contact['name'];
                 $request['recipient_email'] = $contact['email'];
-                $request['recipient_email'] = $contact['email'];
+                $request['recipient_phone'] = $contact['phone'];
                 $request['message'] = $th->getMessage();
                 $request['status'] = CampaignLogStatus::FAILED();
 
