@@ -10,7 +10,7 @@ use App\Http\Requests\UpdateCampaignRequest;
 use App\Models\Campaign;
 use App\Models\Company;
 use App\Models\Contact;
-use App\Notifications\Campaign as NotificationsCampaign;
+use App\Notifications\Contact as NotificationsContact;
 use App\Notifications\Sms;
 use App\Notifications\SocialPost;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -177,7 +177,7 @@ class CampaignController extends Controller
                 $request['status'] = CampaignLogStatus::SENT();
 
                 // send email campaign
-                $campaign['campaign']->notify(new NotificationsCampaign($recipient));
+                $recipient->notify(new NotificationsContact($campaign['campaign']));
 
                 // store campaign log
                 (new CampaignLogController())->store($request);
@@ -201,7 +201,7 @@ class CampaignController extends Controller
     public function sms(StoreCampaignRequest $request)
     {
         foreach ($request->contacts as $contact) {
-            $contact->notify(new Sms($request));
+            //
         }
     }
 
@@ -212,7 +212,7 @@ class CampaignController extends Controller
     public function socialPost(StoreCampaignRequest $request)
     {
         foreach ($request->contacts as $contact) {
-            $contact->notify(new SocialPost($request));
+            //
         }
     }
 }

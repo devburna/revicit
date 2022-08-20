@@ -2,23 +2,26 @@
 
 namespace App\Notifications;
 
+use App\Models\Campaign;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Campaign extends Notification
+class Contact extends Notification
 {
     use Queueable;
+
+    public $campaign;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Campaign $campaign)
     {
-        //
+        $this->campaign = $campaign;
     }
 
     /**
@@ -40,10 +43,13 @@ class Campaign extends Notification
      */
     public function toMail($notifiable)
     {
+        $meta = json_decode($this->campaign->meta, true);
+
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+            ->from($meta["from_email"], $meta['from_name'])
+            ->subject($meta['subject'])
+            ->action('Notification Action', url('/'))
+            ->line('Thank you for using our application!');
     }
 
     /**

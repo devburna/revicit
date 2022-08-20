@@ -70,7 +70,7 @@ class Campaign extends Model
     public function routeNotificationForMail($notification)
     {
         // Return email address and name...
-        return [$this->email => $this->name];
+        return [$this->company->email => $this->company->name];
     }
 
     public function company(): BelongsTo
