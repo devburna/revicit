@@ -2,11 +2,9 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\CampaignType;
 use Illuminate\Foundation\Http\FormRequest;
-use BenSampo\Enum\Rules\EnumValue;
 
-class StoreCampaignRequest extends FormRequest
+class UpdateCampaignLogRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,7 +13,7 @@ class StoreCampaignRequest extends FormRequest
      */
     public function authorize()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -26,11 +24,7 @@ class StoreCampaignRequest extends FormRequest
     public function rules()
     {
         return [
-            'contacts' => 'required|array',
-            'title' => 'required|string',
-            'type' => ['required', new EnumValue(CampaignType::class)],
-            'template' => 'required|string',
-            'meta' => 'array',
+            //
         ];
     }
 }

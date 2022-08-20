@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id()->from(time());
             $table->unsignedBigInteger('company_id');
             $table->string('name');
-            $table->string('email');
-            $table->string('phone');
+            $table->string('email')->unique();
+            $table->string('phone')->unique();
             $table->softDeletes();
             $table->timestamps();
         });

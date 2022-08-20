@@ -2,11 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\CampaignLogStatus;
 use App\Enums\CampaignStatus;
+use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Models\Campaign;
 use App\Models\Company;
+use App\Models\Contact;
+use App\Notifications\Campaign as NotificationsCampaign;
+use App\Notifications\Sms;
+use App\Notifications\SocialPost;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CampaignController extends Controller
 {
@@ -44,20 +51,32 @@ class CampaignController extends Controller
      */
     public function store(StoreCampaignRequest $request, Company $company)
     {
+        // set company id
         $request['company_id'] = $company->id;
+
+        // set status
         $request['status'] = CampaignStatus::PUBLISHED();
 
         if ($request->scheduled_for) {
+            // validate scheduled_for
             $request->validate([
                 'scheduled_for' => 'date'
             ]);
+
+            // set status
             $request['status'] = CampaignStatus::SCHEDULED();
         }
 
-        if ($request->draft) {
+        if ($request->meta['draft']) {
+            // set status
             $request['status'] = CampaignStatus::DRAFT();
         }
 
+        // json encode meta data
+        $meta = $request->meta;
+        $request['meta'] = json_encode($meta);
+
+        // store campaign
         $campaign = Campaign::create($request->only([
             'company_id',
             'title',
@@ -67,6 +86,22 @@ class CampaignController extends Controller
             'meta',
             'status'
         ]));
+
+        // store and not send campaign if drafted or scheduled
+        if ($request->status->is(CampaignStatus::SCHEDULED() || CampaignStatus::DRAFT())) {
+            return $this->show($campaign, 'success', 201);
+        }
+
+        // set campaign data
+        $request['campaign'] = $campaign;
+        $request['meta'] = $meta;
+
+        // send campaign
+        match ($request->type) {
+            'email' => $this->email($request),
+            'sms' => $this->sms($request),
+            'social-post' => $this->socialPost($request),
+        };
 
         return $this->show($campaign, 'success', 201);
     }
@@ -79,7 +114,7 @@ class CampaignController extends Controller
      */
     public function show(Campaign $campaign, $message = 'success', $code = 200)
     {
-        $campaign->company;
+        $campaign->logs;
 
         return response()->json([
             'data' => $campaign,
@@ -115,5 +150,69 @@ class CampaignController extends Controller
         }
 
         return $this->show($campaign);
+    }
+
+    /**
+     *
+     * @param  \App\Http\Requests\StoreCampaignRequest  $request
+     */
+    public function email(StoreCampaignRequest $request)
+    {
+        $campaign = $request->all();
+
+        $request = new StoreCampaignLogRequest();
+        $request['campaign_id'] = $campaign['campaign']->id;
+        $request['sender_email'] = $campaign['meta']['from_email'];
+        $request['sender_name'] = $campaign['meta']['from_name'];
+
+        foreach ($campaign['contacts'] as $contact) {
+            try {
+                // find contact
+                if (!$recipient = Contact::where('email', $contact['email'])->first()) {
+                    throw new ModelNotFoundException('Contact not registered.');
+                };
+                $request['recipient_name'] = $recipient->name;
+                $request['recipient_email'] = $recipient->email;
+                $request['message'] = 'Email sent.';
+                $request['status'] = CampaignLogStatus::SENT();
+
+                // send email campaign
+                $campaign['campaign']->notify(new NotificationsCampaign($recipient));
+
+                // store campaign log
+                (new CampaignLogController())->store($request);
+            } catch (\Throwable $th) {
+                $request['recipient_name'] = $contact['name'];
+                $request['recipient_email'] = $contact['email'];
+                $request['message'] = $th->getMessage();
+                $request['status'] = CampaignLogStatus::FAILED();
+
+                // store campaign log
+                (new CampaignLogController())->store($request);
+                continue;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param  \App\Http\Requests\StoreCampaignRequest  $request
+     */
+    public function sms(StoreCampaignRequest $request)
+    {
+        foreach ($request->contacts as $contact) {
+            $contact->notify(new Sms($request));
+        }
+    }
+
+    /**
+     *
+     * @param  \App\Http\Requests\StoreCampaignRequest  $request
+     */
+    public function socialPost(StoreCampaignRequest $request)
+    {
+        foreach ($request->contacts as $contact) {
+            $contact->notify(new SocialPost($request));
+        }
     }
 }

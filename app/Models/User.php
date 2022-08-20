@@ -63,6 +63,21 @@ class User extends Authenticatable
         return $this->phone;
     }
 
+    /**
+     * Route notifications for the mail channel.
+     *
+     * @param  \Illuminate\Notifications\Notification  $notification
+     * @return array|string
+     */
+    public function routeNotificationForMail($notification)
+    {
+        // Return email address only...
+        return $this->email;
+
+        // Return email address and name...
+        return [$this->email => ($this->first_name . ' ' . $this->last_name)];
+    }
+
     public function referrals(): HasMany
     {
         return $this->hasMany(Referral::class, 'user_id');

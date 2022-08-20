@@ -25,8 +25,8 @@ class UpdateContactRequest extends FormRequest
     {
         return [
             'name' => 'string',
-            'email' => 'email',
-            'phone' => 'string',
+            'email' => 'email|unique:contacts,email,' . $this->contact->id,
+            'phone' => 'unique:contacts,phone,' . $this->contact->id,
         ];
     }
 }

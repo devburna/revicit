@@ -6,9 +6,8 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Notifications\Messages\VonageMessage;
 
-class VerifyPhone extends Notification
+class Campaign extends Notification
 {
     use Queueable;
 
@@ -30,21 +29,21 @@ class VerifyPhone extends Notification
      */
     public function via($notifiable)
     {
-        return ['vonage'];
+        return ['mail'];
     }
 
     /**
-     * Get the Vonage / SMS representation of the notification.
+     * Get the mail representation of the notification.
      *
      * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\VonageMessage
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toVonage($notifiable)
+    public function toMail($notifiable)
     {
-        return (new VonageMessage)
-            ->clientReference(config('app.name'))
-            ->content($notifiable->code . ' is your verification code. To keep your account safe, never forward this code.')
-            ->from(env('VONAGE_SMS_FROM'));
+        return (new MailMessage)
+                    ->line('The introduction to the notification.')
+                    ->action('Notification Action', url('/'))
+                    ->line('Thank you for using our application!');
     }
 
     /**

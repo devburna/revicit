@@ -154,6 +154,9 @@ Route::middleware('auth:sanctum')->group(function () {
         # campaigns
         Route::prefix('{campaign}')->group(function () {
 
+            # details
+            Route::get('', [\App\Http\Controllers\CampaignController::class, 'show'])->can('view', 'campaign');
+
             # update details
             Route::patch('', [\App\Http\Controllers\CampaignController::class, 'update'])->can('update', 'campaign');
 
