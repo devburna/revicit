@@ -47,6 +47,7 @@ class ContactController extends Controller
      */
     public function show(Contact $contact, $message = 'success', $code = 200)
     {
+        // and related company to data
         $contact->company;
 
         return response()->json([

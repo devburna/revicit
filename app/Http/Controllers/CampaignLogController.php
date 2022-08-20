@@ -15,17 +15,13 @@ class CampaignLogController extends Controller
      */
     public function index()
     {
-        //
-    }
+        $campaignLogs = CampaignLog::paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return response()->json([
+            'data' => $campaignLogs,
+            'message' => 'success',
+            'status' => true
+        ]);
     }
 
     /**
@@ -45,20 +41,16 @@ class CampaignLogController extends Controller
      * @param  \App\Models\CampaignLog  $campaignLog
      * @return \Illuminate\Http\Response
      */
-    public function show(CampaignLog $campaignLog)
+    public function show(CampaignLog $campaignLog, $message = 'success', $code = 200)
     {
-        //
-    }
+        // and related campaign to data
+        $campaignLog->logs;
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\CampaignLog  $campaignLog
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(CampaignLog $campaignLog)
-    {
-        //
+        return response()->json([
+            'data' => $campaignLog,
+            'message' => $message,
+            'status' => true
+        ], $code);
     }
 
     /**
@@ -70,7 +62,7 @@ class CampaignLogController extends Controller
      */
     public function update(UpdateCampaignLogRequest $request, CampaignLog $campaignLog)
     {
-        //
+        return $this->show($campaignLog);
     }
 
     /**
@@ -81,6 +73,12 @@ class CampaignLogController extends Controller
      */
     public function destroy(CampaignLog $campaignLog)
     {
-        //
+        if ($campaignLog->trashed()) {
+            $campaignLog->restore();
+        } else {
+            $campaignLog->delete();
+        }
+
+        return $this->show($campaignLog);
     }
 }

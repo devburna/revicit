@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\CampaignLogStatus;
 use App\Enums\CampaignStatus;
-use App\Enums\CampaignType;
+use App\Enums\SocialPlatforms;
 use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
@@ -13,6 +13,7 @@ use App\Models\Company;
 use App\Models\Contact;
 use App\Notifications\Contact as NotificationsContact;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use BenSampo\Enum\Rules\EnumValue;
 
 class CampaignController extends Controller
 {
@@ -114,6 +115,7 @@ class CampaignController extends Controller
      */
     public function show(Campaign $campaign, $message = 'success', $code = 200)
     {
+        // and related campaign logs to data
         $campaign->logs;
 
         return response()->json([
@@ -158,12 +160,14 @@ class CampaignController extends Controller
      */
     public function emailCampaign(StoreCampaignRequest $request)
     {
+        // validate email data
         $request->validate([
             'meta.subject' => 'required|string',
             'meta.from_email' => 'required|email',
             'meta.from_name' => 'required|string',
         ]);
 
+        // send email campaign
         $this->sendCampaign($request);
     }
 
@@ -173,17 +177,20 @@ class CampaignController extends Controller
      */
     public function smsCampaign(StoreCampaignRequest $request)
     {
+        // validate sms data
         $request->validate([
             'meta.content' => 'required|string',
             'meta.from_phone' => 'required|string',
             'meta.from_name' => 'required|string',
         ]);
 
+        // send sms campaign
         $this->sendCampaign($request);
     }
 
     public function emailSmsCampaign(StoreCampaignRequest $request)
     {
+        // validate email and sms data
         $request->validate([
             'meta.subject' => 'required|string',
             'meta.from_email' => 'required|email',
@@ -193,6 +200,7 @@ class CampaignController extends Controller
             'meta.from_name' => 'required|string',
         ]);
 
+        // send email and sms campaign
         $this->sendCampaign($request);
     }
 
@@ -202,8 +210,10 @@ class CampaignController extends Controller
      */
     public function sendCampaign(StoreCampaignRequest $request)
     {
+        // save campaign data
         $campaign_request = $request->all();
 
+        // new store campaign request
         $request = new StoreCampaignLogRequest();
         $request['campaign_id'] = $campaign_request['campaign']->id;
         $request['sender_name'] = $campaign_request['meta']['from_name'];
@@ -248,8 +258,14 @@ class CampaignController extends Controller
      */
     public function socialPost(StoreCampaignRequest $request)
     {
-        foreach ($request->contacts as $contact) {
-            //
-        }
+        // validate post data
+        $request->validate([
+            'meta.post.content' => 'required|string',
+            'meta.post.platforms' => ['required', new EnumValue(SocialPlatforms::class)],
+            'meta.post.media_urls' => 'required|array',
+        ]);
+
+        // post to social media using ayrshare api
+        (new AyrshareController())->post($request);
     }
 }

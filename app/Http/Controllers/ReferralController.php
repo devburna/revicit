@@ -14,8 +14,10 @@ class ReferralController extends Controller
      */
     public function index(Request $request)
     {
+        // and related referrals to data
         $referrals = $request->user()->referrals;
 
+        // get related referrals details and add to data
         foreach ($referrals as $referral) {
             $referral->details;
         }
