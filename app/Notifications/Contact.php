@@ -35,7 +35,7 @@ class Contact extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        if ($this->campaign->type->is(CampaignType::EMAIL_SMS())) {
+        if ($this->campaign->type->is(CampaignType::MAIL_SMS())) {
             return ['mail', 'vonage'];
         } else if ($this->campaign->type->is(CampaignType::SMS())) {
             return ['vonage'];
@@ -54,8 +54,8 @@ class Contact extends Notification implements ShouldQueue
     {
 
         return (new MailMessage)
-            ->from($this->meta["from_email"], $this->meta['from_name'])
-            ->subject($this->meta['subject'])
+            ->from($this->meta['from']['email'], $this->meta['from']['name'])
+            ->subject($this->meta['mail']['subject'])
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');
     }
@@ -69,9 +69,9 @@ class Contact extends Notification implements ShouldQueue
     public function toVonage($notifiable)
     {
         return (new VonageMessage)
-            ->clientReference($this->meta['from_name'])
-            ->content($this->meta['content'])
-            ->from($this->meta['from_phone']);
+            ->clientReference($this->meta['from']['name'])
+            ->content($this->meta['sms']['content'])
+            ->from($this->meta['from']['phone']);
     }
 
     /**

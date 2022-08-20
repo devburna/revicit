@@ -7,16 +7,16 @@ namespace App\Enums;
 use BenSampo\Enum\Enum;
 
 /**
- * @method static static EMAIL()
+ * @method static static MAIL()
  * @method static static SMS()
- * @method static static EMAIL_SMS()
- * @method static static SOCIAL_POST()
- * @method static static EMAIL_SMS()
+ * @method static static MAIL_SMS()
+ * @method static static SOCIAL_MEDIA()
+ * @method static static MAIL_SMS()
  */
 final class CampaignType extends Enum
 {
-    const EMAIL = 'email';
+    const MAIL = 'mail';
     const SMS = 'sms';
-    const EMAIL_SMS = 'email-sms';
-    const SOCIAL_POST = 'social-post';
+    const MAIL_SMS = 'mail-sms';
+    const SOCIAL_MEDIA = 'social-media';
 }

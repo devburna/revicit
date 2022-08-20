@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\CampaignLogStatus;
 use App\Enums\CampaignStatus;
-use App\Enums\SocialPlatforms;
 use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
@@ -13,7 +12,6 @@ use App\Models\Company;
 use App\Models\Contact;
 use App\Notifications\Contact as NotificationsContact;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use BenSampo\Enum\Rules\EnumValue;
 
 class CampaignController extends Controller
 {
@@ -33,51 +31,71 @@ class CampaignController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \App\Models\Company  $company
      * @param  \App\Http\Requests\StoreCampaignRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreCampaignRequest $request, Company $company)
+    public function create(StoreCampaignRequest $request, Company $company)
     {
         // set company id
         $request['company_id'] = $company->id;
 
         // set status
-        $request['status'] = CampaignStatus::PUBLISHED();
-
-        if ($request->scheduled_for) {
-            // validate scheduled_for
-            $request->validate([
-                'scheduled_for' => 'date|after:1 hour'
-            ]);
-
-            // set status
+        if ($request->has('scheduled_for')) {
             $request['status'] = CampaignStatus::SCHEDULED();
-        }
-
-        if ($request->meta['draft']) {
-            // set status
+        } else if ($request->draft) {
             $request['status'] = CampaignStatus::DRAFT();
+        } else {
+            $request['status'] = CampaignStatus::PUBLISHED();
         }
 
-        // json encode meta data
+        // set meta data
         $meta = $request->meta;
+
+        // json encode request meta data
         $request['meta'] = json_encode($meta);
 
         // store campaign
-        $campaign = Campaign::create($request->only([
+        $campaign = $this->store($request);
+
+        // don't send campaign if drafted or scheduled
+        if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
+            return $this->show($campaign, 'success', 201);
+        }
+
+        // set campaign data
+        $request['campaign'] = $campaign;
+
+        // set request meta data
+        $request['meta'] = $meta;
+
+        // send campaign
+        switch ($request->type) {
+            case 'social-media':
+                // send social media campaign via ayrshare.com
+                (new AyrshareController())->post($request->meta['social_media']);
+                break;
+
+            default:
+                // send email or sms campaign
+                $this->sendCampaign($request);
+                break;
+        }
+
+        // returns campaign details
+        return $this->show($campaign, 'success', 201);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \App\Http\Requests\StoreCampaignRequest  $request
+     */
+    public function store(StoreCampaignRequest $request)
+    {
+        return Campaign::create($request->only([
             'company_id',
             'title',
             'type',
@@ -86,25 +104,6 @@ class CampaignController extends Controller
             'meta',
             'status'
         ]));
-
-        // store and not send campaign if drafted or scheduled
-        if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
-            return $this->show($campaign, 'success', 201);
-        }
-
-        // set campaign data
-        $request['campaign'] = $campaign;
-        $request['meta'] = $meta;
-
-        // send campaign
-        match ($request->type) {
-            'email' => $this->emailCampaign($request),
-            'sms' => $this->smsCampaign($request),
-            'email-sms' => $this->emailSmsCampaign($request),
-            'social-post' => $this->socialPost($request),
-        };
-
-        return $this->show($campaign, 'success', 201);
     }
 
     /**
@@ -158,56 +157,6 @@ class CampaignController extends Controller
      *
      * @param  \App\Http\Requests\StoreCampaignRequest  $request
      */
-    public function emailCampaign(StoreCampaignRequest $request)
-    {
-        // validate email data
-        $request->validate([
-            'meta.subject' => 'required|string',
-            'meta.from_email' => 'required|email',
-            'meta.from_name' => 'required|string',
-        ]);
-
-        // send email campaign
-        $this->sendCampaign($request);
-    }
-
-    /**
-     *
-     * @param  \App\Http\Requests\StoreCampaignRequest  $request
-     */
-    public function smsCampaign(StoreCampaignRequest $request)
-    {
-        // validate sms data
-        $request->validate([
-            'meta.content' => 'required|string',
-            'meta.from_phone' => 'required|string',
-            'meta.from_name' => 'required|string',
-        ]);
-
-        // send sms campaign
-        $this->sendCampaign($request);
-    }
-
-    public function emailSmsCampaign(StoreCampaignRequest $request)
-    {
-        // validate email and sms data
-        $request->validate([
-            'meta.subject' => 'required|string',
-            'meta.from_email' => 'required|email',
-            'meta.from_name' => 'required|string',
-            'meta.content' => 'required|string',
-            'meta.from_phone' => 'required|string',
-            'meta.from_name' => 'required|string',
-        ]);
-
-        // send email and sms campaign
-        $this->sendCampaign($request);
-    }
-
-    /**
-     *
-     * @param  \App\Http\Requests\StoreCampaignRequest  $request
-     */
     public function sendCampaign(StoreCampaignRequest $request)
     {
         // save campaign data
@@ -216,9 +165,11 @@ class CampaignController extends Controller
         // new store campaign request
         $request = new StoreCampaignLogRequest();
         $request['campaign_id'] = $campaign_request['campaign']->id;
-        $request['sender_name'] = $campaign_request['meta']['from_name'];
-        $request['sender_email'] = $campaign_request['meta']['from_email'];
-        $request['sender_phone'] = $campaign_request['meta']['from_phone'];
+
+        // sender info
+        $request['sender_name'] = $campaign_request['meta']['from']['name'];
+        $request['sender_email'] = $campaign_request['meta']['from']['email'];
+        $request['sender_phone'] = $campaign_request['meta']['from']['phone'];
 
         foreach ($campaign_request['meta']['contacts'] as $contact) {
             try {
@@ -250,22 +201,5 @@ class CampaignController extends Controller
                 continue;
             }
         }
-    }
-
-    /**
-     *
-     * @param  \App\Http\Requests\StoreCampaignRequest  $request
-     */
-    public function socialPost(StoreCampaignRequest $request)
-    {
-        // validate post data
-        $request->validate([
-            'meta.post.content' => 'required|string',
-            'meta.post.platforms' => ['required', new EnumValue(SocialPlatforms::class)],
-            'meta.post.media_urls' => 'required|array',
-        ]);
-
-        // post to social media using ayrshare api
-        (new AyrshareController())->post($request);
     }
 }

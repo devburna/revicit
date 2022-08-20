@@ -100,7 +100,7 @@ Route::middleware('auth:sanctum')->group(function () {
             # campaigns
             Route::prefix('campaigns')->group(function () {
                 # create
-                Route::post('', [\App\Http\Controllers\CampaignController::class, 'store'])->can('view', 'company');
+                Route::post('', [\App\Http\Controllers\CampaignController::class, 'create'])->can('view', 'company');
 
                 # fetch
                 Route::get('', [\App\Http\Controllers\CampaignController::class, 'index'])->can('view', 'company');
