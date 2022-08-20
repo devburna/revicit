@@ -210,7 +210,7 @@ class CampaignController extends Controller
         $request['sender_email'] = $campaign_request['meta']['from_email'];
         $request['sender_phone'] = $campaign_request['meta']['from_phone'];
 
-        foreach ($campaign_request['contacts'] as $contact) {
+        foreach ($campaign_request['meta']['contacts'] as $contact) {
             try {
                 // find contact
                 if (!$recipient = Contact::where('email', $contact['email'])->orWhere('phone', $contact['phone'])->first()) {

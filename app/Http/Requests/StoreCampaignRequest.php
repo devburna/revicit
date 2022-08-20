@@ -26,7 +26,7 @@ class StoreCampaignRequest extends FormRequest
     public function rules()
     {
         return [
-            'contacts' => 'required|array',
+            'meta.contacts' => 'required|array',
             'title' => 'required|string',
             'type' => ['required', new EnumValue(CampaignType::class)],
             'template' => 'required|string',
