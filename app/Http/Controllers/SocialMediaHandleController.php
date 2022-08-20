@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSocialMediaHandleRequest;
 use App\Http\Requests\UpdateSocialMediaHandleRequest;
 use App\Models\SocialMediaHandle;
+use Illuminate\Http\Request;
 
 class SocialMediaHandleController extends Controller
 {
@@ -13,9 +14,15 @@ class SocialMediaHandleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $socialMediaHandles = SocialMediaHandle::where('company_id', $request->company_id)->paginate(20);
+
+        return response()->json([
+            'data' => $socialMediaHandles,
+            'message' => 'success',
+            'status' => true,
+        ]);
     }
 
     /**
@@ -68,17 +75,6 @@ class SocialMediaHandleController extends Controller
             'message' => $message,
             'status' => true
         ], $code);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\SocialMediaHandle  $socialMediaHandle
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(SocialMediaHandle $socialMediaHandle)
-    {
-        //
     }
 
     /**

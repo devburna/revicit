@@ -182,7 +182,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('social-media-handles')->group(function () {
 
         # create
-        Route::post('', [\App\Http\Controllers\SocialMediaHandleController::class, 'store']);
+        Route::post('', [\App\Http\Controllers\SocialMediaHandleController::class, 'create']);
 
         # fetch
         Route::get('', [\App\Http\Controllers\SocialMediaHandleController::class, 'index']);
