@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SocialMediaHandle extends Model
@@ -16,6 +17,7 @@ class SocialMediaHandle extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'company_id',
         'key',
         'token'
     ];
@@ -37,4 +39,9 @@ class SocialMediaHandle extends Model
     protected $casts = [
         //
     ];
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
+    }
 }

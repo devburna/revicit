@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request;
 
 class StoreSocialMediaHandleRequest extends FormRequest
 {
@@ -11,9 +13,10 @@ class StoreSocialMediaHandleRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(Request $request)
     {
-        return false;
+        $company = Company::find($request->company_id);
+        return $company && $this->user()->can('view', $company);
     }
 
     /**
@@ -24,7 +27,7 @@ class StoreSocialMediaHandleRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'company_id' => 'required|exists:companies,id',
         ];
     }
 }

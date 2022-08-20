@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Enums\CampaignLogStatus;
+use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 use BenSampo\Enum\Rules\EnumValue;
+use Illuminate\Http\Request;
 
 class StoreCampaignLogRequest extends FormRequest
 {
@@ -13,9 +15,10 @@ class StoreCampaignLogRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize()
+    public function authorize(Request $request)
     {
-        return true;
+        $company = Company::find($request->company_id);
+        return $company && $this->user()->can('view', $company);
     }
 
     /**
