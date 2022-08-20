@@ -172,15 +172,17 @@ class CampaignController extends Controller
         $request['sender_phone'] = $campaign_request['meta']['from']['phone'];
 
         foreach ($campaign_request['meta']['contacts'] as $contact) {
+            // recipient info
+            $request['recipient_name'] = $contact['name'];
+            $request['recipient_email'] = $contact['email'];
+            $request['recipient_phone'] = $contact['phone'];
+
             try {
                 // find contact
-                if (!$recipient = Contact::where('email', $contact['email'])->orWhere('phone', $contact['phone'])->first()) {
+                if (!$recipient = Contact::where('email', $request->recipient_email)->orWhere('phone', $request->recipient_phone)->first()) {
                     throw new ModelNotFoundException('Contact not registered.');
                 };
 
-                $request['recipient_name'] = $recipient->name;
-                $request['recipient_email'] = $recipient->email;
-                $request['recipient_phone'] = $recipient->phone;
                 $request['message'] = trans('campaign.sent');
                 $request['status'] = CampaignLogStatus::SENT();
 
@@ -189,15 +191,15 @@ class CampaignController extends Controller
 
                 // store campaign log
                 (new CampaignLogController())->store($request);
+
             } catch (\Throwable $th) {
-                $request['recipient_name'] = $contact['name'];
-                $request['recipient_email'] = $contact['email'];
-                $request['recipient_phone'] = $contact['phone'];
+
                 $request['message'] = $th->getMessage();
                 $request['status'] = CampaignLogStatus::FAILED();
 
                 // store campaign log
                 (new CampaignLogController())->store($request);
+
                 continue;
             }
         }

@@ -37,14 +37,19 @@ class StoreCampaignRequest extends FormRequest
             'meta.contacts' => 'required_unless:type,' . CampaignType::SOCIAL_MEDIA() . '|array',
 
             // mail campaign required meta data
-            'meta.from.name' => 'required_if:type,' . CampaignType::MAIL() . '|string',
-            'meta.from.email' => 'required_if:type,' . CampaignType::MAIL() . '|email',
-            'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL() . '|string',
+            'meta.from.name' => 'required_if:type,' . CampaignType::MAIL().'required_if:type,'. CampaignType::MAIL_SMS() . '|string',
+            'meta.from.email' => 'required_if:type,' . CampaignType::MAIL().'required_if:type,'. CampaignType::MAIL_SMS() . '|email',
+            'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL().'required_if:type,'. CampaignType::MAIL_SMS() . '|string',
 
             // sms campaign required meta data
             'meta.from.name' => 'required_if:type,' . CampaignType::SMS() . '|string',
             'meta.from.phone' => 'required_if:type,' . CampaignType::SMS() . '|string',
             'meta.sms.content' => 'required_if:type,' . CampaignType::SMS() . '|string',
+
+
+            // mail and sms campaign required meta data
+            'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL_SMS() . '|string',
+            'meta.sms.content' => 'required_if:type,' . CampaignType::MAIL_SMS() . '|string',
 
             // social media campaign required meta data
             'meta.social_media.content' => 'required_if:type,' . CampaignType::SMS() . '|string',
