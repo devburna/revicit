@@ -220,7 +220,7 @@ class CampaignController extends Controller
                 $request['recipient_name'] = $recipient->name;
                 $request['recipient_email'] = $recipient->email;
                 $request['recipient_phone'] = $recipient->phone;
-                $request['message'] = 'Campaign sent!';
+                $request['message'] = trans('campaign.sent');
                 $request['status'] = CampaignLogStatus::SENT();
 
                 // send campaign
