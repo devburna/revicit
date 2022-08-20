@@ -35,7 +35,13 @@ class Contact extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        return $this->campaign->type->is(CampaignType::SMS()) ? ['vonage'] : ['mail'];
+        if ($this->campaign->type->is(CampaignType::EMAIL_SMS())) {
+            return ['mail', 'vonage'];
+        } else if ($this->campaign->type->is(CampaignType::SMS())) {
+            return ['vonage'];
+        } else {
+            return ['mail'];
+        }
     }
 
     /**
