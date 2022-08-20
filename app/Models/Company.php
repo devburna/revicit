@@ -61,4 +61,9 @@ class Company extends Model
     {
         return $this->hasMany(Campaign::class, 'company_id');
     }
+
+    public function socialMediaHandles(): HasMany
+    {
+        return $this->hasMany(socialMedia::class, 'company_id');
+    }
 }

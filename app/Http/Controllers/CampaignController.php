@@ -75,7 +75,7 @@ class CampaignController extends Controller
         switch ($request->type) {
             case 'social-media':
                 // send social media campaign via ayrshare.com
-                return (new AyrshareController())->post($request->meta['social_media']);
+                $this->socialPost($request);
                 break;
 
             default:
@@ -211,7 +211,8 @@ class CampaignController extends Controller
     public function socialPost(StoreCampaignRequest $request)
     {
         foreach ($request->meta['social_media']['platforms'] as $platform) {
-            # code...
+            $request->meta['social_media']['platforms'] = $platform;
+            (new AyrshareController())->post($request);
         }
     }
 }
