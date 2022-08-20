@@ -11,8 +11,6 @@ use App\Models\Campaign;
 use App\Models\Company;
 use App\Models\Contact;
 use App\Notifications\Contact as NotificationsContact;
-use App\Notifications\Sms;
-use App\Notifications\SocialPost;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CampaignController extends Controller
@@ -26,7 +24,7 @@ class CampaignController extends Controller
     public function index(Company $company)
     {
         return response()->json([
-            'data' => $company->campaigns,
+            'data' => $company->campaigns->sortBy('created_at'),
             'message' => 'success',
             'status' => true,
         ]);
@@ -60,7 +58,7 @@ class CampaignController extends Controller
         if ($request->scheduled_for) {
             // validate scheduled_for
             $request->validate([
-                'scheduled_for' => 'date'
+                'scheduled_for' => 'date|after:1 hour'
             ]);
 
             // set status
@@ -88,7 +86,7 @@ class CampaignController extends Controller
         ]));
 
         // store and not send campaign if drafted or scheduled
-        if ($request->status->is(CampaignStatus::SCHEDULED() || CampaignStatus::DRAFT())) {
+        if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
             return $this->show($campaign, 'success', 201);
         }
 
@@ -98,8 +96,8 @@ class CampaignController extends Controller
 
         // send campaign
         match ($request->type) {
-            'email' => $this->email($request),
-            'sms' => $this->sms($request),
+            'email' => $this->emailOrSms($request),
+            'sms' => $this->emailOrSms($request),
             'social-post' => $this->socialPost($request),
         };
 
@@ -156,34 +154,55 @@ class CampaignController extends Controller
      *
      * @param  \App\Http\Requests\StoreCampaignRequest  $request
      */
-    public function email(StoreCampaignRequest $request)
+    public function emailOrSms(StoreCampaignRequest $request)
     {
-        $campaign = $request->all();
+
+        $campaign_request = $request->all();
+
+        switch ($campaign_request['type']) {
+            case 'sms':
+                // validate from phone
+                $request->validate([
+                    'meta.from_phone' => 'string',
+                ]);
+
+                $type = 'phone';
+                break;
+
+            default:
+                // validate from email
+                $request->validate([
+                    'meta.from_email' => 'email',
+                ]);
+
+                $type = 'email';
+                break;
+        }
 
         $request = new StoreCampaignLogRequest();
-        $request['campaign_id'] = $campaign['campaign']->id;
-        $request['sender_email'] = $campaign['meta']['from_email'];
-        $request['sender_name'] = $campaign['meta']['from_name'];
+        $request['campaign_id'] = $campaign_request['campaign']->id;
+        $request['sender_' . $type] = $campaign_request['meta']['from_' . $type];
+        $request['sender_name'] = $campaign_request['meta']['from_name'];
 
-        foreach ($campaign['contacts'] as $contact) {
+        foreach ($campaign_request['contacts'] as $contact) {
             try {
                 // find contact
-                if (!$recipient = Contact::where('email', $contact['email'])->first()) {
+                if (!$recipient = Contact::where($type, $contact[$type])->first()) {
                     throw new ModelNotFoundException('Contact not registered.');
                 };
                 $request['recipient_name'] = $recipient->name;
-                $request['recipient_email'] = $recipient->email;
-                $request['message'] = 'Email sent.';
+                $request['recipient_' . $type] = $recipient->email;
+                $request['message'] = 'Campaign sent!';
                 $request['status'] = CampaignLogStatus::SENT();
 
                 // send email campaign
-                $recipient->notify(new NotificationsContact($campaign['campaign']));
+                $recipient->notify(new NotificationsContact($campaign_request['campaign']));
 
                 // store campaign log
                 (new CampaignLogController())->store($request);
             } catch (\Throwable $th) {
                 $request['recipient_name'] = $contact['name'];
-                $request['recipient_email'] = $contact['email'];
+                $request['recipient_' . $type] = $contact[$type];
                 $request['message'] = $th->getMessage();
                 $request['status'] = CampaignLogStatus::FAILED();
 
@@ -191,17 +210,6 @@ class CampaignController extends Controller
                 (new CampaignLogController())->store($request);
                 continue;
             }
-        }
-    }
-
-    /**
-     *
-     * @param  \App\Http\Requests\StoreCampaignRequest  $request
-     */
-    public function sms(StoreCampaignRequest $request)
-    {
-        foreach ($request->contacts as $contact) {
-            //
         }
     }
 

@@ -17,5 +17,4 @@ final class CampaignType extends Enum
     const EMAIL = 'email';
     const SMS = 'sms';
     const SOCIAL_POST = 'social-post';
-    const EMAIL_SMS = 'email-sms';
 }
