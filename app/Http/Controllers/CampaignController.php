@@ -11,6 +11,7 @@ use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
 use App\Models\Company;
 use App\Models\Contact;
+use App\Models\SocialMediaPlatform;
 use App\Notifications\Contact as NotificationsContact;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -210,9 +211,17 @@ class CampaignController extends Controller
      */
     public function socialPost(StoreCampaignRequest $request)
     {
+
         foreach ($request->meta['social_media']['platforms'] as $platform) {
-            $request->meta['social_media']['platforms'] = $platform;
-            (new AyrshareController())->post($request);
+            $platform = SocialMediaPlatform::find(1661162116)->slug;
+
+            $data = [];
+            $data['platform'] = $platform;
+            $data['content'] = $request->meta['social_media']['content'];
+            $data['video_urls'] = $request->meta['social_media']['video_urls'];
+            $data['image_urls'] = $request->meta['social_media']['image_urls'];
+
+            (new AyrshareController())->post($data);
         }
     }
 }

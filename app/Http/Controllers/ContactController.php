@@ -34,9 +34,8 @@ class ContactController extends Controller
      * @param  \App\Http\Requests\StoreContactRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreContactRequest $request, Company $company)
+    public function store(StoreContactRequest $request)
     {
-        $request['company_id'] = $company->id;
         $contact = Contact::create($request->only(['company_id', 'name', 'email', 'phone']));
 
         return $this->show($contact, 'success', 201);
