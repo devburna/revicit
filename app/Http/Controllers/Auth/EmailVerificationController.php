@@ -31,7 +31,9 @@ class EmailVerificationController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
+            'data' => $request->user(),
             'message' => trans('auth.email_success'),
+            'status' => true
         ]);
     }
 
