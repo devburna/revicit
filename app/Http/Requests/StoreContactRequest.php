@@ -15,8 +15,12 @@ class StoreContactRequest extends FormRequest
      */
     public function authorize(Request $request)
     {
-        $company = Company::find($request->company_id);
-        return $company && $this->user()->can('view', $company);
+        if ($this->user()) {
+            $company = Company::find($request->company_id);
+            return $company && $this->user()->can('view', $company);
+        }
+
+        return true;
     }
 
     /**

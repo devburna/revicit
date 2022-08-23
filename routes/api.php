@@ -201,3 +201,13 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 });
+
+
+Route::prefix('company/{company}')->group(function () {
+
+    # details
+    Route::get('', [\App\Http\Controllers\CompanyController::class, 'show']);
+
+    # add contact
+    Route::post('', [\App\Http\Controllers\ContactController::class, 'store']);
+});

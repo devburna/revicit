@@ -62,6 +62,8 @@ class CompanyController extends Controller
         // and related company to data
         $company->owner;
 
+        $company->qr_code_data = url("/company/{$company->id}");
+
         return response()->json([
             'data' => $company,
             'message' => $message,
