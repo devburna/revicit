@@ -15,9 +15,9 @@ return new class extends Migration
     {
         Schema::create('social_media_handles', function (Blueprint $table) {
             $table->id()->from(time());
-            $table->unsignedBigInteger('company_id');
+            $table->unsignedBigInteger('company_id')->unique();
             $table->string('key')->unique();
-            $table->string('token')->unique();
+            $table->longText('token')->unique();
             $table->softDeletes();
             $table->timestamps();
         });
