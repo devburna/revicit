@@ -6,6 +6,7 @@ use App\Http\Requests\StoreAyrshareProfileRequest;
 use App\Http\Requests\StoreWebHookRequest;
 use App\Http\Requests\UpdateAyrshareProfileRequest;
 use App\Models\AyrshareProfile;
+use App\Notifications\SocialNetwork;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -127,15 +128,15 @@ class AyrshareProfileController extends Controller
         $storeWebHookRequest['origin'] = 'ayrshare';
 
         try {
-            // find profile
-            $profile = AyrshareProfile::where('reference', $request->refId)->firstOrFail();
+            // find social network
+            $socialNetwork = AyrshareProfile::where('reference', $request->refId)->firstOrFail();
 
             // link account
             match ($request->type) {
-                'link' => $profile->update([
+                'link' => $socialNetwork->update([
                     strtolower($request->platform) => true
                 ]),
-                default =>  $profile->update([
+                default =>  $socialNetwork->update([
                     strtolower($request->platform) => false
                 ]),
             };
@@ -154,5 +155,8 @@ class AyrshareProfileController extends Controller
 
             (new WebHookController())->store(new StoreWebHookRequest($storeWebHookRequest));
         }
+
+        // notify company
+        $socialNetwork->company->notify(new SocialNetwork($request->all()));
     }
 }
