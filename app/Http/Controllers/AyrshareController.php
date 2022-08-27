@@ -27,7 +27,7 @@ class AyrshareController extends Controller
                 'post' => $data['post'],
                 'platforms' => array($data['platform']),
                 'mediaUrls' => $data['media_urls'],
-                'profileKeys' => array($data['profile_key'])
+                'profileKeys' => array($data['profile'])
             ])->json();
 
             // catch error

@@ -48,14 +48,6 @@ class CampaignController extends Controller
         try {
             return DB::transaction(function () use ($request) {
 
-                // add service to request
-                $request['service'] = ServiceBasket::where('category', $request->type)->orWhere('code', $request->meta['social_network']['platform'])->firstOrFail();
-
-                // check if company can fund campaign
-                if ($request->company->wallet->current_balance <= $request->service->price) {
-                    throw ValidationException::withMessages(['Insufficient fund, please fund your wallet and try again.']);
-                }
-
                 // set status
                 if ($request->has('scheduled_for')) {
                     $request['status'] = CampaignStatus::SCHEDULED();
@@ -65,29 +57,28 @@ class CampaignController extends Controller
                     $request['status'] = CampaignStatus::PUBLISHED();
                 }
 
-                // json encode meta data
-                $meta = $request->meta;
-                $request['meta'] = json_encode($request->all());
-
                 // upload media files if type social network
-                if ($request->type === 'social-network') {
+                if ($request->type === "social-network") {
+
+                    // add service to request
+                    $request['service'] = ServiceBasket::where('code', $request->meta['social_network']['platform'])->firstOrFail();
 
                     $mediaUrls = [];
 
-                    // checks if user has profile key
+                    // checks if user has profile
                     if (!$request->company->socialNetwork) {
                         throw ValidationException::withMessages(['No social network has been linked to this account.']);
                     }
 
-                    // set profile key
-                    $request['profile_key'] = $request->company->socialNetwork->identity;
+                    // set profile
+                    $request->meta['social_network']['profile'] = $request->company->socialNetwork->identity;
 
                     // check if platform is connected
-                    if (!$request->company->socialNetwork["{$meta['social_network']['platform']}"]) {
-                        throw ValidationException::withMessages(["Please connect your {$meta['social_network']['platform']} account to use this feature."]);
+                    if (!$request->company->socialNetwork["{$request->meta['social_network']['platform']}"]) {
+                        throw ValidationException::withMessages(["Please connect your {$request->meta['social_network']['platform']} account to use this feature."]);
                     }
 
-                    foreach ($meta['social_network']['medias'] as $media) {
+                    foreach ($request->meta['social_network']['medias'] as $media) {
                         // upload media
                         $upload = (new CloudinaryController())->upload(time(), $media, 'campaigns');
 
@@ -96,6 +87,15 @@ class CampaignController extends Controller
 
                     // add media urls to request
                     $request['media_urls'] = $mediaUrls;
+                } else {
+
+                    // add service to request
+                    $request['service'] = ServiceBasket::where('category', $request->type)->firstOrFail();
+                }
+
+                // check if company can fund campaign
+                if ($request->company->wallet->current_balance <= $request->service->price) {
+                    throw ValidationException::withMessages(['Insufficient fund, please fund your wallet and try again.']);
                 }
 
                 // set sender data
@@ -104,6 +104,7 @@ class CampaignController extends Controller
                 $request['sender_phone'] = $request->company->phone;
 
                 // store campaign
+                $request['meta'] = json_encode($request->all());
                 $campaign = $this->store($request);
 
                 // don't send campaign if drafted or scheduled
@@ -111,12 +112,12 @@ class CampaignController extends Controller
                     return $this->show($campaign, 'success', 201);
                 }
 
+                // set meta data
+                $request['meta'] = json_decode($request->meta);
+
                 // set campaign data
                 $request['campaign'] = $campaign;
                 $request['campaign_id'] = $campaign->id;
-
-                // set meta data
-                $request['meta'] = $meta;
 
                 // send campaign
                 match ($request->type) {
@@ -126,16 +127,7 @@ class CampaignController extends Controller
                     default => throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!'])
                 };
 
-                // update cmpaign meta data
-                $campaign->update([
-                    'meta' => json_encode($request->all())
-                ]);
-
-                return response()->json([
-                    'data' => $campaign,
-                    'message' => 'success',
-                    'status' => true,
-                ]);
+                return $this->show($campaign, 'success', 201);
             });
         } catch (\Throwable $th) {
             return response()->json([
@@ -295,6 +287,7 @@ class CampaignController extends Controller
             $request['post'] = $request->meta['social_network']['post'];
             $request['platform'] = $request->meta['social_network']['platform'];
             $request['media_urls'] = $mediaUrls;
+            $request['profile'] = $request->meta['social_network']['profile'];
 
             $response = (new AyrshareController())->post($request->all());
 

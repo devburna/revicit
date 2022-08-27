@@ -18,12 +18,17 @@ class CloudinaryController extends Controller
         }
 
         try {
-            return (new UploadApi())->upload($media, [
+            $response = (new UploadApi())->upload($media, [
                 'folder' => config('app.name') . "/{$path}/",
                 'public_id' => $id,
                 'overwrite' => true,
                 'resource_type' => explode('/', $type)[0]
             ]);
+
+            return [
+                'secure_url' => $response['secure_url'],
+                'resource_type' => $response['resource_type'],
+            ];
         } catch (\Throwable $th) {
             throw ValidationException::withMessages([$th->getMessage()]);
         }
