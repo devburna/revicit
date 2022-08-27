@@ -18,18 +18,19 @@ class CompanyOwner
     public function handle(Request $request, Closure $next)
     {
         // verify request header
-        if (!$request->hasHeader('x-app-key')) {
-            abort(400);
+        if (!$request->hasHeader('x-api-key')) {
+            abort(400, 'Bad request');
         };
 
         // find and check verify company policy
-        $company = Company::find($request->hasHeader('x-app-key'));
+        $company = Company::find($request->header('x-api-key'));
         if (!$company || !$request->user()->is($company->user)) {
-            abort(403, 'This action is aunthorized.');
+            abort(403, 'This action is aunthorized');
         }
 
         // add company data to request
         $request['company'] = $company;
+        $request['company_id'] = $company->id;
 
         return $next($request);
     }

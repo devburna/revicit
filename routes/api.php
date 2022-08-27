@@ -91,7 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [\App\Http\Controllers\CompanyController::class, 'index']);
 
         # company
-        Route::prefix('{company}')->middleware(['companyOwner'])->group(function () {
+        Route::prefix('{company}')->group(function () {
 
             # details
             Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company');
@@ -108,13 +108,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     # contacts
-    Route::prefix('contacts')->middleware(['companyOwner'])->group(function () {
+    Route::prefix('contacts')->group(function () {
 
         # create
-        Route::post('', [\App\Http\Controllers\ContactController::class, 'store']);
+        Route::post('', [\App\Http\Controllers\ContactController::class, 'store'])->middleware(['companyOwner']);
 
         # fetch
-        Route::get('', [\App\Http\Controllers\ContactController::class, 'index']);
+        Route::get('', [\App\Http\Controllers\ContactController::class, 'index'])->middleware(['companyOwner']);
 
         # contact
         Route::prefix('{contact}')->group(function () {
@@ -134,13 +134,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     # campaigns
-    Route::prefix('campaigns')->middleware(['companyOwner'])->group(function () {
+    Route::prefix('campaigns')->group(function () {
 
         # create
-        Route::post('', [\App\Http\Controllers\CampaignController::class, 'create']);
+        Route::post('', [\App\Http\Controllers\CampaignController::class, 'create'])->middleware(['companyOwner']);
 
         # fetch
-        Route::get('', [\App\Http\Controllers\CampaignController::class, 'index']);
+        Route::get('', [\App\Http\Controllers\CampaignController::class, 'index'])->middleware(['companyOwner']);
 
         # campaign
         Route::prefix('{campaign}')->group(function () {
@@ -157,13 +157,13 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     # social networks
-    Route::prefix('social-networks')->middleware(['companyOwner'])->group(function () {
+    Route::prefix('social-networks')->group(function () {
 
         # create
-        Route::post('', [\App\Http\Controllers\AyrshareProfileController::class, 'create']);
+        Route::post('', [\App\Http\Controllers\AyrshareProfileController::class, 'create'])->middleware(['companyOwner']);
 
         # details
-        Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'index']);
+        Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'index'])->middleware(['companyOwner']);
 
         # social network
         Route::prefix('{ayrshareProfile}')->group(function () {
