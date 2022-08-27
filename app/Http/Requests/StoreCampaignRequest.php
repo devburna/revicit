@@ -4,7 +4,6 @@ namespace App\Http\Requests;
 
 use App\Enums\CampaignType;
 use Illuminate\Foundation\Http\FormRequest;
-use BenSampo\Enum\Rules\EnumValue;
 
 class StoreCampaignRequest extends FormRequest
 {
@@ -28,17 +27,24 @@ class StoreCampaignRequest extends FormRequest
         return [
             // global required data
             'title' => 'required|string',
-            'type' => ['required', new EnumValue(CampaignType::class)],
+            'type' => ['required', 'exists:service_baskets,category'],
             'scheduled_for' => 'date|after:1 hour',
             'draft' => 'required|boolean',
 
             // mail and sms required meta data
-            'meta.contacts' => 'required_if:type,' . CampaignType::MAIL() . 'required_if:type,' . CampaignType::SMS() . '|array|max:50',
+            'meta.contacts' => 'required_if:type,' . CampaignType::MAIL() . 'required_if:type,' . CampaignType::SMS() . '|array',
             'meta.contacts.*' => 'required|exists:contacts,id',
 
             // mail campaign required meta data
             'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL() . '|string|max:50',
             'meta.mail.template' => 'required_if:type,' . CampaignType::MAIL(),
+
+            // sms campaign required meta data
+            'meta.sms.content' => 'required_if:type,' . CampaignType::SMS() . '|string|max:255',
+
+            // mail and sms required meta data
+            'meta.social_network.platforms' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
+            'meta.social_network.platforms.*' => 'required|exists:service_baskets,category',
         ];
     }
 
@@ -50,9 +56,12 @@ class StoreCampaignRequest extends FormRequest
     public function messages()
     {
         return [
-            'meta.mail.subject.required_if' => 'The subject is required.',
-            'meta.mail.template.required_if' => 'The subject is required.',
-            'meta.contacts.*.exists' => "This contact is'nt registered."
+            'meta.type.exists' => 'We currently do not offer this service at the moment.',
+            'meta.mail.subject.required_if' => 'The mail subject is required.',
+            'meta.mail.template.required_if' => 'The mail template is required.',
+            'meta.contacts.*.exists' => "This contact is'nt registered.",
+            'meta.sms.content.required_if' => 'The sms content is required.',
+            'meta.social_network.platforms.*.exists' => 'We currently do not offer this service at the moment, kindly contact support for additional information.',
         ];
     }
 }

@@ -77,7 +77,7 @@ class CampaignController extends Controller
 
                 // send campaign
                 match ($campaign->type) {
-                    'social-network' => $this->socialPost($request),
+                    'social-network' => $this->socialNetwork($request),
                     default => $this->sendCampaign($request)
                 };
 
@@ -201,7 +201,30 @@ class CampaignController extends Controller
      *
      * @param  \App\Http\Requests\StoreCampaignRequest  $request
      */
-    public function socialPost(StoreCampaignRequest $request)
+    public function socialNetwork(StoreCampaignRequest $request)
     {
+        foreach ($request['meta']['social_network'] as $contact) {
+            try {
+                // send campaign
+                $recipient->notify(new NotificationsContact($request->all()));
+
+                $request['meta'] = json_encode($request->campaign);
+                $request['message'] = 'Delivered';
+                $request['status'] = CampaignLogStatus::SENT();
+
+                // store campaign log
+                (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
+            } catch (\Throwable $th) {
+
+                $request['meta'] = json_encode($th);
+                $request['message'] = $th->getMessage();
+                $request['status'] = CampaignLogStatus::FAILED();
+
+                // store campaign log
+                (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
+
+                continue;
+            }
+        }
     }
 }
