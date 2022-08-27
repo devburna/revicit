@@ -59,10 +59,9 @@ class CampaignController extends Controller
                 $request['meta'] = json_encode($request->all());
 
                 // upload media files if type social network
-
-                // add medial urls to request
-                $mediaUrls = [];
                 if ($request->type === 'social-network') {
+                    $mediaUrls = [];
+
                     // checks if user has profile key
                     if (!$request->company->socialNetwork) {
                         throw ValidationException::withMessages(['No social network has been linked to this account.']);
@@ -77,9 +76,10 @@ class CampaignController extends Controller
 
                         array_push($mediaUrls, $upload);
                     }
-                }
 
-                $request['mediaUrls'] = $mediaUrls;
+                    // add media urls to request
+                    $request['mediaUrls'] = $mediaUrls;
+                }
 
                 // store campaign
                 $campaign = $this->store($request);
@@ -100,7 +100,7 @@ class CampaignController extends Controller
 
                 // set meta data
                 $request['meta'] = $meta;
-                
+
                 // send campaign
                 match ($campaign->type) {
                     'social-network' => $this->socialNetwork($request),
