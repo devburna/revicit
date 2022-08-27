@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
-use App\Models\Company;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
@@ -18,8 +17,15 @@ class PaymentController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->company;
-        // return $this->show($profile);
+        $payments = $request->company->wallet
+        ->payments()->orderByDesc('created_at')->paginate(20);
+
+        return response()->json([
+            'data' => $payments,
+            'message' => 'success',
+            'status' => true,
+        ]);
+        return $this->show($request->company->socialNetwork);
     }
 
     /**
@@ -30,11 +36,16 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
+        // generate payment link
+        $request['amount'] = $request -
+            $link = (new FlutterwaveController())->paymentLink($request->all());
 
         return response()->json([
             'status' => true,
-            'data' => '',
-            'message' => 'success'
+            'data' => [
+                'link' => $link['data']['link']
+            ],
+            'message' => 'Use the link to complete your payment'
         ]);
     }
 
@@ -46,7 +57,16 @@ class PaymentController extends Controller
      */
     public function store(StorePaymentRequest $request)
     {
-        //
+        return Payment::create($request->only([
+            'company_wallet_id',
+            'identity',
+            'amount',
+            'currency',
+            'narration',
+            'type',
+            'status',
+            'meta'
+        ]));
     }
 
     /**

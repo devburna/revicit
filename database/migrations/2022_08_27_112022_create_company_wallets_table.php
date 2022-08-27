@@ -13,16 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('payments', function (Blueprint $table) {
+        Schema::create('company_wallets', function (Blueprint $table) {
             $table->id()->from(time());
-            $table->unsignedBigInteger('company_wallet_id');
-            $table->string('identity')->unique();
-            $table->decimal('amount', 15, 2);
-            $table->string('currency');
-            $table->string('narration');
-            $table->string('type');
-            $table->string('status');
-            $table->longText('meta');
+            $table->unsignedBigInteger('company_id')->unique();
+            $table->decimal('current_balance', 15, 2);
+            $table->decimal('previous_balance', 15, 2);
             $table->softDeletes();
             $table->timestamps();
         });
@@ -35,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payments');
+        Schema::dropIfExists('company_wallets');
     }
 };

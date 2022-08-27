@@ -201,6 +201,29 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('', [\App\Http\Controllers\ServiceBasketController::class, 'destroy'])->withTrashed();
         });
     });
+
+    # payments
+    Route::prefix('payments')->group(function () {
+
+        # create
+        Route::post('', [\App\Http\Controllers\PaymentController::class, 'create'])->middleware(['companyOwner']);
+
+        # all
+        Route::get('', [\App\Http\Controllers\PaymentController::class, 'index'])->middleware(['companyOwner']);
+
+        # social network
+        Route::prefix('{payment}')->group(function () {
+
+            # details
+            Route::get('', [\App\Http\Controllers\PaymentController::class, 'show'])->can('view', 'payment');
+
+            # update details
+            Route::patch('', [\App\Http\Controllers\PaymentController::class, 'update'])->can('update', 'payment');
+
+            # toggle
+            Route::delete('', [\App\Http\Controllers\PaymentController::class, 'destroy'])->can('destroy', 'payment');
+        });
+    });
 });
 
 

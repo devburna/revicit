@@ -19,7 +19,6 @@ class AyrshareProfileController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->company;
         return $this->show($request->company->socialNetwork);
     }
 

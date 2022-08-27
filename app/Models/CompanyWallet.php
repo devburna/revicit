@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Payment extends Model
+class CompanyWallet extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -17,14 +16,10 @@ class Payment extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'company_wallet_id',
-        'identity',
-        'amount',
-        'currency',
-        'narration',
-        'type',
-        'status',
-        'meta'
+        'company_id',
+        'current_balance',
+        'previous_balance',
+        'currency'
     ];
 
     /**
@@ -33,7 +28,7 @@ class Payment extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'company_wallet_id'
+        'company_id',
     ];
 
     /**
@@ -44,11 +39,4 @@ class Payment extends Model
     protected $casts = [
         //
     ];
-
-    protected function meta(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value, $attributes) => json_decode($value),
-        );
-    }
 }
