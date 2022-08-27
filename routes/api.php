@@ -62,13 +62,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('user')->group(function () {
 
         # profile
-        Route::get('', [\App\Http\Controllers\Auth\UserController::class, 'index']);
+        Route::get('', [\App\Http\Controllers\UserController::class, 'index']);
 
         # update user
-        Route::patch('', [\App\Http\Controllers\Auth\UserController::class, 'update']);
+        Route::patch('', [\App\Http\Controllers\UserController::class, 'update']);
 
         # update avatar
-        Route::post('', [\App\Http\Controllers\Auth\UserController::class, 'avatar']);
+        Route::post('', [\App\Http\Controllers\UserController::class, 'avatar']);
     });
 
     # logout - logout current token

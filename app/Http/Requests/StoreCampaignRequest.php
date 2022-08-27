@@ -42,9 +42,12 @@ class StoreCampaignRequest extends FormRequest
             // sms campaign required meta data
             'meta.sms.content' => 'required_if:type,' . CampaignType::SMS() . '|string|max:255',
 
-            // mail and sms required meta data
+            // social network required meta data
+            'meta.social_network.post' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|string|max:50',
             'meta.social_network.platforms' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
             'meta.social_network.platforms.*' => 'required|distinct|exists:service_baskets,code',
+            'meta.social_network.medias' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
+            'meta.social_network.medias.*' => 'required',
         ];
     }
 

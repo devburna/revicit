@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Enums\CampaignLogStatus;
 use App\Enums\CampaignStatus;
+use App\Enums\CampaignType;
 use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
 use App\Models\Contact;
+use App\Models\ServiceBasket;
 use App\Notifications\Contact as NotificationsContact;
 use Illuminate\Support\Facades\DB;
 
@@ -54,6 +56,24 @@ class CampaignController extends Controller
                 // json encode meta data
                 $meta = $request->meta;
                 $request['meta'] = json_encode($request->all());
+
+                // upload media files if type social network
+                if ($request->type === 'social-network') {
+
+                    // add medial urls to request
+                    $request['mediaUrls'] = [];
+
+                    foreach ($meta['social_network']['medias'] as $media) {
+
+                        // upload media
+                        $upload = (new CloudinaryController())->upload(time(), $media, 'campaigns', 'image');
+
+                        // update media urls data
+                        array_push($upload, $request->mediaUrls);
+                    }
+
+                    return $request->mediaUrls;
+                }
 
                 // store campaign
                 $campaign = $this->store($request);
@@ -167,29 +187,28 @@ class CampaignController extends Controller
     public function sendCampaign(StoreCampaignRequest $request)
     {
         foreach ($request['meta']['contacts'] as $contact) {
+
             // get contact info
-            $recipient = Contact::find($contact);
+            $recipient = Contact::findOrFail($contact);
             $request['recipient_name'] = $recipient->name;
             $request['recipient_email'] = $recipient->email;
             $request['recipient_phone'] = $recipient->phone;
 
             try {
                 // send campaign
-                $recipient->notify(new NotificationsContact($request->all()));
-
-                $request['meta'] = json_encode($request->campaign);
-                $request['message'] = 'Delivered';
-                $request['status'] = CampaignLogStatus::SENT();
+                $response = $recipient->notify(new NotificationsContact($request->all()));
 
                 // store campaign log
+                $request['meta'] = json_encode($response);
+                $request['message'] = 'Delivered';
+                $request['status'] = CampaignLogStatus::SENT();
                 (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
             } catch (\Throwable $th) {
 
+                // store campaign log
                 $request['meta'] = json_encode($th);
                 $request['message'] = $th->getMessage();
                 $request['status'] = CampaignLogStatus::FAILED();
-
-                // store campaign log
                 (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
 
                 continue;
@@ -203,16 +222,22 @@ class CampaignController extends Controller
      */
     public function socialNetwork(StoreCampaignRequest $request)
     {
-        foreach ($request['meta']['social_network'] as $contact) {
+        foreach ($request['meta']['social_network']['platforms'] as $platform) {
             try {
-                // send campaign
-                $recipient->notify(new NotificationsContact($request->all()));
 
-                $request['meta'] = json_encode($request->campaign);
-                $request['message'] = 'Delivered';
-                $request['status'] = CampaignLogStatus::SENT();
+                // get service info
+                $service = ServiceBasket::where('code', strtolower($platform))->firstOrFail();
+
+                // add platform to request data
+                $request['platform'] = array($platform);
+
+                // send campaign
+                $response = (new AyrshareController())->post($request['meta']['social_network']['post'], $platform, $request->mediaUrls);
 
                 // store campaign log
+                $request['meta'] = json_encode($response);
+                $request['message'] = 'Delivered';
+                $request['status'] = CampaignLogStatus::SENT();
                 (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
             } catch (\Throwable $th) {
 

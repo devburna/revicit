@@ -10,29 +10,28 @@ use Illuminate\Validation\ValidationException;
 class AyrshareController extends Controller
 {
 
+    public $ayrshareUrl, $ayrshareKey;
+
+    public function __construct()
+    {
+        $this->ayrshareUrl = env('AYRSHARE_URL');
+        $this->ayrshareKey = env('AYRSHARE_KEY');
+    }
+
     /**
      *
-     * @param  $post  $array
+     * @param  $data  $array
      */
-    public function post($post)
+    public function post($post, $platform, $media)
     {
         try {
-            // $images_videos_only = ['facebook', 'instgram', 'linkedin', 'telegram', 'GMB', 'pinterest', 'twitter'];
-            $videos_only = ['youtube', 'tiktok', 'linkedin', 'telegram', 'GMB', 'pinterest', 'twitter'];
-
-            if (in_array($post['platform'], $videos_only)) {
-                $media_urls = $post['video_urls'];
-            } else {
-                $media_urls = array_merge($post['image_urls'], $post['video_urls']);
-            }
-
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => "Bearer " . env('AYRSHARE_KEY')
-            ])->post(env('AYRSHARE_URL') . '/post', [
-                'post' => $post['content'],
-                'platforms' => array($post['platform']),
-                'mediaUrls' => $media_urls,
+                'Authorization' => "Bearer {$this->ayrshareKey}"
+            ])->post("{$this->ayrshareUrl}/post", [
+                'post' => $post,
+                'platforms' => $platform,
+                'mediaUrls' => $media,
             ])->json();
 
             // catch error
@@ -51,8 +50,8 @@ class AyrshareController extends Controller
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => "Bearer " . env('AYRSHARE_KEY')
-            ])->post(env('AYRSHARE_URL') . '/profiles/profile', [
+                'Authorization' => "Bearer {$this->ayrshareKey}"
+            ])->post("{$this->ayrshareUrl}/profiles/profile", [
                 'title' => $title,
             ])->json();
 
@@ -72,8 +71,8 @@ class AyrshareController extends Controller
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-                'Authorization' => "Bearer " . env('AYRSHARE_KEY')
-            ])->post(env('AYRSHARE_URL') . '/profiles/generateJWT', [
+                'Authorization' => "Bearer {$this->ayrshareKey}"
+            ])->post("{$this->ayrshareUrl}/profiles/generateJWT", [
                 'privateKey' => env('AYRSHARE_PRIVATE_KEY'),
                 'domain' => env('AYRSHARE_DOMAIN_ID'),
                 'profileKey' => $key,
