@@ -24,10 +24,7 @@ class StoreAyrshareProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'company_id' => 'required|unique:ayrshare_profiles,company_id',
-            'identity' => 'required|unique:ayrshare_profiles,identity',
-            'key' => 'required|unique:ayrshare_profiles,key',
-            'token' => 'required|unique:ayrshare_profiles,token',
+            'company_id' => 'required|unique:ayrshare_profiles,company_id'
         ];
     }
 }

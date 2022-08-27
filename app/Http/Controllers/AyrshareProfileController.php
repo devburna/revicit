@@ -6,7 +6,6 @@ use App\Http\Requests\StoreAyrshareProfileRequest;
 use App\Http\Requests\UpdateAyrshareProfileRequest;
 use App\Models\AyrshareProfile;
 use App\Models\Company;
-use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class AyrshareProfileController extends Controller
@@ -28,13 +27,10 @@ class AyrshareProfileController extends Controller
             // create profile key
             $key = (new AyrshareController())->createProfile($company->name);
 
-            // create profile token with key
-            $token = (new AyrshareController())->generateToken($key['profileKey']);
-
             // store profile
             $request['company_id'] = $company->id;
             $request['key'] = $key['profileKey'];
-            $request['token'] = $token['token'];
+            $request['meta'] = json_encode($key);
             $ayrshareProfile = $this->store($request);
 
             return $this->show($ayrshareProfile);
@@ -57,7 +53,7 @@ class AyrshareProfileController extends Controller
         return AyrshareProfile::create($request->only([
             'company_id',
             'key',
-            'token',
+            'meta',
         ]));
     }
 
@@ -67,7 +63,7 @@ class AyrshareProfileController extends Controller
      * @param  \App\Models\AyrshareProfile  $ayrshareProfile
      * @return \Illuminate\Http\Response
      */
-    public function show(AyrshareProfile $ayrshareProfile, $message = 'Click on the link to connect social network', $code = 200)
+    public function show(AyrshareProfile $ayrshareProfile, $message = 'Click on the link to connect social network.', $code = 200)
     {
         return response()->json([
             'status' => true,

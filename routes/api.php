@@ -94,16 +94,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('{company}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company')->can('view', 'ayrshareProfile');
+            Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company')->can('view', 'ayrshareProfile');
+            Route::patch('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company');
 
             # update logo
-            Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'company')->can('view', 'ayrshareProfile');
+            Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'company');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'company')->can('view', 'ayrshareProfile');
+            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'company');
         });
     });
 
@@ -120,16 +120,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('{contact}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\ContactController::class, 'show'])->can('view', 'contact')->can('view', 'ayrshareProfile');
+            Route::get('', [\App\Http\Controllers\ContactController::class, 'show'])->can('view', 'contact');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\ContactController::class, 'update'])->can('update', 'contact')->can('view', 'ayrshareProfile');
+            Route::patch('', [\App\Http\Controllers\ContactController::class, 'update'])->can('update', 'contact');
 
             # update logo
-            Route::post('', [\App\Http\Controllers\ContactController::class, 'logo'])->can('update', 'contact')->can('view', 'ayrshareProfile');
+            Route::post('', [\App\Http\Controllers\ContactController::class, 'logo'])->can('update', 'contact');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\ContactController::class, 'destroy'])->can('delete', 'contact')->can('view', 'ayrshareProfile');
+            Route::delete('', [\App\Http\Controllers\ContactController::class, 'destroy'])->can('delete', 'contact');
         });
     });
 
