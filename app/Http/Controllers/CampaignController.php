@@ -98,6 +98,11 @@ class CampaignController extends Controller
                     $request['media_urls'] = $mediaUrls;
                 }
 
+                // set sender data
+                $request['sender_name'] = $request->company->name;
+                $request['sender_email'] = $request->company->email;
+                $request['sender_phone'] = $request->company->phone;
+
                 // store campaign
                 $campaign = $this->store($request);
 
@@ -110,11 +115,6 @@ class CampaignController extends Controller
                 $request['campaign'] = $campaign;
                 $request['campaign_id'] = $campaign->id;
 
-                // set sender data
-                $request['sender_name'] = $request->company->name;
-                $request['sender_email'] = $request->company->email;
-                $request['sender_phone'] = $request->company->phone;
-
                 // set meta data
                 $request['meta'] = $meta;
 
@@ -125,6 +125,11 @@ class CampaignController extends Controller
                     'sms' => $this->sendCampaign($request),
                     default => throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!'])
                 };
+
+                // update cmpaign meta data
+                $campaign->update([
+                    'meta' => json_encode($request->all())
+                ]);
 
                 return response()->json([
                     'data' => $campaign,
@@ -185,6 +190,9 @@ class CampaignController extends Controller
      */
     public function update(UpdateCampaignRequest $request, Campaign $campaign)
     {
+        // publish
+        if ($refund) {
+        }
         return $this->show($campaign, 'success', 200);
     }
 
