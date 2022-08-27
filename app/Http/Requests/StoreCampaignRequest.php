@@ -44,7 +44,7 @@ class StoreCampaignRequest extends FormRequest
 
             // mail and sms required meta data
             'meta.social_network.platforms' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
-            'meta.social_network.platforms.*' => 'required|distinct|exists:service_baskets,category',
+            'meta.social_network.platforms.*' => 'required|distinct|exists:service_baskets,code',
         ];
     }
 
