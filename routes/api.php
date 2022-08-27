@@ -235,3 +235,6 @@ Route::prefix('company/{company}')->group(function () {
     # add contact
     Route::post('', [\App\Http\Controllers\ContactController::class, 'store']);
 });
+
+// flutterwave webhook
+Route::post('flutterwave', [\App\Http\Controllers\FlutterwaveController::class, 'webHook']);

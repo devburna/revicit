@@ -2,15 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CompanyWallet extends Model
+class WebHook extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -18,10 +16,10 @@ class CompanyWallet extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'company_id',
-        'current_balance',
-        'previous_balance',
-        'currency'
+        'origin',
+        'status',
+        'data',
+        'message'
     ];
 
     /**
@@ -30,7 +28,7 @@ class CompanyWallet extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'company_id',
+        //
     ];
 
     /**
@@ -39,16 +37,13 @@ class CompanyWallet extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        //
+        'status' => 'boolean'
     ];
 
-    public function company(): BelongsTo
+    protected function data(): Attribute
     {
-        return $this->belongsTo(Company::class);
-    }
-
-    public function payments(): HasMany
-    {
-        return $this->hasMany(Payment::class);
+        return Attribute::make(
+            get: fn ($value, $attributes) => json_decode($value),
+        );
     }
 }
