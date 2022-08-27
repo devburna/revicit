@@ -30,6 +30,9 @@ class CompanyWalletController extends Controller
      */
     public function show(Request $request)
     {
+        // add currency to wallet details
+        $request->company->wallet->currency = 'NGN';
+
         return response()->json([
             'status' => true,
             'data' => $request->company->wallet,
