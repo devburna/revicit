@@ -14,6 +14,7 @@ use App\Models\Contact;
 use App\Models\ServiceBasket;
 use App\Notifications\Contact as NotificationsContact;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class CampaignController extends Controller
 {
@@ -58,22 +59,27 @@ class CampaignController extends Controller
                 $request['meta'] = json_encode($request->all());
 
                 // upload media files if type social network
+
+                // add medial urls to request
+                $mediaUrls = [];
                 if ($request->type === 'social-network') {
-
-                    // add medial urls to request
-                    $request['mediaUrls'] = [];
-
-                    foreach ($meta['social_network']['medias'] as $media) {
-
-                        // upload media
-                        $upload = (new CloudinaryController())->upload(time(), $media, 'campaigns', 'image');
-
-                        // update media urls data
-                        array_push($upload, $request->mediaUrls);
+                    // checks if user has profile key
+                    if (!$request->company->socialNetwork) {
+                        throw ValidationException::withMessages(['No social network has been linked to this account.']);
                     }
 
-                    return $request->mediaUrls;
+                    // set profile key
+                    $request['profile'] = $request->company->socialNetwork->identity;
+
+                    foreach ($meta['social_network']['medias'] as $media) {
+                        // upload media
+                        $upload = (new CloudinaryController())->upload(time(), $media, 'campaigns');
+
+                        array_push($mediaUrls, $upload);
+                    }
                 }
+
+                $request['mediaUrls'] = $mediaUrls;
 
                 // store campaign
                 $campaign = $this->store($request);
@@ -94,7 +100,7 @@ class CampaignController extends Controller
 
                 // set meta data
                 $request['meta'] = $meta;
-
+                
                 // send campaign
                 match ($campaign->type) {
                     'social-network' => $this->socialNetwork($request),
@@ -222,17 +228,47 @@ class CampaignController extends Controller
      */
     public function socialNetwork(StoreCampaignRequest $request)
     {
+        // sort media urls
+        $images = [];
+        $videos = [];
+
+        foreach ($request->mediaUrls as $media) {
+            if ($media['resource_type'] === 'image') {
+                array($images, $media['url']);
+            }
+
+            if ($media['resource_type'] === 'video') {
+                array($videos, $media['url']);
+            }
+        }
+
+        // set receipient data
+        $request['recipient_name'] = $request->company->name;
+        $request['recipient_email'] = $request->company->email;
+        $request['recipient_phone'] = $request->company->phone;
+
         foreach ($request['meta']['social_network']['platforms'] as $platform) {
             try {
+                $videoImages = ['telegram', 'instagram', 'linkedin', 'twitter'];
+                $videosOnly = ['youtube', 'tiktok'];
 
                 // get service info
                 $service = ServiceBasket::where('code', strtolower($platform))->firstOrFail();
+
+                // set mediaUrls
+                if (in_array($platform, $videoImages)) {
+                    $mediaUrl = array_merge($images, $videos);
+                }
+
+                if (in_array($platform, $videosOnly)) {
+                    $mediaUrl = $videos;
+                }
 
                 // add platform to request data
                 $request['platform'] = array($platform);
 
                 // send campaign
-                $response = (new AyrshareController())->post($request['meta']['social_network']['post'], $platform, $request->mediaUrls);
+                $response = (new AyrshareController())->userPost($request->profile, $request['meta']['social_network']['post'], $platform, $mediaUrl);
 
                 // store campaign log
                 $request['meta'] = json_encode($response);

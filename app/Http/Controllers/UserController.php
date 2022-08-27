@@ -78,12 +78,7 @@ class UserController extends Controller
     public function avatar(ImageUploadRequest $request)
     {
         // upload to cloudinary
-        $request['avatar'] = (new UploadApi())->upload($request->image->path(), [
-            'folder' => config('app.name') . '/users/',
-            'public_id' => $request->user()->id,
-            'overwrite' => true,
-            'resource_type' => 'image'
-        ])['secure_url'];
+        $request['avatar'] = (new CloudinaryController())->upload(time(), $request->image, 'campaigns')['secure_url'];
 
         $request->user()->update($request->only(['avatar']));
 

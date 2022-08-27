@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
@@ -18,25 +16,22 @@ class AyrshareController extends Controller
         $this->ayrshareKey = env('AYRSHARE_KEY');
     }
 
-    /**
-     *
-     * @param  $data  $array
-     */
-    public function post($post, $platform, $media)
+    public function post($data)
     {
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => "Bearer {$this->ayrshareKey}"
             ])->post("{$this->ayrshareUrl}/post", [
-                'post' => $post,
-                'platforms' => $platform,
-                'mediaUrls' => $media,
+                'post' => $data['post'],
+                'platforms' => array($data['platform']),
+                'mediaUrls' => $data['media_urls'],
+                'profileKeys' => array($data['key'])
             ])->json();
 
             // catch error
             if ($response['status'] === 'error') {
-                throw ValidationException::withMessages([$response['message']]);
+                throw ValidationException::withMessages(['Error occured, kindly contact support for more information']);
             }
 
             return $response;
