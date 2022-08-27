@@ -29,34 +29,30 @@ class StoreCampaignRequest extends FormRequest
             // global required data
             'title' => 'required|string',
             'type' => ['required', new EnumValue(CampaignType::class)],
-            'template' => 'required_unless:type,' . CampaignType::SOCIAL_MEDIA() . '|string',
             'scheduled_for' => 'date|after:1 hour',
             'draft' => 'required|boolean',
-            'meta.contacts' => 'required_unless:type,' . CampaignType::SOCIAL_MEDIA() . '|array',
+
+            // mail and sms required meta data
+            'meta.contacts' => 'required_if:type,' . CampaignType::MAIL() . 'required_if:type,' . CampaignType::SMS() . '|array|max:50',
+            'meta.contacts.*' => 'required|exists:contacts,id',
 
             // mail campaign required meta data
-            'meta.from.name' => 'required_if:type,' . CampaignType::MAIL() . '|required_if:type,' . CampaignType::MAIL_SMS() . '|string',
-            'meta.from.email' => 'required_if:type,' . CampaignType::MAIL() . '|required_if:type,' . CampaignType::MAIL_SMS() . '|email',
-            'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL() . '|required_if:type,' . CampaignType::MAIL_SMS() . '|string',
+            'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL() . '|string|max:50',
+            'meta.mail.template' => 'required_if:type,' . CampaignType::MAIL(),
+        ];
+    }
 
-            // sms campaign required meta data
-            'meta.from.name' => 'required_if:type,' . CampaignType::SMS() . '|string',
-            'meta.from.phone' => 'required_if:type,' . CampaignType::SMS() . '|string',
-            'meta.sms.content' => 'required_if:type,' . CampaignType::SMS() . '|string',
-
-
-            // mail and sms campaign required meta data
-            'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL_SMS() . '|string',
-            'meta.sms.content' => 'required_if:type,' . CampaignType::MAIL_SMS() . '|string',
-
-            // social media campaign required meta data
-            'meta.social_media.content' => 'required_if:type,' . CampaignType::SMS() . '|string',
-            'meta.social_media.platforms' => 'required_if:type,' . CampaignType::SOCIAL_MEDIA(), '|array',
-            'meta.social_media.platforms.*' => ['required_if:type,' . CampaignType::SOCIAL_MEDIA(), '|exists:social_media_platforms,id'],
-            'meta.social_media.video_urls' => 'required_if:type,' . CampaignType::SOCIAL_MEDIA() . '|array',
-            'meta.social_media.video_urls.*' => 'required_if:type,' . CampaignType::SOCIAL_MEDIA() . '|url',
-            'meta.social_media.image_urls' => 'required_if:type,' . CampaignType::SOCIAL_MEDIA() . '|array',
-            'meta.social_media.image_urls.*' => 'required_if:type,' . CampaignType::SOCIAL_MEDIA() . '|url'
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'meta.mail.subject.required_if' => 'The subject is required.',
+            'meta.mail.template.required_if' => 'The subject is required.',
+            'meta.contacts.*.exists' => "This contact is'nt registered."
         ];
     }
 }

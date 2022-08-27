@@ -24,7 +24,7 @@ class Contact extends Notification implements ShouldQueue
     public function __construct(Campaign $campaign)
     {
         $this->campaign = $campaign;
-        $this->meta = json_decode($this->campaign->meta, true);
+        $this->meta = json_decode($this->campaign->meta);
     }
 
     /**
@@ -35,13 +35,7 @@ class Contact extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        if ($this->campaign->type->is(CampaignType::MAIL_SMS())) {
-            return ['mail', 'vonage'];
-        } else if ($this->campaign->type->is(CampaignType::SMS())) {
-            return ['vonage'];
-        } else {
-            return ['mail'];
-        }
+        $this->campaign->type->is(CampaignType::SMS()) ? ['vonage'] : ['mail'];
     }
 
     /**
@@ -52,12 +46,10 @@ class Contact extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-
         return (new MailMessage)
-            ->from($this->meta['from']['email'], $this->meta['from']['name'])
+            ->from($this->campaign->sender_email, $this->campaign->sender_name)
             ->subject($this->meta['mail']['subject'])
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->line($this->meta['mail']['template']);
     }
 
     /**
@@ -69,9 +61,8 @@ class Contact extends Notification implements ShouldQueue
     public function toVonage($notifiable)
     {
         return (new VonageMessage)
-            ->clientReference($this->meta['from']['name'])
-            ->content($this->meta['sms']['content'])
-            ->from($this->meta['from']['phone']);
+            ->clientReference($this->campaign->sender_name)
+            ->content($this->meta['sms']['content']);
     }
 
     /**
