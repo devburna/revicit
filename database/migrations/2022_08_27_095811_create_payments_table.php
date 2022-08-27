@@ -13,16 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('companies', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->id()->from(time());
-            $table->unsignedBigInteger('user_id');
-            $table->string('name');
-            $table->string('address');
-            $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->string('website')->nullable();
-            $table->longText('description')->nullable();
-            $table->string('logo_url')->nullable();
+            $table->unsignedBigInteger('company_wallet_id')->unique();
+            $table->string('identity')->unique();
+            $table->decimal('amount', 15, 2);
+            $table->string('currency');
+            $table->string('narration');
+            $table->string('status');
+            $table->longText('meta');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -35,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('companies');
+        Schema::dropIfExists('payments');
     }
 };

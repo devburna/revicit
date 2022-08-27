@@ -24,7 +24,7 @@ class UpdateAyrshareProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            'company_id' => 'required|unique:ayrshare_profiles,company_id,' . $this->ayrshareProfile->id
+            //
         ];
     }
 }

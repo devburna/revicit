@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAyrshareProfileRequest extends FormRequest
+class StorePaymentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,7 @@ class StoreAyrshareProfileRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'amount' => 'required|min:5000'
         ];
     }
 }

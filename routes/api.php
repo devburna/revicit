@@ -91,7 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [\App\Http\Controllers\CompanyController::class, 'index']);
 
         # company
-        Route::prefix('{company}')->group(function () {
+        Route::prefix('{company}')->middleware(['companyOwner'])->group(function () {
 
             # details
             Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company');
@@ -108,7 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     # contacts
-    Route::prefix('contacts')->group(function () {
+    Route::prefix('contacts')->middleware(['companyOwner'])->group(function () {
 
         # create
         Route::post('', [\App\Http\Controllers\ContactController::class, 'store']);
@@ -134,7 +134,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     # campaigns
-    Route::prefix('campaigns')->group(function () {
+    Route::prefix('campaigns')->middleware(['companyOwner'])->group(function () {
 
         # create
         Route::post('', [\App\Http\Controllers\CampaignController::class, 'create']);
@@ -157,7 +157,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     # social networks
-    Route::prefix('social-networks')->group(function () {
+    Route::prefix('social-networks')->middleware(['companyOwner'])->group(function () {
 
         # create
         Route::post('', [\App\Http\Controllers\AyrshareProfileController::class, 'create']);

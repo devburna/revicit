@@ -19,15 +19,8 @@ class AyrshareProfileController extends Controller
      */
     public function index(Request $request)
     {
-        // get profile
-        $profile = AyrshareProfile::where('company_id', $request->company_id)->firstOrfail();
-
-        // check policy
-        if (!$request->user()->is($profile->company->user)) {
-            abort(403, 'This action is unauthorized.');
-        }
-
-        return $this->show($profile);
+        return $request->company;
+        return $this->show($request->company->socialNetwork);
     }
 
     /**

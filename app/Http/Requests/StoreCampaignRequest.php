@@ -3,10 +3,8 @@
 namespace App\Http\Requests;
 
 use App\Enums\CampaignType;
-use App\Models\Company;
 use Illuminate\Foundation\Http\FormRequest;
 use BenSampo\Enum\Rules\EnumValue;
-use Illuminate\Http\Request;
 
 class StoreCampaignRequest extends FormRequest
 {
@@ -15,10 +13,9 @@ class StoreCampaignRequest extends FormRequest
      *
      * @return bool
      */
-    public function authorize(Request $request)
+    public function authorize()
     {
-        $company = Company::find($request->company_id);
-        return $company && $this->user()->can('view', $company);
+        return true;
     }
 
     /**
@@ -30,7 +27,6 @@ class StoreCampaignRequest extends FormRequest
     {
         return [
             // global required data
-            'company_id' => 'required|exists:companies,id',
             'title' => 'required|string',
             'type' => ['required', new EnumValue(CampaignType::class)],
             'template' => 'required_unless:type,' . CampaignType::SOCIAL_MEDIA() . '|string',
