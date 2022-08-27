@@ -19,7 +19,6 @@ return new class extends Migration
             $table->string('code')->unique();
             $table->longText('description');
             $table->string('category');
-            $table->string('network');
             $table->decimal('price', 15, 2)->default(0);
             $table->decimal('price_capped_at', 15, 2)->default(0);
             $table->string('currency');

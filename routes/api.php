@@ -192,13 +192,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('{serviceBasket}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'show'])->can('view', 'serviceBasket');
+            Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'show'])->withTrashed();
 
             # update details
-            Route::patch('', [\App\Http\Controllers\ServiceBasketController::class, 'update'])->can('update', 'serviceBasket');
+            Route::patch('', [\App\Http\Controllers\ServiceBasketController::class, 'update']);
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\ServiceBasketController::class, 'destroy'])->can('destroy', 'serviceBasket');
+            Route::delete('', [\App\Http\Controllers\ServiceBasketController::class, 'destroy'])->withTrashed();
         });
     });
 });

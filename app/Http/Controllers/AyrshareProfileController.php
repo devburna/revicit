@@ -84,7 +84,7 @@ class AyrshareProfileController extends Controller
      * @param  \App\Models\AyrshareProfile  $ayrshareProfile
      * @return \Illuminate\Http\Response
      */
-    public function show(AyrshareProfile $ayrshareProfile, $message = 'Click on the link to connect social network.', $code = 200)
+    public function show(AyrshareProfile $ayrshareProfile, $message = 'Click on the link to connect social network', $code = 200)
     {
         // generate profile jwt token
         $token = (new AyrshareController())->generateToken($ayrshareProfile->identity);

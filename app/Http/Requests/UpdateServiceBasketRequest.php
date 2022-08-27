@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\CampaignType;
 use Illuminate\Foundation\Http\FormRequest;
+use BenSampo\Enum\Rules\EnumValue;
 
 class UpdateServiceBasketRequest extends FormRequest
 {
@@ -13,7 +15,7 @@ class UpdateServiceBasketRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +26,13 @@ class UpdateServiceBasketRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'name' => 'string|max:50',
+            'description' => 'string|max:500',
+            'category' => ['required', new EnumValue(CampaignType::class)],
+            'price' => 'numeric',
+            'currency' => 'in:ngn,usd',
+            'price_capped_at' => 'numeric',
+            'meta.network' => 'string|max:50|in:ayrshare,vonage,zoho',
         ];
     }
 }

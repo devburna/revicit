@@ -16,7 +16,7 @@ class ServiceBasketController extends Controller
      */
     public function index()
     {
-        $serviceBaskets = ServiceBasket::orderByDesc('name')->paginate(50);
+        $serviceBaskets = ServiceBasket::withTrashed()->orderByDesc('name')->paginate(50);
 
         return response()->json([
             'data' => $serviceBaskets,
@@ -41,6 +41,9 @@ class ServiceBasketController extends Controller
             'code' => 'required|unique:service_baskets,code'
         ]);
 
+        // set network
+        $request['network'] = $request->meta['network'];
+
         // encode meta data
         $request['meta'] = json_encode($request->meta);
 
@@ -49,13 +52,13 @@ class ServiceBasketController extends Controller
             'code',
             'description',
             'category',
-            'network',
             'price',
             'price_capped_at',
+            'currency',
             'meta'
         ]));
 
-        return $this->store($serviceBasket);
+        return $this->show($serviceBasket, 'success', 201);
     }
 
     /**
@@ -64,20 +67,13 @@ class ServiceBasketController extends Controller
      * @param  \App\Models\ServiceBasket  $serviceBasket
      * @return \Illuminate\Http\Response
      */
-    public function show(ServiceBasket $serviceBasket)
+    public function show(ServiceBasket $serviceBasket, $message = 'success', $code = 200)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\ServiceBasket  $serviceBasket
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(ServiceBasket $serviceBasket)
-    {
-        //
+        return response()->json([
+            'status' => true,
+            'data' => $serviceBasket,
+            'message' => $message
+        ], $code);
     }
 
     /**
@@ -89,7 +85,36 @@ class ServiceBasketController extends Controller
      */
     public function update(UpdateServiceBasketRequest $request, ServiceBasket $serviceBasket)
     {
-        //
+        // update code
+        if ($request->has('name')) {
+            $request['code'] = (new SlugNormalizer())->normalize($request->name);
+
+            // validate code
+            $request->validate([
+                'code' => 'unique:service_baskets,code,' . $serviceBasket->id
+            ]);
+        }
+
+        // update meta
+        if ($request->has('meta')) {
+
+            // encode meta data
+            $request['meta'] = json_encode($request->meta);
+        }
+
+        // update
+        $serviceBasket->update($request->only([
+            'name',
+            'code',
+            'description',
+            'category',
+            'price',
+            'price_capped_at',
+            'currency',
+            'meta'
+        ]));
+
+        return $this->show($serviceBasket);
     }
 
     /**
@@ -100,6 +125,12 @@ class ServiceBasketController extends Controller
      */
     public function destroy(ServiceBasket $serviceBasket)
     {
-        //
+        if ($serviceBasket->trashed()) {
+            $serviceBasket->restore();
+        } else {
+            $serviceBasket->delete();
+        }
+
+        return $this->show($serviceBasket);
     }
 }

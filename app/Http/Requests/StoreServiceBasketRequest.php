@@ -32,7 +32,7 @@ class StoreServiceBasketRequest extends FormRequest
             'price' => 'required|numeric',
             'currency' => 'required|in:ngn,usd',
             'price_capped_at' => 'required|numeric',
-            'meta.network' => 'required|string|max:50',
+            'meta.network' => 'required|string|max:50|in:ayrshare,vonage,zoho',
         ];
     }
 }
