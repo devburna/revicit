@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreAyrshareProfileRequest;
 use App\Http\Requests\UpdateAyrshareProfileRequest;
 use App\Models\AyrshareProfile;
-use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -42,6 +41,7 @@ class AyrshareProfileController extends Controller
 
             // store profile
             $request['identity'] = $key['profileKey'];
+            $request['reference'] = $key['refId'];
             $request['meta'] = json_encode($key);
             $ayrshareProfile = $this->store($request);
 
@@ -65,6 +65,7 @@ class AyrshareProfileController extends Controller
         return AyrshareProfile::create($request->only([
             'company_id',
             'identity',
+            'reference',
             'meta',
         ]));
     }
@@ -116,5 +117,25 @@ class AyrshareProfileController extends Controller
         }
 
         return $this->show($ayrshareProfile);
+    }
+
+    public function webHook(Request $request)
+    {
+        // find profile
+        $profile = AyrshareProfile::where('reference', $request->refId)->first();
+
+        // link account
+        if ($profile && $request->action === 'social' && $request->type === 'link') {
+            $profile->update([
+                strtolower($request->platform) => true
+            ]);
+        }
+
+        // unlink account
+        if ($profile && $request->action === 'social' && $request->type === 'unlink' || $request->type === 'refresh') {
+            $profile->update([
+                strtolower($request->platform) => false
+            ]);
+        }
     }
 }

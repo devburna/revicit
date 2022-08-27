@@ -20,6 +20,18 @@ class AyrshareProfile extends Model
     protected $fillable = [
         'company_id',
         'identity',
+        'reference',
+        'facebook',
+        'fbg',
+        'gmb',
+        'instagram',
+        'linkedin',
+        'pinterest',
+        'reddit',
+        'telegram',
+        'tiktok',
+        'twitter',
+        'youtube',
         'meta'
     ];
 
@@ -29,8 +41,14 @@ class AyrshareProfile extends Model
      * @var array<int, string>
      */
     protected $hidden = [
+        'id',
         'company_id',
-        'meta'
+        'identity',
+        'reference',
+        'meta',
+        'deleted_at',
+        'updated_at',
+        'created_at'
     ];
 
     /**

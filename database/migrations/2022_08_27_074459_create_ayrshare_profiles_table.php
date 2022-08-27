@@ -17,6 +17,18 @@ return new class extends Migration
             $table->id()->from(time());
             $table->unsignedBigInteger('company_id')->unique();
             $table->string('identity')->unique();
+            $table->string('reference')->unique();
+            $table->boolean('facebook')->default(false);
+            $table->boolean('fbg')->default(false);
+            $table->boolean('gmb')->default(false);
+            $table->boolean('instagram')->default(false);
+            $table->boolean('linkedin')->default(false);
+            $table->boolean('pinterest')->default(false);
+            $table->boolean('reddit')->default(false);
+            $table->boolean('telegram')->default(false);
+            $table->boolean('tiktok')->default(false);
+            $table->boolean('twitter')->default(false);
+            $table->boolean('youtube')->default(false);
             $table->longText('meta');
             $table->softDeletes();
             $table->timestamps();
