@@ -33,7 +33,7 @@ class StoreCampaignRequest extends FormRequest
 
             // mail and sms required meta data
             'meta.contacts' => 'required_if:type,' . CampaignType::MAIL() . 'required_if:type,' . CampaignType::SMS() . '|array',
-            'meta.contacts.*' => 'required|exists:contacts,id',
+            'meta.contacts.*' => 'required|distinct|exists:contacts,id',
 
             // mail campaign required meta data
             'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL() . '|string|max:50',
@@ -44,7 +44,7 @@ class StoreCampaignRequest extends FormRequest
 
             // mail and sms required meta data
             'meta.social_network.platforms' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
-            'meta.social_network.platforms.*' => 'required|exists:service_baskets,category',
+            'meta.social_network.platforms.*' => 'required|distinct|exists:service_baskets,category',
         ];
     }
 
@@ -60,8 +60,10 @@ class StoreCampaignRequest extends FormRequest
             'meta.mail.subject.required_if' => 'The mail subject is required.',
             'meta.mail.template.required_if' => 'The mail template is required.',
             'meta.contacts.*.exists' => "This contact is'nt registered.",
+            'meta.contacts.*.distinct' => 'Contacts has a duplicate value.',
             'meta.sms.content.required_if' => 'The sms content is required.',
             'meta.social_network.platforms.*.exists' => 'We currently do not offer this service at the moment, kindly contact support for additional information.',
+            'meta.social_network.platforms.*.distinct' => 'Social network platforms has a duplicate value.',
         ];
     }
 }
