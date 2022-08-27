@@ -24,7 +24,6 @@ class Campaign extends Model
         'company_id',
         'title',
         'type',
-        'template',
         'scheduled_for',
         'meta',
         'status',

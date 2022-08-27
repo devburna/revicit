@@ -11,6 +11,7 @@ use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
 use App\Models\Contact;
 use App\Notifications\Contact as NotificationsContact;
+use Illuminate\Support\Facades\DB;
 
 class CampaignController extends Controller
 {
@@ -39,46 +40,53 @@ class CampaignController extends Controller
     public function create(StoreCampaignRequest $request)
     {
         try {
-            // set status
-            if ($request->has('scheduled_for')) {
-                $request['status'] = CampaignStatus::SCHEDULED();
-            } else if ($request->draft) {
-                $request['status'] = CampaignStatus::DRAFT();
-            } else {
-                $request['status'] = CampaignStatus::PUBLISHED();
-            }
+            return DB::transaction(function () use ($request) {
 
-            // json encode meta data
-            $request['meta'] = json_encode($request->all());
+                // set status
+                if ($request->has('scheduled_for')) {
+                    $request['status'] = CampaignStatus::SCHEDULED();
+                } else if ($request->draft) {
+                    $request['status'] = CampaignStatus::DRAFT();
+                } else {
+                    $request['status'] = CampaignStatus::PUBLISHED();
+                }
 
-            // store campaign
-            $campaign = $this->store($request);
+                // json encode meta data
+                $meta = $request->meta;
+                $request['meta'] = json_encode($request->all());
 
-            // don't send campaign if drafted or scheduled
-            if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
-                return $this->show($campaign, 'success', 201);
-            }
+                // store campaign
+                $campaign = $this->store($request);
 
-            // set campaign data
-            $request['campaign'] = $campaign;
-            $request['campaign_id'] = $campaign->id;
+                // don't send campaign if drafted or scheduled
+                if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
+                    return $this->show($campaign, 'success', 201);
+                }
 
-            // set sender data
-            $request['sender_name'] = $request->company->name;
-            $request['sender_email'] = $request->company->email;
-            $request['sender_phone'] = $request->company->phone;
+                // set campaign data
+                $request['campaign'] = $campaign;
+                $request['campaign_id'] = $campaign->id;
 
-            // send campaign
-            match ($request->type) {
-                'social-network' => $this->socialPost($request),
-                default => $this->sendCampaign($request)
-            };
+                // set sender data
+                $request['sender_name'] = $request->company->name;
+                $request['sender_email'] = $request->company->email;
+                $request['sender_phone'] = $request->company->phone;
 
-            return response()->json([
-                'data' => $campaign,
-                'message' => 'success',
-                'status' => true,
-            ]);
+                // set meta data
+                $request['meta'] = $meta;
+
+                // send campaign
+                match ($campaign->type) {
+                    'social-network' => $this->socialPost($request),
+                    default => $this->sendCampaign($request)
+                };
+
+                return response()->json([
+                    'data' => $campaign,
+                    'message' => 'success',
+                    'status' => true,
+                ]);
+            });
         } catch (\Throwable $th) {
             return response()->json([
                 'data' => null,
@@ -99,7 +107,6 @@ class CampaignController extends Controller
             'company_id',
             'title',
             'type',
-            'template',
             'scheduled_for',
             'meta',
             'status'
@@ -162,24 +169,23 @@ class CampaignController extends Controller
         foreach ($request['meta']['contacts'] as $contact) {
             // get contact info
             $recipient = Contact::find($contact);
-
             $request['recipient_name'] = $recipient->name;
             $request['recipient_email'] = $recipient->email;
             $request['recipient_phone'] = $recipient->phone;
 
             try {
+                // send campaign
+                $recipient->notify(new NotificationsContact($request->all()));
 
                 $request['meta'] = json_encode($request->campaign);
-                $request['message'] = trans('campaign.sent');
+                $request['message'] = 'Delivered';
                 $request['status'] = CampaignLogStatus::SENT();
-
-                // send campaign
-                $recipient->notify(new NotificationsContact($request->campaign));
 
                 // store campaign log
                 (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
             } catch (\Throwable $th) {
 
+                $request['meta'] = json_encode($th);
                 $request['message'] = $th->getMessage();
                 $request['status'] = CampaignLogStatus::FAILED();
 

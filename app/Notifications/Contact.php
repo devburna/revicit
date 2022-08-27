@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use App\Enums\CampaignType;
-use App\Models\Campaign;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -14,17 +13,16 @@ class Contact extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $campaign, $meta;
+    public $campaign;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(Campaign $campaign)
+    public function __construct($campaign)
     {
         $this->campaign = $campaign;
-        $this->meta = json_decode($this->campaign->meta);
     }
 
     /**
@@ -35,7 +33,7 @@ class Contact extends Notification implements ShouldQueue
      */
     public function via($notifiable)
     {
-        $this->campaign->type->is(CampaignType::SMS()) ? ['vonage'] : ['mail'];
+        return $this->campaign['type'] === CampaignType::SMS() ? ['vonage'] : ['mail'];
     }
 
     /**
@@ -47,9 +45,9 @@ class Contact extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->from($this->campaign->sender_email, $this->campaign->sender_name)
-            ->subject($this->meta['mail']['subject'])
-            ->line($this->meta['mail']['template']);
+            ->from($this->campaign['sender_email'], $this->campaign['sender_name'])
+            ->subject($this->campaign['meta']['mail']['subject'])
+            ->line($this->campaign['meta']['mail']['template']);
     }
 
     /**
@@ -61,8 +59,8 @@ class Contact extends Notification implements ShouldQueue
     public function toVonage($notifiable)
     {
         return (new VonageMessage)
-            ->clientReference($this->campaign->sender_name)
-            ->content($this->meta['sms']['content']);
+            ->clientReference($this->campaign['sender_name'])
+            ->content($this->campaign['meta']['sms']['content']);
     }
 
     /**

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('company_id');
             $table->string('title');
             $table->string('type');
-            $table->longText('template')->nullable();
             $table->timestamp('scheduled_for')->nullable();
             $table->longText('meta');
             $table->string('status');
