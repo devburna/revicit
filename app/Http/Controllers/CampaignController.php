@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Enums\CampaignLogStatus;
 use App\Enums\CampaignStatus;
-use App\Enums\CampaignType;
 use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
@@ -68,7 +67,7 @@ class CampaignController extends Controller
                     }
 
                     // set profile key
-                    $request['profile'] = $request->company->socialNetwork->identity;
+                    $request['profile_key'] = $request->company->socialNetwork->identity;
 
                     foreach ($meta['social_network']['medias'] as $media) {
                         // upload media
@@ -78,7 +77,7 @@ class CampaignController extends Controller
                     }
 
                     // add media urls to request
-                    $request['mediaUrls'] = $mediaUrls;
+                    $request['media_urls'] = $mediaUrls;
                 }
 
                 // store campaign
@@ -147,7 +146,7 @@ class CampaignController extends Controller
      */
     public function show(Campaign $campaign, $message = 'success', $code = 200)
     {
-        // and related campaign logs to data
+        // add campaign logs to data
         $campaign->logs;
 
         return response()->json([
@@ -228,64 +227,51 @@ class CampaignController extends Controller
      */
     public function socialNetwork(StoreCampaignRequest $request)
     {
-        // sort media urls
-        $images = [];
-        $videos = [];
+        try {
+            // set recipient data
+            $request['recipient_name'] = $request->company->name;
+            $request['recipient_email'] = $request->company->email;
+            $request['recipient_phone'] = $request->company->phone;
 
-        foreach ($request->mediaUrls as $media) {
-            if ($media['resource_type'] === 'image') {
-                array($images, $media['url']);
-            }
+            // video only platforms
+            $videoOnly = ['youtube', 'tiktok'];
 
-            if ($media['resource_type'] === 'video') {
-                array($videos, $media['url']);
-            }
-        }
-
-        // set receipient data
-        $request['recipient_name'] = $request->company->name;
-        $request['recipient_email'] = $request->company->email;
-        $request['recipient_phone'] = $request->company->phone;
-
-        foreach ($request['meta']['social_network']['platforms'] as $platform) {
-            try {
-                $videoImages = ['telegram', 'instagram', 'linkedin', 'twitter'];
-                $videosOnly = ['youtube', 'tiktok'];
-
-                // get service info
-                $service = ServiceBasket::where('code', strtolower($platform))->firstOrFail();
-
-                // set mediaUrls
-                if (in_array($platform, $videoImages)) {
-                    $mediaUrl = array_merge($images, $videos);
+            // sort video media urls
+            if (in_array($request->meta['social_network']['platform'], $videoOnly)) {
+                $mediaUrls = [];
+                foreach ($request->media_urls as $media) {
+                    if ($media['resource_type'] === 'video') {
+                        array_push($mediaUrls, $media['secure_url']);
+                    }
                 }
-
-                if (in_array($platform, $videosOnly)) {
-                    $mediaUrl = $videos;
-                }
-
-                // add platform to request data
-                $request['platform'] = array($platform);
-
-                // send campaign
-                $response = (new AyrshareController())->userPost($request->profile, $request['meta']['social_network']['post'], $platform, $mediaUrl);
-
-                // store campaign log
-                $request['meta'] = json_encode($response);
-                $request['message'] = 'Delivered';
-                $request['status'] = CampaignLogStatus::SENT();
-                (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
-            } catch (\Throwable $th) {
-
-                $request['meta'] = json_encode($th);
-                $request['message'] = $th->getMessage();
-                $request['status'] = CampaignLogStatus::FAILED();
-
-                // store campaign log
-                (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
-
-                continue;
+            } else {
+                // sort all media urls
+                $mediaUrls = array_reduce($request->media_urls, function ($urls, $url) {
+                    array_push($urls, $url['secure_url']);
+                    return $urls;
+                }, []);
             }
+
+            // send campaign
+            $request['post'] = $request->meta['social_network']['post'];
+            $request['platform'] = $request->meta['social_network']['platform'];
+            $request['media_urls'] = $mediaUrls;
+
+            $response = (new AyrshareController())->post($request->all());
+
+            // store campaign log
+            $request['meta'] = json_encode($response);
+            $request['message'] = 'Delivered';
+            $request['status'] = CampaignLogStatus::SENT();
+            (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
+        } catch (\Throwable $th) {
+
+            $request['meta'] = json_encode($th);
+            $request['message'] = $th->getMessage();
+            $request['status'] = CampaignLogStatus::FAILED();
+
+            // store campaign log
+            (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
         }
     }
 }

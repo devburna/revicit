@@ -44,8 +44,7 @@ class StoreCampaignRequest extends FormRequest
 
             // social network required meta data
             'meta.social_network.post' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|string|max:50',
-            'meta.social_network.platforms' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
-            'meta.social_network.platforms.*' => 'required|distinct|exists:service_baskets,code',
+            'meta.social_network.platform' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|exists:service_baskets,code',
             'meta.social_network.medias' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
             'meta.social_network.medias.*' => 'required',
         ];
@@ -65,8 +64,7 @@ class StoreCampaignRequest extends FormRequest
             'meta.contacts.*.exists' => "This contact is'nt registered.",
             'meta.contacts.*.distinct' => 'Contacts has a duplicate value.',
             'meta.sms.content.required_if' => 'The sms content is required.',
-            'meta.social_network.platforms.*.exists' => 'We currently do not offer this service at the moment, kindly contact support for additional information.',
-            'meta.social_network.platforms.*.distinct' => 'Social network platforms has a duplicate value.',
+            'meta.social_network.platform.exists' => 'We currently do not offer this service at the moment, kindly contact support for additional information.',
         ];
     }
 }
