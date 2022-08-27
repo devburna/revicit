@@ -92,4 +92,9 @@ class User extends Authenticatable
     {
         return $this->hasOne(Referral::class, 'referred_user_id');
     }
+
+    public function socialNetwork(): HasOne
+    {
+        return $this->hasOne(AyrshareProfile::class, 'company_id');
+    }
 }

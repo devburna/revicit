@@ -6,6 +6,7 @@ use App\Http\Requests\StoreAyrshareProfileRequest;
 use App\Http\Requests\UpdateAyrshareProfileRequest;
 use App\Models\AyrshareProfile;
 use App\Models\Company;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class AyrshareProfileController extends Controller

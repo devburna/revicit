@@ -59,8 +59,8 @@ class CompanyController extends Controller
      */
     public function show(Company $company, $message = 'success', $code = 200)
     {
-        // and related company to data
-        $company->owner;
+        // add company social network to data
+        $company->socialNetwork;
 
         $company->qr_code_data = url("/company/{$company->id}");
 

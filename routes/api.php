@@ -94,16 +94,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('{company}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company')->withTrashed();
+            Route::get('', [\App\Http\Controllers\CompanyController::class, 'show'])->can('view', 'company')->can('view', 'ayrshareProfile');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company')->withTrashed();
+            Route::patch('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company')->can('view', 'ayrshareProfile');
 
             # update logo
-            Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'company')->withTrashed();
+            Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'company')->can('view', 'ayrshareProfile');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'company')->withTrashed();
+            Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'company')->can('view', 'ayrshareProfile');
         });
     });
 
@@ -116,19 +116,20 @@ Route::middleware('auth:sanctum')->group(function () {
         # fetch
         Route::get('', [\App\Http\Controllers\ContactController::class, 'index']);
 
+        # contact
         Route::prefix('{contact}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\ContactController::class, 'show'])->can('view', 'contact')->withTrashed();
+            Route::get('', [\App\Http\Controllers\ContactController::class, 'show'])->can('view', 'contact')->can('view', 'ayrshareProfile');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\ContactController::class, 'update'])->can('update', 'contact')->withTrashed();
+            Route::patch('', [\App\Http\Controllers\ContactController::class, 'update'])->can('update', 'contact')->can('view', 'ayrshareProfile');
 
             # update logo
-            Route::post('', [\App\Http\Controllers\ContactController::class, 'logo'])->can('update', 'contact')->withTrashed();
+            Route::post('', [\App\Http\Controllers\ContactController::class, 'logo'])->can('update', 'contact')->can('view', 'ayrshareProfile');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\ContactController::class, 'destroy'])->can('delete', 'contact')->withTrashed();
+            Route::delete('', [\App\Http\Controllers\ContactController::class, 'destroy'])->can('delete', 'contact')->can('view', 'ayrshareProfile');
         });
     });
 
@@ -141,63 +142,40 @@ Route::middleware('auth:sanctum')->group(function () {
         # fetch
         Route::get('', [\App\Http\Controllers\CampaignController::class, 'index']);
 
-        # campaigns
+        # campaign
         Route::prefix('{campaign}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\CampaignController::class, 'show'])->can('view', 'campaign')->withTrashed();
+            Route::get('', [\App\Http\Controllers\CampaignController::class, 'show'])->can('view', 'campaign');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\CampaignController::class, 'update'])->can('update', 'campaign')->withTrashed();
+            Route::patch('', [\App\Http\Controllers\CampaignController::class, 'update'])->can('update', 'campaign');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\CampaignController::class, 'destroy'])->can('delete', 'campaign')->withTrashed();
+            Route::delete('', [\App\Http\Controllers\CampaignController::class, 'destroy'])->can('delete', 'campaign');
         });
     });
 
-    # social-media-platforms
-    Route::prefix('social-media-platforms')->group(function () {
+    # social networks
+    Route::prefix('social-networks')->group(function () {
 
         # create
-        Route::post('', [\App\Http\Controllers\SocialMediaPlatformController::class, 'store']);
+        Route::post('', [\App\Http\Controllers\AyrshareController::class, 'create']);
 
         # fetch
-        Route::get('', [\App\Http\Controllers\SocialMediaPlatformController::class, 'index']);
+        Route::get('', [\App\Http\Controllers\AyrshareController::class, 'index']);
 
-        # social-media-platforms
-        Route::prefix('{socialMediaPlatform}')->group(function () {
-
-            # details
-            Route::get('', [\App\Http\Controllers\SocialMediaPlatformController::class, 'show'])->withTrashed();
-
-            # update details
-            Route::patch('', [\App\Http\Controllers\SocialMediaPlatformController::class, 'update'])->withTrashed();
-
-            # toggle
-            Route::delete('', [\App\Http\Controllers\SocialMediaPlatformController::class, 'destroy'])->withTrashed();
-        });
-    });
-
-    # social-media-handles
-    Route::prefix('social-media-handles')->group(function () {
-
-        # create
-        Route::post('', [\App\Http\Controllers\SocialMediaHandleController::class, 'create']);
-
-        # fetch
-        Route::get('', [\App\Http\Controllers\SocialMediaHandleController::class, 'index']);
-
-        # social-media-platforms
-        Route::prefix('{socialMediaPlatform}')->group(function () {
+        # social network
+        Route::prefix('{ayrshareProfile}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\SocialMediaHandleController::class, 'show'])->withTrashed();
+            Route::get('', [\App\Http\Controllers\AyrshareController::class, 'show'])->can('view', 'ayrshareProfile');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\SocialMediaHandleController::class, 'update'])->withTrashed();
+            Route::patch('', [\App\Http\Controllers\AyrshareController::class, 'update'])->can('update', 'ayrshareProfile');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\SocialMediaHandleController::class, 'destroy'])->withTrashed();
+            Route::delete('', [\App\Http\Controllers\AyrshareController::class, 'destroy'])->can('destroy', 'ayrshareProfile');
         });
     });
 });
