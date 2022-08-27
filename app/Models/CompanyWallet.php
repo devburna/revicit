@@ -30,7 +30,6 @@ class CompanyWallet extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'id',
         'company_id',
         'deleted_at',
         'created_at',

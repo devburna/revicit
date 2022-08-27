@@ -2,12 +2,13 @@
 
 namespace App\Notifications;
 
+use App\Models\Payment as ModelsPayment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class Payment extends Notification implements
+class Payment extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -18,7 +19,7 @@ class Payment extends Notification implements
      *
      * @return void
      */
-    public function __construct(Payment $payment)
+    public function __construct(ModelsPayment $payment)
     {
         $this->payment = $payment;
     }

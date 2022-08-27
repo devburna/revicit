@@ -51,6 +51,11 @@ class CampaignController extends Controller
                 // add service to request
                 $request['service'] = ServiceBasket::where('category', $request->type)->orWhere('code', $request->meta['social_network']['platform'])->firstOrFail();
 
+                // check if company can fund campaign
+                if ($request->company->wallet->current_balance <= $request->service->price) {
+                    throw ValidationException::withMessages(['Insufficient fund, please fund your wallet and try again.']);
+                }
+
                 // set status
                 if ($request->has('scheduled_for')) {
                     $request['status'] = CampaignStatus::SCHEDULED();
@@ -206,6 +211,8 @@ class CampaignController extends Controller
      */
     public function sendCampaign(StoreCampaignRequest $request)
     {
+        $successCount = 0;
+
         foreach ($request['meta']['contacts'] as $contact) {
 
             // get contact info
@@ -217,6 +224,9 @@ class CampaignController extends Controller
             try {
                 // send campaign
                 $response = $recipient->notify(new NotificationsContact($request->all()));
+
+                // increment success count on success
+                $successCount++;
 
                 // store campaign log
                 $request['meta'] = json_encode($response);
@@ -234,6 +244,9 @@ class CampaignController extends Controller
                 continue;
             }
         }
+
+        // charge company wallet (Service-B4-Pay)
+        $this->serviceCharge($request->company->wallet, $request->service->price * $successCount, "Campaign {$request->title}", $request->all(), false);
     }
 
     /**
@@ -322,6 +335,6 @@ class CampaignController extends Controller
         $storePaymentRequest['meta'] = json_encode($meta);
         $payment = (new PaymentController())->store($storePaymentRequest);
 
-        $payment->wallet->company->notify(new Payment($payment));
+        $wallet->company->notify(new Payment($payment));
     }
 }
