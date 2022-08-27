@@ -81,11 +81,12 @@ class AyrshareProfileController extends Controller
         // generate profile jwt token
         $token = (new AyrshareController())->generateToken($ayrshareProfile->identity);
 
+        // add link to response
+        $ayrshareProfile->link = "{$token['url']}&redirect=";
+
         return response()->json([
             'status' => true,
-            'data' => [
-                'link' => "{$token['url']}&redirect="
-            ],
+            'data' => $ayrshareProfile,
             'message' => $message
         ], $code);
     }
