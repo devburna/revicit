@@ -97,6 +97,6 @@ class Company extends Model
 
     public function wallet(): HasOne
     {
-        return $this->hasOne(CompanyWallet::class);
+        return $this->hasOne(CompanyWallet::class, 'company_id');
     }
 }

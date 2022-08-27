@@ -51,4 +51,20 @@ class CompanyWallet extends Model
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function credit($amount)
+    {
+        return $this->update([
+            'previous_balance' => $this->current_balance,
+            'current_balance' => $this->current_balance, + $amount
+        ]);
+    }
+
+    public function debit($amount)
+    {
+        return $this->update([
+            'previous_balance' => $this->current_balance,
+            'current_balance' => $this->current_balance - $amount
+        ]);
+    }
 }
