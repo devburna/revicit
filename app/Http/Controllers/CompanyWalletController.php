@@ -5,29 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCompanyWalletRequest;
 use App\Http\Requests\UpdateCompanyWalletRequest;
 use App\Models\CompanyWallet;
+use Illuminate\Http\Request;
 
 class CompanyWalletController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -36,29 +17,24 @@ class CompanyWalletController extends Controller
      */
     public function store(StoreCompanyWalletRequest $request)
     {
-        //
+        CompanyWallet::create($request->only([
+            'company_id',
+        ]));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\CompanyWallet  $companyWallet
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function show(CompanyWallet $companyWallet)
+    public function show(Request $request)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\CompanyWallet  $companyWallet
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(CompanyWallet $companyWallet)
-    {
-        //
+        return response()->json([
+            'status' => true,
+            'data' => $request->company->wallet,
+            'message' => 'success'
+        ]);
     }
 
     /**
@@ -70,17 +46,23 @@ class CompanyWalletController extends Controller
      */
     public function update(UpdateCompanyWalletRequest $request, CompanyWallet $companyWallet)
     {
-        //
+        return $this->show($request);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\CompanyWallet  $companyWallet
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(CompanyWallet $companyWallet)
+    public function destroy(Request $request)
     {
-        //
+        if ($request->company->wallet->trashed()) {
+            $request->company->wallet->restore();
+        } else {
+            $request->company->wallet->delete();
+        }
+
+        return $this->show($request);
     }
 }

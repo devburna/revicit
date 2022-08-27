@@ -67,4 +67,9 @@ class Company extends Model
     {
         return $this->hasOne(AyrshareProfile::class);
     }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(CompanyWallet::class);
+    }
 }

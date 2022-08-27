@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\StoreCompanyRequest;
+use App\Http\Requests\StoreCompanyWalletRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Cloudinary\Api\Upload\UploadApi;
+use Illuminate\Support\Facades\DB;
 
 class CompanyController extends Controller
 {
@@ -35,20 +37,26 @@ class CompanyController extends Controller
      */
     public function store(StoreCompanyRequest $request)
     {
-        $request['user_id'] = $request->user()->id;
+        return DB::transaction(function () use ($request) {
+            $request['user_id'] = $request->user()->id;
 
-        $company =  Company::create($request->only([
-            'user_id',
-            'name',
-            'address',
-            'email',
-            'phone',
-            'website',
-            'description',
-            'logo_url'
-        ]));
+            $company =  Company::create($request->only([
+                'user_id',
+                'name',
+                'address',
+                'email',
+                'phone',
+                'website',
+                'description',
+                'logo_url'
+            ]));
 
-        return $this->show($company, null, 201);
+            // create company wallet
+            $request['company_id'] = $company->id;
+            (new CompanyWalletController())->store((new StoreCompanyWalletRequest($request->all())));
+
+            return $this->show($company, null, 201);
+        });
     }
 
     /**
@@ -59,9 +67,6 @@ class CompanyController extends Controller
      */
     public function show(Company $company, $message = 'success', $code = 200)
     {
-        // add company social network to data
-        $company->socialNetwork;
-
         $company->qr_code_data = url("/company/{$company->id}");
 
         return response()->json([

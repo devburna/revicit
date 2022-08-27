@@ -18,7 +18,7 @@ class PaymentController extends Controller
     public function index(Request $request)
     {
         $payments = $request->company->wallet
-        ->payments()->orderByDesc('created_at')->paginate(20);
+            ->payments()->orderByDesc('created_at')->paginate(20);
 
         return response()->json([
             'data' => $payments,
@@ -31,22 +31,35 @@ class PaymentController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\StorePaymentRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create(StorePaymentRequest $request)
     {
-        // generate payment link
-        $request['amount'] = $request -
-            $link = (new FlutterwaveController())->paymentLink($request->all());
+        try {
+            // generate payment link
+            $request['name'] = "{$request->user()->first_name} {$request->user()->last_name}";
+            $request['email_address'] = $request->user()->email_address;
+            $request['phone_number'] = $request->user()->phone_number;
+            $request['consumer_id'] = $request->company->wallet->id;
+            $request['consumer_mac'] = 'deposit';
 
-        return response()->json([
-            'status' => true,
-            'data' => [
-                'link' => $link['data']['link']
-            ],
-            'message' => 'Use the link to complete your payment'
-        ]);
+            return $link = (new FlutterwaveController())->paymentLink($request->all());
+
+            return response()->json([
+                'status' => true,
+                'data' => [
+                    'link' => $link['data']['link']
+                ],
+                'message' => 'Use the link to complete your payment'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'data' => null,
+                'message' => $th->getMessage(),
+            ]);
+        }
     }
 
     /**
@@ -81,17 +94,6 @@ class PaymentController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Payment  $payment
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Payment $payment)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdatePaymentRequest  $request
@@ -111,6 +113,12 @@ class PaymentController extends Controller
      */
     public function destroy(Payment $payment)
     {
-        //
+        if ($payment->trashed()) {
+            $payment->restore();
+        } else {
+            $payment->delete();
+        }
+
+        return $this->show($payment);
     }
 }

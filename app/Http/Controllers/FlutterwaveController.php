@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class FlutterwaveController extends Controller
 {
@@ -20,7 +20,32 @@ class FlutterwaveController extends Controller
     public function paymentLink($data)
     {
         try {
-            return $response = Http::post("{$this->flutterwaveUrl}/payments")->json();
+            $response = Http::post("{$this->flutterwaveUrl}/payments", [
+                'tx_ref' => Str::uuid(),
+                'amount' => $data['amount'],
+                'currency' => $data['currency'],
+                'redirect_url' => null,
+                'meta' => [
+                    'consumer_id' =>  $data['consumer_id'],
+                    'consumer_mac' =>  $data['consumer_mac']
+                ],
+                'customer' => [
+                    'name' => $data['name'],
+                    'email' => $data['email_address'],
+                    'phonenumber' => $data['phone_number']
+                ],
+                'customizations' => [
+                    'title' => config('app.name'),
+                    'logo' => asset('img/logo.png')
+                ],
+            ])->json();
+
+            // catch error
+            if ($response['status'] === 'error') {
+                throw ValidationException::withMessages([$response['message']]);
+            }
+
+            return $response;
         } catch (\Throwable $th) {
             throw ValidationException::withMessages([$th->getMessage()]);
         }

@@ -24,7 +24,8 @@ class StorePaymentRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => 'required|min:5000'
+            'amount' => 'required|numeric|min:5000',
+            'currency' => 'required|in:ngn,usd'
         ];
     }
 }
