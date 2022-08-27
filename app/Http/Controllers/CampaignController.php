@@ -6,14 +6,18 @@ use App\Enums\CampaignLogStatus;
 use App\Enums\CampaignStatus;
 use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
+use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
+use App\Models\CompanyWallet;
 use App\Models\Contact;
 use App\Models\ServiceBasket;
 use App\Notifications\Contact as NotificationsContact;
+use App\Notifications\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str;
 
 class CampaignController extends Controller
 {
@@ -44,6 +48,9 @@ class CampaignController extends Controller
         try {
             return DB::transaction(function () use ($request) {
 
+                // add service to request
+                $request['service'] = ServiceBasket::where('category', $request->type)->orWhere('code', $request->meta['social_network']['platform'])->firstOrFail();
+
                 // set status
                 if ($request->has('scheduled_for')) {
                     $request['status'] = CampaignStatus::SCHEDULED();
@@ -59,6 +66,7 @@ class CampaignController extends Controller
 
                 // upload media files if type social network
                 if ($request->type === 'social-network') {
+
                     $mediaUrls = [];
 
                     // checks if user has profile key
@@ -68,6 +76,11 @@ class CampaignController extends Controller
 
                     // set profile key
                     $request['profile_key'] = $request->company->socialNetwork->identity;
+
+                    // check if platform is connected
+                    if (!$request->company->socialNetwork["{$meta['social_network']['platform']}"]) {
+                        throw ValidationException::withMessages(["Please connect your {$meta['social_network']['platform']} account to use this feature."]);
+                    }
 
                     foreach ($meta['social_network']['medias'] as $media) {
                         // upload media
@@ -101,9 +114,11 @@ class CampaignController extends Controller
                 $request['meta'] = $meta;
 
                 // send campaign
-                match ($campaign->type) {
+                match ($request->type) {
                     'social-network' => $this->socialNetwork($request),
-                    default => $this->sendCampaign($request)
+                    'mail' => $this->sendCampaign($request),
+                    'sms' => $this->sendCampaign($request),
+                    default => throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!'])
                 };
 
                 return response()->json([
@@ -252,12 +267,25 @@ class CampaignController extends Controller
                 }, []);
             }
 
+            // charge company wallet (Pay-B4-Service)
+            $this->serviceCharge($request->company->wallet, $request->service->price, "Campaign {$request->title}", $request->all(), false);
+
             // send campaign
             $request['post'] = $request->meta['social_network']['post'];
             $request['platform'] = $request->meta['social_network']['platform'];
             $request['media_urls'] = $mediaUrls;
 
             $response = (new AyrshareController())->post($request->all());
+
+            // verify response
+            if (!$response['status'] === 'success') {
+
+                // refund company wallet (Pay-B4-Service)
+                $request['response'] = $response;
+                $this->serviceCharge($request->company->wallet, $request->service->price, "Refund Campaign {$request->title}", $request->all(), true);
+
+                throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!']);
+            }
 
             // store campaign log
             $request['meta'] = json_encode($response);
@@ -273,5 +301,27 @@ class CampaignController extends Controller
             // store campaign log
             (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
         }
+    }
+
+    private function serviceCharge(CompanyWallet $wallet, $amount, $narration, $meta, $refund = false)
+    {
+        match ($refund) {
+            true =>  $wallet->credit($amount),
+            default =>  $wallet->debit($amount),
+        };
+
+        // store payment
+        $storePaymentRequest = new StorePaymentRequest();
+        $storePaymentRequest['company_wallet_id'] = $wallet->id;
+        $storePaymentRequest['identity'] = Str::random(24);
+        $storePaymentRequest['amount'] = $amount;
+        $storePaymentRequest['currency'] = 'NGN';
+        $storePaymentRequest['narration'] = $narration;
+        $storePaymentRequest['type'] = $refund ? 'credit' : 'debit';
+        $storePaymentRequest['status'] = 'success';
+        $storePaymentRequest['meta'] = json_encode($meta);
+        $payment = (new PaymentController())->store($storePaymentRequest);
+
+        $payment->wallet->company->notify(new Payment($payment));
     }
 }

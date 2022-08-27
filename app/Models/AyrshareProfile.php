@@ -57,7 +57,17 @@ class AyrshareProfile extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        //
+        'facebook' => 'boolean',
+        'fbg' => 'boolean',
+        'gmb' => 'boolean',
+        'instagram' => 'boolean',
+        'linkedin' => 'boolean',
+        'pinterest' => 'boolean',
+        'reddit' => 'boolean',
+        'telegram' => 'boolean',
+        'tiktok' => 'boolean',
+        'twitter' => 'boolean',
+        'youtube' => 'boolean'
     ];
 
     public function company(): BelongsTo

@@ -224,6 +224,20 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('', [\App\Http\Controllers\PaymentController::class, 'destroy'])->can('destroy', 'payment');
         });
     });
+
+    # webhooks
+    Route::prefix('webhooks')->group(function () {
+
+        # all
+        Route::get('', [\App\Http\Controllers\WebHookController::class, 'index']);
+
+        # webhook
+        Route::prefix('{webhook}')->group(function () {
+
+            # details
+            Route::get('', [\App\Http\Controllers\WebHookController::class, 'show']);
+        });
+    });
 });
 
 Route::prefix('company/{company}')->group(function () {

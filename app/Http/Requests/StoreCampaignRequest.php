@@ -32,8 +32,8 @@ class StoreCampaignRequest extends FormRequest
             'draft' => 'required|boolean',
 
             // mail and sms required meta data
-            'meta.contacts' => 'required_if:type,' . CampaignType::MAIL() . 'required_if:type,' . CampaignType::SMS() . '|array',
-            'meta.contacts.*' => 'required|distinct|exists:contacts,id',
+            'meta.contacts' => 'required_unless:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
+            'meta.contacts.*' => 'required_unless:type,' . CampaignType::SOCIAL_NETWORK() . '|distinct',
 
             // mail campaign required meta data
             'meta.mail.subject' => 'required_if:type,' . CampaignType::MAIL() . '|string|max:50',
@@ -46,7 +46,7 @@ class StoreCampaignRequest extends FormRequest
             'meta.social_network.post' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|string|max:50',
             'meta.social_network.platform' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|exists:service_baskets,code',
             'meta.social_network.medias' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
-            'meta.social_network.medias.*' => 'required',
+            'meta.social_network.medias.*' => 'required_if:type,' . CampaignType::SOCIAL_NETWORK() . 'required',
         ];
     }
 
@@ -61,6 +61,7 @@ class StoreCampaignRequest extends FormRequest
             'meta.type.exists' => 'We currently do not offer this service at the moment.',
             'meta.mail.subject.required_if' => 'The mail subject is required.',
             'meta.mail.template.required_if' => 'The mail template is required.',
+            'meta.contacts.*.required_unless' => 'Contact list cannot be empty.',
             'meta.contacts.*.exists' => "This contact is'nt registered.",
             'meta.contacts.*.distinct' => 'Contacts has a duplicate value.',
             'meta.sms.content.required_if' => 'The sms content is required.',
