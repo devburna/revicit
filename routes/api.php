@@ -160,22 +160,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('social-networks')->group(function () {
 
         # create
-        Route::post('', [\App\Http\Controllers\AyrshareController::class, 'create']);
+        Route::post('', [\App\Http\Controllers\AyrshareProfileController::class, 'create']);
 
-        # fetch
-        Route::get('', [\App\Http\Controllers\AyrshareController::class, 'index']);
+        # details
+        Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'index']);
 
         # social network
         Route::prefix('{ayrshareProfile}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\AyrshareController::class, 'show'])->can('view', 'ayrshareProfile');
+            Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'show'])->can('view', 'ayrshareProfile');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\AyrshareController::class, 'update'])->can('update', 'ayrshareProfile');
+            Route::patch('', [\App\Http\Controllers\AyrshareProfileController::class, 'update'])->can('update', 'ayrshareProfile');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\AyrshareController::class, 'destroy'])->can('destroy', 'ayrshareProfile');
+            Route::delete('', [\App\Http\Controllers\AyrshareProfileController::class, 'destroy'])->can('destroy', 'ayrshareProfile');
         });
     });
 });

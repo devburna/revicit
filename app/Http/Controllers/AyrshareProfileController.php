@@ -6,10 +6,30 @@ use App\Http\Requests\StoreAyrshareProfileRequest;
 use App\Http\Requests\UpdateAyrshareProfileRequest;
 use App\Models\AyrshareProfile;
 use App\Models\Company;
+use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
 class AyrshareProfileController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  \Illuminate\Http\Request;  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        // get profile
+        $profile = AyrshareProfile::where('company_id', $request->company_id)->firstOrfail();
+
+        // check policy
+        if (!$request->user()->is($profile->company->user)) {
+            abort(403, 'This action is unauthorized.');
+        }
+
+        return $this->show($profile);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -19,17 +39,18 @@ class AyrshareProfileController extends Controller
     public function create(StoreAyrshareProfileRequest $request)
     {
         try {
+            // c
             // get company info
             if (!$company = Company::find($request->company_id)) {
                 throw ValidationException::withMessages(["Can not connect account at the moment."]);
             }
 
-            // create profile key
+            // generate profile
             $key = (new AyrshareController())->createProfile($company->name);
 
             // store profile
             $request['company_id'] = $company->id;
-            $request['key'] = $key['profileKey'];
+            $request['identity'] = $key['profileKey'];
             $request['meta'] = json_encode($key);
             $ayrshareProfile = $this->store($request);
 
@@ -52,7 +73,7 @@ class AyrshareProfileController extends Controller
     {
         return AyrshareProfile::create($request->only([
             'company_id',
-            'key',
+            'identity',
             'meta',
         ]));
     }
@@ -65,10 +86,13 @@ class AyrshareProfileController extends Controller
      */
     public function show(AyrshareProfile $ayrshareProfile, $message = 'Click on the link to connect social network.', $code = 200)
     {
+        // generate profile jwt token
+        $token = (new AyrshareController())->generateToken($ayrshareProfile->identity);
+
         return response()->json([
             'status' => true,
             'data' => [
-                'link' => "https://profile.ayrshare.com?domain=revicit&jwt={$ayrshareProfile->token}"
+                'link' => $token['url']
             ],
             'message' => $message
         ], $code);

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id()->from(time());
             $table->unsignedBigInteger('company_id')->unique();
             $table->string('identity')->unique();
-            $table->string('key')->unique();
             $table->longText('meta');
             $table->softDeletes();
             $table->timestamps();

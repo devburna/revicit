@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
 
 class AyrshareController extends Controller
 {
+
     /**
      *
      * @param  $post  $array

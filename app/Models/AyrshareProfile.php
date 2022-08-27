@@ -20,7 +20,6 @@ class AyrshareProfile extends Model
     protected $fillable = [
         'company_id',
         'identity',
-        'key',
         'meta'
     ];
 
@@ -31,6 +30,7 @@ class AyrshareProfile extends Model
      */
     protected $hidden = [
         'company_id',
+        'meta'
     ];
 
     /**

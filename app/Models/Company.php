@@ -64,8 +64,8 @@ class Company extends Model
         return $this->hasMany(Campaign::class, 'company_id');
     }
 
-    public function socialMediaHandle(): HasOne
+    public function socialNetwork(): HasOne
     {
-        return $this->hasOne(SocialMediaHandle::class);
+        return $this->hasOne(AyrshareProfile::class);
     }
 }
