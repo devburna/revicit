@@ -9,7 +9,6 @@ use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
-use App\Models\Company;
 use App\Models\Contact;
 use App\Models\SocialMediaPlatform;
 use App\Notifications\Contact as NotificationsContact;
@@ -20,12 +19,11 @@ class CampaignController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  \App\Models\Company  $company
      * @return \Illuminate\Http\Response
      */
     public function index(ViewCompanyRequest $request)
     {
-        $campaigns = Campaign::where('company_id', $request->company_id)->paginate(20);
+        $campaigns = $request->company->campaigns()->orderByDesc('created_at')->paginate(20);
 
         return response()->json([
             'data' => $campaigns,
@@ -37,56 +35,61 @@ class CampaignController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Models\Company  $company
      * @param  \App\Http\Requests\StoreCampaignRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function create(StoreCampaignRequest $request, Company $company)
+    public function create(StoreCampaignRequest $request)
     {
-        // set status
-        if ($request->has('scheduled_for')) {
-            $request['status'] = CampaignStatus::SCHEDULED();
-        } else if ($request->draft) {
-            $request['status'] = CampaignStatus::DRAFT();
-        } else {
-            $request['status'] = CampaignStatus::PUBLISHED();
+        try {
+            // set status
+            if ($request->has('scheduled_for')) {
+                $request['status'] = CampaignStatus::SCHEDULED();
+            } else if ($request->draft) {
+                $request['status'] = CampaignStatus::DRAFT();
+            } else {
+                $request['status'] = CampaignStatus::PUBLISHED();
+            }
+
+            // set meta data
+            $meta = $request->meta;
+
+            // json encode request meta data
+            $request['meta'] = json_encode($meta);
+
+            // store campaign
+            $campaign = new Campaign($request->all());
+
+            // don't send campaign if drafted or scheduled
+            if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
+                return $this->show($campaign, 'success', 201);
+            }
+
+            // set campaign data
+            $request['campaign'] = $campaign;
+
+            // set request meta data
+            $request['meta'] = $meta;
+
+            // send campaign
+            match ($request->type) {
+                'social-network' => $this->socialPost($request),
+                default => $this->sendCampaign($request)
+            };
+
+            $campaign = $campaign->save();
+
+            return response()->json([
+                'data' => $campaign,
+                'message' => 'success',
+                'status' => true,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'data' => null,
+                'message' => $th->getMessage(),
+                'status' => false,
+            ]);
         }
-
-        // set meta data
-        $meta = $request->meta;
-
-        // json encode request meta data
-        $request['meta'] = json_encode($meta);
-
-        // store campaign
-        $campaign = $this->store($request);
-
-        // don't send campaign if drafted or scheduled
-        if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
-            return $this->show($campaign, 'success', 201);
-        }
-
-        // set campaign data
-        $request['campaign'] = $campaign;
-
-        // set request meta data
-        $request['meta'] = $meta;
-
-        // send campaign
-        switch ($request->type) {
-            case 'social-media':
-                // send social media campaign via ayrshare.com
-                $this->socialPost($request);
-                break;
-
-            default:
-                // send email or sms campaign
-                $this->sendCampaign($request);
-                break;
-        }
-
-        // returns campaign details
-        return $this->show($campaign, 'success', 201);
     }
 
     /**
@@ -211,17 +214,5 @@ class CampaignController extends Controller
      */
     public function socialPost(StoreCampaignRequest $request)
     {
-
-        foreach ($request->meta['social_media']['platforms'] as $platform) {
-            $platform = SocialMediaPlatform::find(1661162116)->slug;
-
-            $data = [];
-            $data['platform'] = $platform;
-            $data['content'] = $request->meta['social_media']['content'];
-            $data['video_urls'] = $request->meta['social_media']['video_urls'];
-            $data['image_urls'] = $request->meta['social_media']['image_urls'];
-
-            (new AyrshareController())->post($data);
-        }
     }
 }

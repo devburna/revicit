@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
 use App\Http\Requests\ViewCompanyRequest;
-use App\Models\Company;
 use App\Models\Contact;
 
 class ContactController extends Controller
@@ -18,7 +17,7 @@ class ContactController extends Controller
      */
     public function index(ViewCompanyRequest $request)
     {
-        $contacts = Contact::where('company_id', $request->company_id)->paginate(20);
+        $contacts = $request->company->contacts()->orderByDesc('created_at')->paginate(20);
 
         return response()->json([
             'data' => $contacts,

@@ -31,17 +31,16 @@ class AyrshareProfileController extends Controller
     public function create(StoreAyrshareProfileRequest $request)
     {
         try {
-            // c
-            // get company info
-            if (!$company = Company::find($request->company_id)) {
-                throw ValidationException::withMessages(["Can not connect account at the moment."]);
+
+            // return company social network if exists
+            if ($request->company->socialNetwork) {
+                return $this->show($request->company->socialNetwork);
             }
 
             // generate profile
-            $key = (new AyrshareController())->createProfile($company->name);
+            $key = (new AyrshareController())->createProfile($request->company->name);
 
             // store profile
-            $request['company_id'] = $company->id;
             $request['identity'] = $key['profileKey'];
             $request['meta'] = json_encode($key);
             $ayrshareProfile = $this->store($request);
