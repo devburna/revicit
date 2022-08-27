@@ -60,7 +60,8 @@ class Contact extends Notification implements ShouldQueue
     {
         return (new VonageMessage)
             ->clientReference($this->campaign['sender_name'])
-            ->content($this->campaign['meta']['sms']['content']);
+            ->content($this->campaign['meta']['sms']['content'])
+            ->unicode();
     }
 
     /**
