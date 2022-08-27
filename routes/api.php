@@ -202,6 +202,9 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    # wallet
+    Route::get('wallet', [\App\Http\Controllers\CompanyWalletController::class, 'show'])->middleware(['companyOwner']);
+
     # payments
     Route::prefix('payments')->group(function () {
 
