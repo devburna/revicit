@@ -92,7 +92,7 @@ class AyrshareProfileController extends Controller
         return response()->json([
             'status' => true,
             'data' => [
-                'link' => $token['url']
+                'link' => "{$token['url']}&redirect=" . url('/dashboard/campaigns')
             ],
             'message' => $message
         ], $code);
