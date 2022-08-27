@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('recipient_name');
             $table->string('recipient_email')->nullable();
             $table->timestamp('recipient_phone')->nullable();
-            $table->longText('meta')->nullable();
+            $table->longText('meta');
             $table->string('message');
             $table->string('status');
             $table->softDeletes();

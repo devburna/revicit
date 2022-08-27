@@ -13,15 +13,17 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('campaigns', function (Blueprint $table) {
+        Schema::create('service_baskets', function (Blueprint $table) {
             $table->id()->from(time());
-            $table->unsignedBigInteger('company_id');
-            $table->string('title');
-            $table->string('type');
-            $table->longText('template')->nullable();
-            $table->timestamp('scheduled_for')->nullable();
+            $table->string('name')->unique();
+            $table->string('code')->unique();
+            $table->longText('description');
+            $table->string('category');
+            $table->string('network');
+            $table->decimal('price', 15, 2)->default(0);
+            $table->decimal('price_capped_at', 15, 2)->default(0);
+            $table->string('currency');
             $table->longText('meta');
-            $table->string('status');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -34,6 +36,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('campaigns');
+        Schema::dropIfExists('service_baskets');
     }
 };

@@ -178,6 +178,29 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('', [\App\Http\Controllers\AyrshareProfileController::class, 'destroy'])->can('destroy', 'ayrshareProfile');
         });
     });
+
+    # service baskets
+    Route::prefix('service-baskets')->group(function () {
+
+        # create
+        Route::post('', [\App\Http\Controllers\ServiceBasketController::class, 'store']);
+
+        # details
+        Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'index']);
+
+        # social network
+        Route::prefix('{serviceBasket}')->group(function () {
+
+            # details
+            Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'show'])->can('view', 'serviceBasket');
+
+            # update details
+            Route::patch('', [\App\Http\Controllers\ServiceBasketController::class, 'update'])->can('update', 'serviceBasket');
+
+            # toggle
+            Route::delete('', [\App\Http\Controllers\ServiceBasketController::class, 'destroy'])->can('destroy', 'serviceBasket');
+        });
+    });
 });
 
 
