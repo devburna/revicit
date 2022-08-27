@@ -147,6 +147,11 @@ class AyrshareProfileController extends Controller
             $storeWebHookRequest['message'] = 'success';
 
             (new WebHookController())->store(new StoreWebHookRequest($storeWebHookRequest));
+
+            // notify company
+            $socialNetwork->company->notify(new SocialNetwork($request->all()));
+
+            return response()->json([]);
         } catch (\Throwable $th) {
             // store failed webhook
             $storeWebHookRequest['status'] = false;
@@ -154,9 +159,8 @@ class AyrshareProfileController extends Controller
             $storeWebHookRequest['message'] = $th->getMessage();
 
             (new WebHookController())->store(new StoreWebHookRequest($storeWebHookRequest));
-        }
 
-        // notify company
-        $socialNetwork->company->notify(new SocialNetwork($request->all()));
+            return response()->json([], 422);
+        }
     }
 }
