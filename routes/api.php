@@ -226,7 +226,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-
 Route::prefix('company/{company}')->group(function () {
 
     # details
@@ -236,5 +235,12 @@ Route::prefix('company/{company}')->group(function () {
     Route::post('', [\App\Http\Controllers\ContactController::class, 'store']);
 });
 
-// flutterwave webhook
+# flutterwave webhook
 Route::post('flutterwave', [\App\Http\Controllers\FlutterwaveController::class, 'webHook']);
+
+# ayrshare webhook
+Route::prefix('ayrshare')->group(function () {
+
+    # social
+    Route::post('social', [\App\Http\Controllers\AyrshareProfileController::class, 'webHook']);
+});

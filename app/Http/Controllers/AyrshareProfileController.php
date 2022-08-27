@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAyrshareProfileRequest;
+use App\Http\Requests\StoreWebHookRequest;
 use App\Http\Requests\UpdateAyrshareProfileRequest;
 use App\Models\AyrshareProfile;
 use Illuminate\Http\Request;
@@ -122,21 +123,36 @@ class AyrshareProfileController extends Controller
 
     public function webHook(Request $request)
     {
-        // find profile
-        $profile = AyrshareProfile::where('reference', $request->refId)->first();
+        // set origin
+        $storeWebHookRequest['origin'] = 'ayrshare';
 
-        // link account
-        if ($profile && $request->action === 'social' && $request->type === 'link') {
-            $profile->update([
-                strtolower($request->platform) => true
-            ]);
-        }
+        try {
+            // find profile
+            $profile = AyrshareProfile::where('reference', $request->refId)->firstOrFail();
 
-        // unlink account
-        if ($profile && $request->action === 'social' && $request->type === 'unlink' || $request->type === 'refresh') {
-            $profile->update([
-                strtolower($request->platform) => false
-            ]);
+            // link account
+            match ($request->type) {
+                'link' => $profile->update([
+                    strtolower($request->platform) => true
+                ]),
+                default =>  $profile->update([
+                    strtolower($request->platform) => false
+                ]),
+            };
+
+            // store  webhook
+            $storeWebHookRequest['status'] = false;
+            $storeWebHookRequest['data'] = json_encode($request->all());
+            $storeWebHookRequest['message'] = 'success';
+
+            (new WebHookController())->store(new StoreWebHookRequest($storeWebHookRequest));
+        } catch (\Throwable $th) {
+            // store failed webhook
+            $storeWebHookRequest['status'] = false;
+            $storeWebHookRequest['data'] = json_encode($request->all());
+            $storeWebHookRequest['message'] = $th->getMessage();
+
+            (new WebHookController())->store(new StoreWebHookRequest($storeWebHookRequest));
         }
     }
 }
