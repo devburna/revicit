@@ -13,13 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('social_media_platforms', function (Blueprint $table) {
+        Schema::create('ayrshare_profiles', function (Blueprint $table) {
             $table->id()->from(time());
-            $table->string('name')->unique();
-            $table->string('slug')->unique();
-            $table->boolean('image')->default(false);
-            $table->boolean('video')->default(false);
-            $table->boolean('reels')->default(false);
+            $table->unsignedBigInteger('company_id')->unique();
+            $table->string('identity')->unique();
+            $table->string('key')->unique();
+            $table->longText('token')->unique();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('social_media_platforms');
+        Schema::dropIfExists('ayrshare_profiles');
     }
 };

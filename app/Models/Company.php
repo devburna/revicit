@@ -26,7 +26,8 @@ class Company extends Model
         'phone',
         'website',
         'description',
-        'logo_url'
+        'logo_url',
+        'balance'
     ];
 
     /**

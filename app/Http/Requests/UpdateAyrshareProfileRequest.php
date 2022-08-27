@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateSocialMediaPlatformRequest extends FormRequest
+class UpdateAyrshareProfileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,10 @@ class UpdateSocialMediaPlatformRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'string|unique:social_media_platforms,name,' . $this->socialMediaPlatform->id,
-            'slug' => 'string|unique:social_media_platforms,slug,' . $this->socialMediaPlatform->id,
-            'video' => 'boolean',
-            'image' => 'boolean',
-            'reels' => 'boolean'
+            'company_id' => 'required|unique:ayrshare_profiles,company_id',
+            'identity' => 'required|unique:ayrshare_profiles,identity',
+            'key' => 'required|unique:ayrshare_profiles,key',
+            'token' => 'required|unique:ayrshare_profiles,token',
         ];
     }
 }

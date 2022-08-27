@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\SocialMediaPlatform;
+use App\Models\AyrshareProfile;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class SocialMediaPlatformPolicy
+class AyrshareProfilePolicy
 {
     use HandlesAuthorization;
 
@@ -25,12 +25,12 @@ class SocialMediaPlatformPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\SocialMediaPlatform  $socialMediaPlatform
+     * @param  \App\Models\AyrshareProfile  $ayrshareProfile
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, SocialMediaPlatform $socialMediaPlatform)
+    public function view(User $user, AyrshareProfile $ayrshareProfile)
     {
-        //
+        return $user->is($ayrshareProfile->company->user);
     }
 
     /**
@@ -48,47 +48,47 @@ class SocialMediaPlatformPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\SocialMediaPlatform  $socialMediaPlatform
+     * @param  \App\Models\AyrshareProfile  $ayrshareProfile
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, SocialMediaPlatform $socialMediaPlatform)
+    public function update(User $user, AyrshareProfile $ayrshareProfile)
     {
-        //
+        return $this->view($user, $ayrshareProfile->company->user);
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\SocialMediaPlatform  $socialMediaPlatform
+     * @param  \App\Models\AyrshareProfile  $ayrshareProfile
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, SocialMediaPlatform $socialMediaPlatform)
+    public function delete(User $user, AyrshareProfile $ayrshareProfile)
     {
-        //
+        return $this->view($user, $ayrshareProfile->company->user);
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\SocialMediaPlatform  $socialMediaPlatform
+     * @param  \App\Models\AyrshareProfile  $ayrshareProfile
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, SocialMediaPlatform $socialMediaPlatform)
+    public function restore(User $user, AyrshareProfile $ayrshareProfile)
     {
-        //
+        return $this->view($user, $ayrshareProfile->company->user);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\SocialMediaPlatform  $socialMediaPlatform
+     * @param  \App\Models\AyrshareProfile  $ayrshareProfile
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, SocialMediaPlatform $socialMediaPlatform)
+    public function forceDelete(User $user, AyrshareProfile $ayrshareProfile)
     {
-        //
+        return $this->view($user, $ayrshareProfile->company->user);
     }
 }

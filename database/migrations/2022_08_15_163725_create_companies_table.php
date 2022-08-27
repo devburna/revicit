@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->longText('description')->nullable();
             $table->string('logo_url')->nullable();
+            $table->decimal('balance', 15, 2)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
