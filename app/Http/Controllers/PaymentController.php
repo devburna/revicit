@@ -29,40 +29,6 @@ class PaymentController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @param  \App\Http\Requests\StorePaymentRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function create(StorePaymentRequest $request)
-    {
-        try {
-            // generate payment link
-            $request['name'] = "{$request->user()->first_name} {$request->user()->last_name}";
-            $request['email_address'] = $request->user()->email_address;
-            $request['phone_number'] = $request->user()->phone_number;
-            $request['consumer_id'] = $request->company->wallet->id;
-            $request['consumer_mac'] = 'deposit';
-
-            return $link = (new FlutterwaveController())->paymentLink($request->all());
-
-            return response()->json([
-                'status' => true,
-                'data' => [
-                    'link' => $link['data']['link']
-                ],
-                'message' => 'Use the link to complete your payment'
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'status' => false,
-                'data' => null,
-                'message' => $th->getMessage(),
-            ]);
-        }
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StorePaymentRequest  $request

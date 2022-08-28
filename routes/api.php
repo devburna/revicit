@@ -203,13 +203,17 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     # wallet
-    Route::get('wallet', [\App\Http\Controllers\CompanyWalletController::class, 'show'])->middleware(['companyOwner']);
+    Route::prefix('wallet')->middleware(['companyOwner'])->group(function () {
+
+        #balance
+        Route::get('', [\App\Http\Controllers\CompanyWalletController::class, 'show']);
+
+        #deposit
+        Route::post('', [\App\Http\Controllers\CompanyWalletController::class, 'create']);
+    });
 
     # payments
     Route::prefix('payments')->group(function () {
-
-        # create
-        Route::post('', [\App\Http\Controllers\PaymentController::class, 'create'])->middleware(['companyOwner']);
 
         # all
         Route::get('', [\App\Http\Controllers\PaymentController::class, 'index'])->middleware(['companyOwner']);
