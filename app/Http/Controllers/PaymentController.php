@@ -97,6 +97,10 @@ class PaymentController extends Controller
         try {
             return DB::transaction(function () use ($data) {
 
+                if (Payment::where('identity', $data['data']['tx_ref'])->first()) {
+                    return response()->json([], 422);
+                }
+
                 // verify transaction
                 $response = (new FlutterwaveController())->verifyTransaction($data['data']['id']);
 
