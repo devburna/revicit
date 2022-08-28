@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CampaignStatus;
 use App\Enums\CampaignType;
+use DateTime;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -71,6 +72,17 @@ class Campaign extends Model
     {
         // Return email address and name...
         return [$this->company->email => $this->company->name];
+    }
+
+    /**
+     * Scope a query to only schedule campaigns.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeScheduledCampaigns($query)
+    {
+        return $query->whereNotNull('scheduled_for')->where('status', CampaignStatus::SCHEDULED())->where('scheduled_for', '<', new DateTime());
     }
 
     protected function meta(): Attribute
