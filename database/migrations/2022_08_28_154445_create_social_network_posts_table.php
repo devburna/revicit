@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id()->from(time());
             $table->unsignedBigInteger('company_id');
             $table->string('identity')->unique();
-            $table->string('reference')->unique();
+            $table->string('reference');
             $table->longText('post');
             $table->string('platform');
             $table->longText('meta');

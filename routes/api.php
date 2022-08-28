@@ -186,13 +186,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'index'])->middleware(['companyOwner']);
 
         # social network
-        Route::prefix('{socialNetworkPosts}')->group(function () {
+        Route::prefix('{socialNetworkPost}')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'show'])->can('view', 'socialNetworkPosts');
+            Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'show'])->can('view', 'socialNetworkPost');
 
-            # toggle
-            Route::delete('', [\App\Http\Controllers\SocialNetworkPostController::class, 'destroy'])->can('destroy', 'socialNetworkPosts');
+            # delete
+            Route::delete('', [\App\Http\Controllers\SocialNetworkPostController::class, 'destroy'])->can('destroy', 'socialNetworkPost');
         });
     });
 

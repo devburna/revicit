@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreSocialNetworkPostRequest;
-use App\Http\Requests\UpdateSocialNetworkPostRequest;
 use App\Models\SocialNetworkPost;
 use Illuminate\Http\Request;
 
@@ -17,6 +16,14 @@ class SocialNetworkPostController extends Controller
      */
     public function index(Request $request)
     {
+        if (!$request->company->socialNetwork) {
+            return response()->json([
+                'data' => null,
+                'message' => 'No social network has been linked to this account.',
+                'status' => false,
+            ]);
+        }
+
         $socialNetworkPosts = $request->company->socialNetworkPosts()->orderByDesc('created_at')->paginate(20);
 
         return response()->json([
@@ -46,12 +53,32 @@ class SocialNetworkPostController extends Controller
     /**
      * Display the specified resource.
      *
+     * @param  Illuminate\Http\Request  $request
      * @param  \App\Models\SocialNetworkPost  $socialNetworkPost
      * @return \Illuminate\Http\Response
      */
-    public function show(SocialNetworkPost $socialNetworkPost)
+    public function show(Request $request, SocialNetworkPost $socialNetworkPost)
     {
-        //
+        try {
+            // get post analytics
+            $socialNetworkPost = match ($request->action) {
+                'analytics' => (new AyrshareController())->postAnalytics($socialNetworkPost->identity, $socialNetworkPost->platform),
+                'comments' => (new AyrshareController())->postComments($socialNetworkPost->identity, $socialNetworkPost->company->socialNetwork->identity),
+                default => (new AyrshareController())->postDetails($socialNetworkPost->identity, $socialNetworkPost->company->socialNetwork->identity),
+            };
+
+            return response()->json([
+                'data' => $socialNetworkPost,
+                'message' => 'success',
+                'status' => true,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'data' => null,
+                'message' => $th->getMessage(),
+                'status' => false,
+            ]);
+        }
     }
 
     /**
@@ -62,6 +89,27 @@ class SocialNetworkPostController extends Controller
      */
     public function destroy(SocialNetworkPost $socialNetworkPost)
     {
-        //
+        try {
+            // delete post
+            (new AyrshareController())->postDetails($socialNetworkPost->identity, $socialNetworkPost->company->socialNetwork->identity);
+
+            if ($socialNetworkPost->trashed()) {
+                $socialNetworkPost->restore();
+            } else {
+                $socialNetworkPost->delete();
+            }
+
+            return response()->json([
+                'data' => $socialNetworkPost,
+                'message' => 'success',
+                'status' => true,
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'data' => null,
+                'message' => $th->getMessage(),
+                'status' => false,
+            ]);
+        }
     }
 }

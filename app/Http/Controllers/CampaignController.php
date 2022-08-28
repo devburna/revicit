@@ -389,15 +389,6 @@ class CampaignController extends Controller
                 throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!']);
             }
 
-            // store post
-            $storeSocialNetworkPostRequest = (new StoreSocialNetworkPostRequest($request->all()));
-            $storeSocialNetworkPostRequest['identity'] = $response['posts'][0]['id'];
-            $storeSocialNetworkPostRequest['reference'] = $response['posts'][0]['refId'];
-            $storeSocialNetworkPostRequest['post'] = $response['posts'][0]['post'];
-            $storeSocialNetworkPostRequest['platform'] = $response['posts'][0]['postIds'][0]['platform'];
-            $storeSocialNetworkPostRequest['meta'] = json_encode($response);
-            (new SocialNetworkPostController())->store($storeSocialNetworkPostRequest);
-
             // increment success count on success
             $success++;
 
@@ -426,6 +417,15 @@ class CampaignController extends Controller
             // add to campaign logs
             array_push($campaignLogs, $logs);
         }
+
+        // store post
+        $storeSocialNetworkPostRequest = (new StoreSocialNetworkPostRequest($request->all()));
+        $storeSocialNetworkPostRequest['identity'] = $response['posts'][0]['id'];
+        $storeSocialNetworkPostRequest['reference'] = $response['posts'][0]['refId'];
+        $storeSocialNetworkPostRequest['post'] = $response['posts'][0]['post'];
+        $storeSocialNetworkPostRequest['platform'] = $response['posts'][0]['postIds'][0]['platform'];
+        $storeSocialNetworkPostRequest['meta'] = json_encode($response);
+        (new SocialNetworkPostController())->store($storeSocialNetworkPostRequest);
 
         // set receipt
         $campaign->quantity = $success;

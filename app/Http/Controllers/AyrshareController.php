@@ -40,14 +40,80 @@ class AyrshareController extends Controller
         }
     }
 
-    public function postDetails($data)
+    public function postDetails($post, $profile)
     {
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Authorization' => "Bearer {$this->ayrshareKey}"
-            ])->get("{$this->ayrshareUrl}/post/{$data['post']}", [
-                'profileKey' => $data['profile']
+            ])->get("{$this->ayrshareUrl}/post/{$post}", [
+                'profileKey' => $profile
+            ])->json();
+
+            // catch error
+            if ($response['status'] === 'error') {
+                throw ValidationException::withMessages(['Error occured, kindly contact support for more information']);
+            }
+
+            return $response;
+        } catch (\Throwable $th) {
+            throw ValidationException::withMessages([$th->getMessage()]);
+        }
+    }
+
+    public function postComments($post, $profile)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => "Bearer {$this->ayrshareKey}"
+            ])->get("{$this->ayrshareUrl}/comments", [
+                'id' => $post,
+                'profileKey' => $profile
+            ])->json();
+
+            // catch error
+            if ($response['status'] === 'error') {
+                throw ValidationException::withMessages(['Error occured, kindly contact support for more information']);
+            }
+
+            return $response;
+        } catch (\Throwable $th) {
+            throw ValidationException::withMessages([$th->getMessage()]);
+        }
+    }
+
+    public function postAnalytics($post, $platform)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => "Bearer {$this->ayrshareKey}"
+            ])->post("{$this->ayrshareUrl}/analytics/post", [
+                'id' => $post,
+                'platforms' => array($platform)
+            ])->json();
+
+            // catch error
+            if ($response['status'] === 'error') {
+                throw ValidationException::withMessages(['Error occured, kindly contact support for more information']);
+            }
+
+            return $response;
+        } catch (\Throwable $th) {
+            throw ValidationException::withMessages([$th->getMessage()]);
+        }
+    }
+
+    public function postDelete($post, $profile)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => "Bearer {$this->ayrshareKey}"
+            ])->delete("{$this->ayrshareUrl}/post", [
+                'id' => $post,
+                'profileKeys' => $profile
             ])->json();
 
             // catch error
