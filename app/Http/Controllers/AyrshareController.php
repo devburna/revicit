@@ -41,6 +41,27 @@ class AyrshareController extends Controller
         }
     }
 
+    public function postDetails($data)
+    {
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => "Bearer {$this->ayrshareKey}"
+            ])->get("{$this->ayrshareUrl}/post/{$data['post']}", [
+                'profileKey' => $data['profile']
+            ])->json();
+
+            // catch error
+            if ($response['status'] === 'error') {
+                throw ValidationException::withMessages(['Error occured, kindly contact support for more information']);
+            }
+
+            return $response;
+        } catch (\Throwable $th) {
+            throw ValidationException::withMessages([$th->getMessage()]);
+        }
+    }
+
     public function createProfile($title)
     {
         try {

@@ -13,12 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('web_hooks', function (Blueprint $table) {
+        Schema::create('social_network_posts', function (Blueprint $table) {
             $table->id()->from(time());
-            $table->string('origin');
-            $table->boolean('status');
-            $table->longText('data');
-            $table->string('message');
+            $table->unsignedBigInteger('company_id');
+            $table->string('identity')->unique();
+            $table->string('reference')->unique();
+            $table->longText('post');
+            $table->string('platform');
+            $table->longText('meta');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -31,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('web_hooks');
+        Schema::dropIfExists('social_network_posts');
     }
 };
