@@ -126,7 +126,7 @@ class CampaignController extends Controller
                 unset($campaign->failed);
                 unset($campaign->amount);
                 unset($campaign->currency);
-                unset($campaign->logs);
+                unset($campaign->quantity);
 
                 return $this->show($campaign, 'success', 201);
             });
