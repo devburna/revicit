@@ -12,7 +12,6 @@ use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
-use App\Models\CompanyWallet;
 use App\Models\Contact;
 use App\Models\ServiceBasket;
 use App\Notifications\Contact as NotificationsContact;
@@ -20,8 +19,6 @@ use App\Notifications\Payment;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
-
-use function PHPSTORM_META\type;
 
 class CampaignController extends Controller
 {
@@ -118,6 +115,16 @@ class CampaignController extends Controller
 
                 // initiate campaign
                 $campaign = $this->initiate($request, $campaign);
+
+                // charge company wallet
+                $this->serviceCharge($campaign);
+
+                // clean campaign data
+                unset($campaign->success);
+                unset($campaign->failed);
+                unset($campaign->amount);
+                unset($campaign->currency);
+                unset($campaign->logs);
 
                 return $this->show($campaign, 'success', 201);
             });
@@ -239,6 +246,7 @@ class CampaignController extends Controller
     /**
      *
      * @param  \App\Http\Requests\StoreCampaignRequest  $request
+     * @param  \App\Models\Campaign  $campaign
      */
     public function sendCampaign(StoreCampaignRequest $request, Campaign $campaign)
     {
@@ -251,8 +259,9 @@ class CampaignController extends Controller
         // save campaign  logs
         $campaignLogs = [];
 
-        // set billing quantity
-        $billingQuantity = 0;
+        // status
+        $success = 0;
+        $failed = 0;
 
         foreach ($request->meta['meta']['contacts'] as $contact) {
 
@@ -276,7 +285,7 @@ class CampaignController extends Controller
                 $request['response'] = json_encode($response);
 
                 // increment success count on success
-                $billingQuantity++;
+                $success++;
 
                 // store campaign log
                 $request['meta'] = json_encode($request->all());
@@ -287,6 +296,9 @@ class CampaignController extends Controller
                 // add to campaign logs
                 array_push($campaignLogs, $logs);
             } catch (\Throwable $th) {
+
+                // increment failed count on failed
+                $failed++;
 
                 // store campaign log
                 $request['meta'] = json_encode($th);
@@ -301,8 +313,12 @@ class CampaignController extends Controller
             }
         }
 
-        // charge company wallet (Service-B4-Pay)
-        $this->serviceCharge($request->company->wallet, $request->service->price * $billingQuantity, "Campaign {$request->title}", $request->all(), false);
+        // set receipt
+        $campaign->quantity = $success;
+        $campaign->success = $success;
+        $campaign->failed = $failed;
+        $campaign->amount = $request->service->price * $success;
+        $campaign->currency = 'NGN';
 
         // logs to campaign
         $campaign->logs = $campaignLogs;
@@ -313,6 +329,7 @@ class CampaignController extends Controller
     /**
      *
      * @param  \App\Http\Requests\StoreCampaignRequest  $request
+     * @param  \App\Models\Campaign  $campaign
      */
     public function socialNetwork(StoreCampaignRequest $request, Campaign $campaign)
     {
@@ -333,6 +350,10 @@ class CampaignController extends Controller
         // save campaign  logs
         $campaignLogs = [];
 
+        // status
+        $success = 0;
+        $failed = 0;
+
         try {
 
             // sort video media urls
@@ -351,9 +372,6 @@ class CampaignController extends Controller
                 }, []);
             }
 
-            // charge company wallet (Pay-B4-Service)
-            $this->serviceCharge($request->company->wallet, $request->service->price, "Campaign {$request->title}", $request->all(), false);
-
             // send campaign
             $request['post'] = $request->meta['meta']['social_network']['post'];
             $request['platform'] = $request->meta['meta']['social_network']['platform'];
@@ -363,12 +381,11 @@ class CampaignController extends Controller
 
             // verify response
             if (!$response['status'] === 'success') {
-
-                // refund company wallet (Pay-B4-Service)
-                $this->serviceCharge($request->company->wallet, $request->service->price, "Refund Campaign {$request->title}", $request->all(), true);
-
                 throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!']);
             }
+
+            // increment success count on success
+            $success++;
 
             // add response to request
             $request['response'] = json_encode($response);
@@ -383,6 +400,9 @@ class CampaignController extends Controller
             array_push($campaignLogs, $logs);
         } catch (\Throwable $th) {
 
+            // increment failed count on failed
+            $failed++;
+
             // store campaign log
             $request['meta'] = json_encode($th);
             $request['message'] = $th->getMessage();
@@ -393,31 +413,43 @@ class CampaignController extends Controller
             array_push($campaignLogs, $logs);
         }
 
+        // set receipt
+        $campaign->quantity = $success;
+        $campaign->success = $success;
+        $campaign->failed = $failed;
+        $campaign->amount = $request->service->price * $success;
+        $campaign->currency = 'NGN';
+
         // logs to campaign
         $campaign->logs = $campaignLogs;
 
         return $campaign;
     }
 
-    private function serviceCharge(CompanyWallet $wallet, $amount, $narration, $meta, $refund = false)
+    /**
+     *
+     * @param  \App\Models\Campaign  $campaign
+     */
+    private function serviceCharge(Campaign $campaign)
     {
-        match ($refund) {
-            true =>  $wallet->credit($amount),
-            default =>  $wallet->debit($amount),
-        };
-
         // store payment
         $storePaymentRequest = new StorePaymentRequest();
-        $storePaymentRequest['company_wallet_id'] = $wallet->id;
+        $storePaymentRequest['company_wallet_id'] = $campaign->company->wallet->id;
         $storePaymentRequest['identity'] = Str::random(24);
-        $storePaymentRequest['amount'] = $amount;
+        $storePaymentRequest['amount'] = $campaign->amount;
         $storePaymentRequest['currency'] = 'NGN';
-        $storePaymentRequest['narration'] = $narration;
-        $storePaymentRequest['type'] = $refund ? PaymentType::CREDIT() : PaymentType::DEBIT();
+        $storePaymentRequest['narration'] = "Campaign {$campaign->title}";
+        $storePaymentRequest['type'] = PaymentType::DEBIT();
         $storePaymentRequest['status'] = PaymentStatus::SUCCESSFUL();
-        $storePaymentRequest['meta'] = json_encode($meta);
-        $payment = (new PaymentController())->store($storePaymentRequest);
+        $storePaymentRequest['meta'] = json_encode($campaign);
+        $campaign->invoice = (new PaymentController())->store($storePaymentRequest);
 
-        $wallet->company->notify(new Payment($payment));
+        // send invoice to company
+        $campaign->company->notify(new Payment($campaign->invoice));
+
+        // debit company wallet
+        $campaign->company->wallet->debit($campaign->amount);
+
+        return $campaign;
     }
 }
