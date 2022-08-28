@@ -4,18 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
 use App\Http\Requests\UpdateContactRequest;
-use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Contact;
+use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @param  \App\Models\Company  $company
+     * @param  Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function index(ViewCompanyRequest $request)
+    public function index(Request $request)
     {
         $contacts = $request->company->contacts()->orderByDesc('created_at')->paginate(20);
 

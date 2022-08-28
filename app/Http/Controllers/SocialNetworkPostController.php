@@ -5,17 +5,25 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSocialNetworkPostRequest;
 use App\Http\Requests\UpdateSocialNetworkPostRequest;
 use App\Models\SocialNetworkPost;
+use Illuminate\Http\Request;
 
 class SocialNetworkPostController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
+     * @param  Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $socialNetworkPosts = $request->company->socialNetworkPosts()->orderByDesc('created_at')->paginate(20);
+
+        return response()->json([
+            'data' => $socialNetworkPosts,
+            'message' => 'success',
+            'status' => true,
+        ]);
     }
 
     /**

@@ -179,6 +179,23 @@ Route::middleware('auth:sanctum')->group(function () {
         });
     });
 
+    # social network posts
+    Route::prefix('social-network-posts')->group(function () {
+
+        # details
+        Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'index'])->middleware(['companyOwner']);
+
+        # social network
+        Route::prefix('{socialNetworkPosts}')->group(function () {
+
+            # details
+            Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'show'])->can('view', 'socialNetworkPosts');
+
+            # toggle
+            Route::delete('', [\App\Http\Controllers\SocialNetworkPostController::class, 'destroy'])->can('destroy', 'socialNetworkPosts');
+        });
+    });
+
     # service baskets
     Route::prefix('service-baskets')->group(function () {
 

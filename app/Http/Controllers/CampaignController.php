@@ -11,13 +11,12 @@ use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\StoreSocialNetworkPostRequest;
 use App\Http\Requests\UpdateCampaignRequest;
-use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
 use App\Models\Contact;
 use App\Models\ServiceBasket;
-use App\Models\SocialNetworkPost;
 use App\Notifications\Contact as NotificationsContact;
 use App\Notifications\Payment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
@@ -27,9 +26,10 @@ class CampaignController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function index(ViewCompanyRequest $request)
+    public function index(Request $request)
     {
         $campaigns = $request->company->campaigns()->orderByDesc('created_at')->paginate(20);
 
@@ -390,13 +390,13 @@ class CampaignController extends Controller
             }
 
             // store post
-            $storeSocialNetworkPostRequest = new StoreSocialNetworkPostRequest($request->all());
-            $storeSocialNetworkPostRequest['identity'] = $response[0]['id'];
-            $storeSocialNetworkPostRequest['reference'] = $response[0]['refId'];
-            $storeSocialNetworkPostRequest['post'] = $response[0]['post'];
-            $storeSocialNetworkPostRequest['platform'] = $response[0]['postIds'][0]['platform'];
+            $storeSocialNetworkPostRequest = (new StoreSocialNetworkPostRequest($request->all()));
+            $storeSocialNetworkPostRequest['identity'] = $response['posts'][0]['id'];
+            $storeSocialNetworkPostRequest['reference'] = $response['posts'][0]['refId'];
+            $storeSocialNetworkPostRequest['post'] = $response['posts'][0]['post'];
+            $storeSocialNetworkPostRequest['platform'] = $response['posts'][0]['postIds'][0]['platform'];
             $storeSocialNetworkPostRequest['meta'] = json_encode($response);
-            $storeSocialNetworkPostRequest(new SocialNetworkPost())->store($storeSocialNetworkPostRequest);
+            (new SocialNetworkPostController())->store($storeSocialNetworkPostRequest);
 
             // increment success count on success
             $success++;
