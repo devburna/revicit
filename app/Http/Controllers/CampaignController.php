@@ -117,7 +117,9 @@ class CampaignController extends Controller
                 $campaign = $this->initiate($request, $campaign);
 
                 // charge company wallet
-                $this->serviceCharge($campaign);
+                if ($campaign->amount > 0) {
+                    $this->serviceCharge($campaign);
+                }
 
                 // clean campaign data
                 unset($campaign->success);
