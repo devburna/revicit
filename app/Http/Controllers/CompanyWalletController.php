@@ -26,7 +26,7 @@ class CompanyWalletController extends Controller
             $request['consumer_id'] = $request->company->wallet->id;
             $request['consumer_mac'] = 'deposit';
 
-            return $link = (new FlutterwaveController())->paymentLink($request->all());
+            $link = (new FlutterwaveController())->paymentLink($request->all());
 
             return response()->json([
                 'status' => true,
@@ -40,7 +40,7 @@ class CompanyWalletController extends Controller
                 'status' => false,
                 'data' => null,
                 'message' => $th->getMessage(),
-            ]);
+            ], 422);
         }
     }
 

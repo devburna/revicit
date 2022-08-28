@@ -29,10 +29,10 @@ class FlutterwaveController extends Controller
                 'tx_ref' => Str::uuid(),
                 'amount' => $data['amount'],
                 'currency' => $data['currency'],
-                'redirect_url' => null,
+                'redirect_url' => url('/dashboard'),
                 'meta' => [
-                    'consumer_id' =>  $data['consumer_id'],
-                    'consumer_mac' =>  $data['consumer_mac']
+                    'consumer_id' => $data['consumer_id'],
+                    'consumer_mac' => $data['consumer_mac']
                 ],
                 'customer' => [
                     'name' => $data['name'],

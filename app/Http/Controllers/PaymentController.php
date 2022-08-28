@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PaymentType;
 use App\Http\Requests\StorePaymentRequest;
 use App\Http\Requests\StoreWebHookRequest;
 use App\Http\Requests\UpdatePaymentRequest;
@@ -106,13 +107,18 @@ class PaymentController extends Controller
                     default => $response['data']['amount']
                 };
 
+                // set type
+                $type = match ($response['data']['meta']['consumer_mac']) {
+                    default => PaymentType::CREDIT()
+                };
+
                 // store payment
                 $storePaymentRequest['company_wallet_id'] = $response['data']['meta']['consumer_id'];
                 $storePaymentRequest['identity'] = $response['data']['tx_ref'];
                 $storePaymentRequest['amount'] = $response['data']['amount'];
                 $storePaymentRequest['currency'] = $response['data']['currency'];
                 $storePaymentRequest['narration'] = $response['data']['narration'];
-                $storePaymentRequest['type'] = $response['data']['type'];
+                $storePaymentRequest['type'] = $type;
                 $storePaymentRequest['status'] = $response['data']['status'];
                 $storePaymentRequest['meta'] = json_encode($response);
                 $payment = $this->store(new StorePaymentRequest($storePaymentRequest));
