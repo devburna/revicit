@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentStatus;
+use App\Enums\PaymentType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -43,7 +45,8 @@ class Payment extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        //
+        'type' => PaymentType::class,
+        'status' => PaymentStatus::class,
     ];
 
     protected function meta(): Attribute
