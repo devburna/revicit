@@ -28,10 +28,11 @@ class CampaignLogController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreCampaignLogRequest  $request
+     * @return \Illuminate\Http\Response
      */
     public function store(StoreCampaignLogRequest $request)
     {
-        CampaignLog::create($request->only(['campaign_id', 'sender_name', 'sender_email', 'sender_phone', 'recipient_name', 'recipient_email', 'recipient_phone', 'meta', 'message', 'status']));
+        return CampaignLog::create($request->only(['campaign_id', 'sender_name', 'sender_email', 'sender_phone', 'recipient_name', 'recipient_email', 'recipient_phone', 'meta', 'message', 'status']));
     }
 
     /**

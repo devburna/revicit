@@ -21,6 +21,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 
+use function PHPSTORM_META\type;
+
 class CampaignController extends Controller
 {
     /**
@@ -114,8 +116,8 @@ class CampaignController extends Controller
                     return $this->show($campaign, 'success', 201);
                 }
 
-                // send campaign - id, request, meta
-                $campaign =  $this->initiate($request, $campaign);
+                // initiate campaign
+                $campaign = $this->initiate($request, $campaign);
 
                 return $this->show($campaign, 'success', 201);
             });
@@ -189,8 +191,8 @@ class CampaignController extends Controller
                 $storeCampaignRequest['type'] = $request->type;
                 $storeCampaignRequest['company'] = $request->company;
 
-                // send campaign
-                $this->initiate($storeCampaignRequest);
+                // initiate campaign
+                $campaign = $this->initiate($storeCampaignRequest, $campaign);
             }
 
             return $this->show($campaign, 'success', 200);
@@ -309,11 +311,8 @@ class CampaignController extends Controller
      */
     public function socialNetwork(StoreCampaignRequest $request, Campaign $campaign)
     {
-        // save campaign  logs
-        $campaignLogs = [];
-
         // decode meta data
-        $request['meta'] = json_decode($request->meta);
+        $request['meta'] = json_decode($request->meta, true);
 
         // set campaign id
         $request['campaign_id'] = $campaign->id;
@@ -326,10 +325,13 @@ class CampaignController extends Controller
         // video only platforms
         $videoOnly = ['youtube', 'tiktok'];
 
+        // save campaign  logs
+        $campaignLogs = [];
+
         try {
 
             // sort video media urls
-            if (in_array($request->meta['social_network']['platform'], $videoOnly)) {
+            if (in_array($request->meta['meta']['social_network']['platform'], $videoOnly)) {
                 $mediaUrls = [];
                 foreach ($request->media_urls as $media) {
                     if ($media['resource_type'] === 'video') {
@@ -348,8 +350,8 @@ class CampaignController extends Controller
             $this->serviceCharge($request->company->wallet, $request->service->price, "Campaign {$request->title}", $request->all(), false);
 
             // send campaign
-            $request['post'] = $request->meta['social_network']['post'];
-            $request['platform'] = $request->meta['social_network']['platform'];
+            $request['post'] = $request->meta['meta']['social_network']['post'];
+            $request['platform'] = $request->meta['meta']['social_network']['platform'];
             $request['media_urls'] = $mediaUrls;
 
             $response = (new AyrshareController())->post($request->all());
@@ -357,14 +359,14 @@ class CampaignController extends Controller
             // verify response
             if (!$response['status'] === 'success') {
 
-                // add response to request
-                $request['response'] = json_encode($response);
-
                 // refund company wallet (Pay-B4-Service)
                 $this->serviceCharge($request->company->wallet, $request->service->price, "Refund Campaign {$request->title}", $request->all(), true);
 
                 throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!']);
             }
+
+            // add response to request
+            $request['response'] = json_encode($response);
 
             // store campaign log
             $request['meta'] = json_encode($request->all());

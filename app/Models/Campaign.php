@@ -73,16 +73,16 @@ class Campaign extends Model
         return [$this->company->email => $this->company->name];
     }
 
-    public function company(): BelongsTo
-    {
-        return $this->belongsTo(Company::class);
-    }
-
     protected function meta(): Attribute
     {
         return Attribute::make(
             get: fn ($value, $attributes) => json_decode($value),
         );
+    }
+
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 
     public function logs(): HasMany
