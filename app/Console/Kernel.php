@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
                 // store campaign request instance
                 $storeCampaignRequest = new StoreCampaignRequest(json_decode(json_encode($campaign->meta), true));
 
-                // modified data
+                // modify data
                 unset($storeCampaignRequest['scheduled_for']);
                 $storeCampaignRequest['company'] = $campaign->company;
                 $storeCampaignRequest['campaign'] = $campaign;

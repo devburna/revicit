@@ -197,7 +197,7 @@ class CampaignController extends Controller
                 $storeCampaignRequest['scheduled_for'] = $request->scheduled_for;
             }
 
-            // modified data
+            // modify data
             $storeCampaignRequest['title'] = $request->title;
             $storeCampaignRequest['type'] = $request->type;
             $storeCampaignRequest['draft'] = $request->draft;
