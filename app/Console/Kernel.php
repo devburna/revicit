@@ -7,7 +7,6 @@ use App\Http\Requests\StoreCampaignRequest;
 use App\Models\Campaign;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Facades\Mail;
 
 class Kernel extends ConsoleKernel
 {
