@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
 
                 // modify data
                 unset($storeCampaignRequest['scheduled_for']);
+                $storeCampaignRequest['draft'] = false;
                 $storeCampaignRequest['company'] = $campaign->company;
                 $storeCampaignRequest['campaign'] = $campaign;
 
