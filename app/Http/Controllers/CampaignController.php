@@ -50,10 +50,10 @@ class CampaignController extends Controller
             return DB::transaction(function () use ($request) {
 
                 // set status
-                if ($request->draft) {
-                    $request['status'] = CampaignStatus::DRAFT();
-                } else if ($request->scheduled_for) {
+                if ($request->scheduled_for || $request->draft && $request->scheduled_for) {
                     $request['status'] = CampaignStatus::SCHEDULED();
+                } else if ($request->draft) {
+                    $request['status'] = CampaignStatus::DRAFT();
                 } else {
                     $request['status'] = CampaignStatus::PUBLISHED();
                 }

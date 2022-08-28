@@ -30,7 +30,7 @@ class UpdateCampaignRequest extends FormRequest
             'title' => 'required|string',
             'type' => ['required', 'exists:service_baskets,category'],
             'scheduled_for' => 'date_format:Y-m-d H:i|after:1 minute',
-            'draft' => 'required|boolean',
+            'draft' => 'boolean',
 
             // mail and sms required meta data
             'meta.contacts' => 'required_unless:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
