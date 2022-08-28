@@ -7,6 +7,7 @@ use App\Http\Requests\StoreCampaignRequest;
 use App\Models\Campaign;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Mail;
 
 class Kernel extends ConsoleKernel
 {
@@ -29,8 +30,7 @@ class Kernel extends ConsoleKernel
                 $storeCampaignRequest = new StoreCampaignRequest(json_decode(json_encode($campaign->meta), true));
 
                 // modified data
-                unset($storeCampaignRequest->scheduled_for);
-                $storeCampaignRequest['draft'] = 0;
+                unset($storeCampaignRequest['scheduled_for']);
                 $storeCampaignRequest['company'] = $campaign->company;
                 $storeCampaignRequest['campaign'] = $campaign;
 

@@ -82,7 +82,7 @@ class Campaign extends Model
      */
     public function scopeScheduledCampaigns($query)
     {
-        return $query->whereNotNull('scheduled_for')->where('scheduled_for', '<', new DateTime())->where('status', CampaignStatus::SCHEDULED());
+        return $query->whereNotNull('scheduled_for')->where('scheduled_for', '<=', new DateTime())->where('status', CampaignStatus::SCHEDULED());
     }
 
     protected function meta(): Attribute
