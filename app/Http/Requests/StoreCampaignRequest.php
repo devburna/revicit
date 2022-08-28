@@ -29,7 +29,7 @@ class StoreCampaignRequest extends FormRequest
             'title' => 'required|string',
             'type' => ['required', 'exists:service_baskets,category'],
             'scheduled_for' => 'date_format:Y-m-d H:i|after:1 minute',
-            'draft' => 'required|boolean',
+            'draft' => 'required_without:scheduled_for|boolean',
 
             // mail and sms required meta data
             'meta.contacts' => 'required_unless:type,' . CampaignType::SOCIAL_NETWORK() . '|array',
@@ -58,6 +58,7 @@ class StoreCampaignRequest extends FormRequest
     public function messages()
     {
         return [
+            'draft.required_without' => 'Please specify if campaign should be drafted.',
             'type.exists' => 'We currently do not offer this service at the moment.',
             'meta.mail.subject.required_if' => 'The mail subject is required.',
             'meta.mail.template.required_if' => 'The mail template is required.',
