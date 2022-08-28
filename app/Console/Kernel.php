@@ -2,7 +2,6 @@
 
 namespace App\Console;
 
-use App\Enums\CampaignStatus;
 use App\Http\Controllers\CampaignController;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Models\Campaign;
@@ -19,28 +18,26 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // send scheduled campaigns
+        // check and send scheduled campaigns every minute
         $schedule->call(function () {
+
+            // get scheduled campaigns
             $campaigns = Campaign::scheduledCampaigns()->get();
 
             foreach ($campaigns as $campaign) {
-                try {
-                    // store campaign request instance
-                    $storeCampaignRequest = new StoreCampaignRequest(json_decode(json_encode($campaign->meta), true));
+                // store campaign request instance
+                $storeCampaignRequest = new StoreCampaignRequest(json_decode(json_encode($campaign->meta), true));
 
-                    // modified data
-                    $storeCampaignRequest['draft'] = false;
-                    $storeCampaignRequest['company'] = $campaign->company;
-                    $storeCampaignRequest['campaign'] = $campaign;
+                // modified data
+                unset($campaign->scheduled_for);
+                $storeCampaignRequest['draft'] = 0;
+                $storeCampaignRequest['company'] = $campaign->company;
+                $storeCampaignRequest['campaign'] = $campaign;
 
-                    // send campain
-                    (new CampaignController())->create($storeCampaignRequest);
-                } catch (\Throwable $th) {
-                    //throw $th;
-                    continue;
-                }
+                // send campain
+                (new CampaignController())->create($storeCampaignRequest);
             }
-        })->everyMinute()->emailOutputTo('devburna@gmail.com')->emailOutputOnFailure('devburna@gmail.com');
+        })->everyMinute();
     }
 
     /**
