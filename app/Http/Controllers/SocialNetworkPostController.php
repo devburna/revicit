@@ -19,16 +19,6 @@ class SocialNetworkPostController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreSocialNetworkPostRequest  $request
@@ -46,29 +36,6 @@ class SocialNetworkPostController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(SocialNetworkPost $socialNetworkPost)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\SocialNetworkPost  $socialNetworkPost
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(SocialNetworkPost $socialNetworkPost)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\UpdateSocialNetworkPostRequest  $request
-     * @param  \App\Models\SocialNetworkPost  $socialNetworkPost
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateSocialNetworkPostRequest $request, SocialNetworkPost $socialNetworkPost)
     {
         //
     }
