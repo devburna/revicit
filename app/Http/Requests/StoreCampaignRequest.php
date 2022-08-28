@@ -58,7 +58,7 @@ class StoreCampaignRequest extends FormRequest
     public function messages()
     {
         return [
-            'meta.type.exists' => 'We currently do not offer this service at the moment.',
+            'type.exists' => 'We currently do not offer this service at the moment.',
             'meta.mail.subject.required_if' => 'The mail subject is required.',
             'meta.mail.template.required_if' => 'The mail template is required.',
             'meta.contacts.*.required_unless' => 'Contact list cannot be empty.',
