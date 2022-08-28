@@ -61,14 +61,16 @@ class SocialNetworkPostController extends Controller
     {
         try {
             // get post analytics
-            $socialNetworkPost = match ($request->action) {
+            $post = match ($request->action) {
                 'analytics' => (new AyrshareController())->postAnalytics($socialNetworkPost->identity, $socialNetworkPost->platform),
                 'comments' => (new AyrshareController())->postComments($socialNetworkPost->identity, $socialNetworkPost->company->socialNetwork->identity),
                 default => (new AyrshareController())->postDetails($socialNetworkPost->identity, $socialNetworkPost->company->socialNetwork->identity),
             };
 
+            $post['id'] = $socialNetworkPost->id;
+
             return response()->json([
-                'data' => $socialNetworkPost,
+                'data' => $post,
                 'message' => 'success',
                 'status' => true,
             ]);
@@ -98,6 +100,8 @@ class SocialNetworkPostController extends Controller
             } else {
                 $socialNetworkPost->delete();
             }
+
+            unset($socialNetworkPost->company);
 
             return response()->json([
                 'data' => $socialNetworkPost,

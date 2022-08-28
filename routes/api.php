@@ -175,7 +175,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('', [\App\Http\Controllers\AyrshareProfileController::class, 'update'])->can('update', 'ayrshareProfile');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\AyrshareProfileController::class, 'destroy'])->can('destroy', 'ayrshareProfile');
+            Route::delete('', [\App\Http\Controllers\AyrshareProfileController::class, 'destroy'])->can('delete', 'ayrshareProfile');
         });
     });
 
@@ -192,7 +192,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'show'])->can('view', 'socialNetworkPost');
 
             # delete
-            Route::delete('', [\App\Http\Controllers\SocialNetworkPostController::class, 'destroy'])->can('destroy', 'socialNetworkPost');
+            Route::delete('', [\App\Http\Controllers\SocialNetworkPostController::class, 'destroy'])->can('delete', 'socialNetworkPost');
         });
     });
 
@@ -245,7 +245,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('', [\App\Http\Controllers\PaymentController::class, 'update'])->can('update', 'payment');
 
             # toggle
-            Route::delete('', [\App\Http\Controllers\PaymentController::class, 'destroy'])->can('destroy', 'payment');
+            Route::delete('', [\App\Http\Controllers\PaymentController::class, 'destroy'])->can('delete', 'payment');
         });
     });
 

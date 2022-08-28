@@ -53,7 +53,7 @@ class SocialNetworkPostPolicy
      */
     public function update(User $user, SocialNetworkPost $socialNetworkPost)
     {
-        return $this->view($user, $socialNetworkPost->company->user);
+        return $this->view($user, $socialNetworkPost);
     }
 
     /**
@@ -65,7 +65,7 @@ class SocialNetworkPostPolicy
      */
     public function delete(User $user, SocialNetworkPost $socialNetworkPost)
     {
-        return $this->view($user, $socialNetworkPost->company->user);
+        return $this->view($user, $socialNetworkPost);
     }
 
     /**
@@ -77,7 +77,7 @@ class SocialNetworkPostPolicy
      */
     public function restore(User $user, SocialNetworkPost $socialNetworkPost)
     {
-        return $this->view($user, $socialNetworkPost->company->user);
+        return $this->view($user, $socialNetworkPost);
     }
 
     /**
@@ -89,6 +89,6 @@ class SocialNetworkPostPolicy
      */
     public function forceDelete(User $user, SocialNetworkPost $socialNetworkPost)
     {
-        return $this->view($user, $socialNetworkPost->company->user);
+        return $this->view($user, $socialNetworkPost);
     }
 }
