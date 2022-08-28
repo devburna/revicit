@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
     {
         // send scheduled campaigns
         $schedule->call(function () {
-            $campaigns = Campaign::cheduledCampaigns()->get();
+            $campaigns = Campaign::scheduledCampaigns()->get();
 
             foreach ($campaigns as $campaign) {
                 try {
@@ -34,13 +34,13 @@ class Kernel extends ConsoleKernel
                     $storeCampaignRequest['campaign'] = $campaign;
 
                     // send campain
-                    return (new CampaignController())->create($storeCampaignRequest);
+                    (new CampaignController())->create($storeCampaignRequest);
                 } catch (\Throwable $th) {
                     //throw $th;
                     continue;
                 }
             }
-        })->everyMinute();
+        })->everyMinute()->emailOutputTo('devburna@gmail.com')->emailOutputOnFailure('devburna@gmail.com');
     }
 
     /**

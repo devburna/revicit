@@ -28,7 +28,7 @@ class StoreCampaignRequest extends FormRequest
             // global required data
             'title' => 'required|string',
             'type' => ['required', 'exists:service_baskets,category'],
-            'scheduled_for' => 'date|after:1 hour',
+            'scheduled_for' => 'date_format:Y-m-d H:i|after:1 minute',
             'draft' => 'required|boolean',
 
             // mail and sms required meta data
