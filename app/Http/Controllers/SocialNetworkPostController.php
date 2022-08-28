@@ -22,11 +22,17 @@ class SocialNetworkPostController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StoreSocialNetworkPostRequest  $request
-     * @return \Illuminate\Http\Response
      */
     public function store(StoreSocialNetworkPostRequest $request)
     {
-        //
+        return SocialNetworkPost::create($request->only([
+            'company_id',
+            'identity',
+            'reference',
+            'post',
+            'platform',
+            'meta'
+        ]));
     }
 
     /**

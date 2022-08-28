@@ -9,11 +9,13 @@ use App\Enums\PaymentType;
 use App\Http\Requests\StoreCampaignLogRequest;
 use App\Http\Requests\StoreCampaignRequest;
 use App\Http\Requests\StorePaymentRequest;
+use App\Http\Requests\StoreSocialNetworkPostRequest;
 use App\Http\Requests\UpdateCampaignRequest;
 use App\Http\Requests\ViewCompanyRequest;
 use App\Models\Campaign;
 use App\Models\Contact;
 use App\Models\ServiceBasket;
+use App\Models\SocialNetworkPost;
 use App\Notifications\Contact as NotificationsContact;
 use App\Notifications\Payment;
 use Illuminate\Support\Facades\DB;
@@ -386,6 +388,15 @@ class CampaignController extends Controller
             if (!$response['status'] === 'success') {
                 throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!']);
             }
+
+            // store post
+            $storeSocialNetworkPostRequest = new StoreSocialNetworkPostRequest($request->all());
+            $storeSocialNetworkPostRequest['identity'] = $response[0]['id'];
+            $storeSocialNetworkPostRequest['reference'] = $response[0]['refId'];
+            $storeSocialNetworkPostRequest['post'] = $response[0]['post'];
+            $storeSocialNetworkPostRequest['platform'] = $response[0]['postIds'][0]['platform'];
+            $storeSocialNetworkPostRequest['meta'] = json_encode($response);
+            $storeSocialNetworkPostRequest(new SocialNetworkPost())->store($storeSocialNetworkPostRequest);
 
             // increment success count on success
             $success++;

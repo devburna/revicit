@@ -95,6 +95,11 @@ class Company extends Model
         return $this->hasOne(AyrshareProfile::class);
     }
 
+    public function socialNetworkPosts(): HasMany
+    {
+        return $this->hasMany(SocialNetworkPost::class, 'company_id');
+    }
+
     public function wallet(): HasOne
     {
         return $this->hasOne(CompanyWallet::class, 'company_id');
