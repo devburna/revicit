@@ -242,9 +242,8 @@ class CampaignController extends Controller
      */
     public function sendCampaign(StoreCampaignRequest $request, Campaign $campaign)
     {
-
         // decode meta data
-        $request['meta'] = json_decode($request->meta);
+        $request['meta'] = json_decode($request->meta, true);
 
         // set campaign id
         $request['campaign_id'] = $campaign->id;
@@ -255,10 +254,16 @@ class CampaignController extends Controller
         // set billing quantity
         $billingQuantity = 0;
 
-        foreach ($request['meta']['contacts'] as $contact) {
+        foreach ($request->meta['meta']['contacts'] as $contact) {
+
+            // find contact
+            if (!$recipient = Contact::find($contact)) {
+                throw ValidationException::withMessages(["Error occured, kindly reach out to support ASAP!"]);
+            };
+
 
             // get contact info
-            $recipient = Contact::findOrFail($contact);
+            $recipient = Contact::find($contact);
             $request['recipient_name'] = $recipient->name;
             $request['recipient_email'] = $recipient->email;
             $request['recipient_phone'] = $recipient->phone;
