@@ -121,13 +121,6 @@ class CampaignController extends Controller
                     $this->serviceCharge($campaign);
                 }
 
-                // clean campaign data
-                unset($campaign->success);
-                unset($campaign->failed);
-                unset($campaign->amount);
-                unset($campaign->currency);
-                unset($campaign->quantity);
-
                 return $this->show($campaign, 'success', 201);
             });
         } catch (\Throwable $th) {
@@ -189,7 +182,12 @@ class CampaignController extends Controller
                 throw ValidationException::withMessages(['Campaign has already been published']);
             }
 
-            // draft
+            // published
+            if ($campaign->status->is(CampaignStatus::PUBLISHED())) {
+                throw ValidationException::withMessages(['Campaign has already been published']);
+            }
+
+            // publish if not draft
             if ($campaign->status->is(CampaignStatus::DRAFT()) && !$request->draft) {
 
                 // store campaign request instance
@@ -202,6 +200,11 @@ class CampaignController extends Controller
 
                 // initiate campaign
                 $campaign = $this->initiate($storeCampaignRequest, $campaign);
+
+                // charge company wallet
+                if ($campaign->amount > 0) {
+                    $this->serviceCharge($campaign);
+                }
             }
 
             return $this->show($campaign, 'success', 200);
@@ -451,6 +454,13 @@ class CampaignController extends Controller
 
         // debit company wallet
         $campaign->company->wallet->debit($campaign->amount);
+
+        // clean campaign data
+        unset($campaign->success);
+        unset($campaign->failed);
+        unset($campaign->amount);
+        unset($campaign->currency);
+        unset($campaign->quantity);
 
         return $campaign;
     }

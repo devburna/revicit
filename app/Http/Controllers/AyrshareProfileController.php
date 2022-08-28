@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateAyrshareProfileRequest;
 use App\Models\AyrshareProfile;
 use App\Notifications\SocialNetwork;
 use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
 
 class AyrshareProfileController extends Controller
 {
