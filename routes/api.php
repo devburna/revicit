@@ -149,7 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('', [\App\Http\Controllers\CampaignController::class, 'show'])->can('view', 'campaign');
 
             # update details
-            Route::patch('', [\App\Http\Controllers\CampaignController::class, 'update'])->can('update', 'campaign');
+            Route::patch('', [\App\Http\Controllers\CampaignController::class, 'update'])->can('update', 'campaign')->middleware(['companyOwner']);
 
             # toggle
             Route::delete('', [\App\Http\Controllers\CampaignController::class, 'destroy'])->can('delete', 'campaign');

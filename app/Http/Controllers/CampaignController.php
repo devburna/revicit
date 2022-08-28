@@ -106,7 +106,13 @@ class CampaignController extends Controller
 
                 // store campaign
                 $request['meta'] = json_encode($request->all());
-                $campaign = $this->store($request);
+
+                if (!$request->campaign) {
+                    $campaign = $this->store($request);
+                } else {
+                    $request->campaign->update($request->all());
+                    $campaign = Campaign::find($request->campaign->id);
+                }
 
                 // don't send campaign if drafted or scheduled
                 if ($campaign->status->is(CampaignStatus::SCHEDULED()) || $campaign->status->is(CampaignStatus::DRAFT())) {
@@ -128,7 +134,7 @@ class CampaignController extends Controller
                 'data' => null,
                 'message' => $th->getMessage(),
                 'status' => false,
-            ]);
+            ], 422);
         }
     }
 
@@ -182,38 +188,30 @@ class CampaignController extends Controller
                 throw ValidationException::withMessages(['Campaign has already been published']);
             }
 
-            // published
-            if ($campaign->status->is(CampaignStatus::PUBLISHED())) {
-                throw ValidationException::withMessages(['Campaign has already been published']);
+            // store campaign request instance
+            $storeCampaignRequest = new StoreCampaignRequest(json_decode(json_encode($campaign->meta), true));
+
+            //
+            if ($request->has('scheduled_for')) {
+                $storeCampaignRequest['status'] = CampaignStatus::SCHEDULED();
+                $storeCampaignRequest['scheduled_for'] = $request->scheduled_for;
             }
 
-            // publish if not draft
-            if ($campaign->status->is(CampaignStatus::DRAFT()) && !$request->draft) {
+            // modified data
+            $storeCampaignRequest['title'] = $request->title;
+            $storeCampaignRequest['type'] = $request->type;
+            $storeCampaignRequest['draft'] = $request->draft;
+            $storeCampaignRequest['company'] = $request->company;
+            $storeCampaignRequest['campaign'] = $campaign;
 
-                // store campaign request instance
-                $storeCampaignRequest = new StoreCampaignRequest(json_decode(json_encode($campaign->meta), true));
-
-                // modified data
-                $storeCampaignRequest['title'] = $request->title;
-                $storeCampaignRequest['type'] = $request->type;
-                $storeCampaignRequest['company'] = $request->company;
-
-                // initiate campaign
-                $campaign = $this->initiate($storeCampaignRequest, $campaign);
-
-                // charge company wallet
-                if ($campaign->amount > 0) {
-                    $this->serviceCharge($campaign);
-                }
-            }
-
-            return $this->show($campaign, 'success', 200);
+            // send campain
+            return $this->create($storeCampaignRequest);
         } catch (\Throwable $th) {
             return response()->json([
                 'data' => null,
                 'message' => $th->getMessage(),
                 'status' => false,
-            ]);
+            ], 422);
         }
     }
 
