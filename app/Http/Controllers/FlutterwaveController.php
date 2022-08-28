@@ -36,8 +36,8 @@ class FlutterwaveController extends Controller
                 ],
                 'customer' => [
                     'name' => $data['name'],
-                    'email' => $data['email_address'],
-                    'phonenumber' => $data['phone_number']
+                    'email' => $data['email'],
+                    'phonenumber' => $data['phone']
                 ],
                 'customizations' => [
                     'title' => config('app.name'),

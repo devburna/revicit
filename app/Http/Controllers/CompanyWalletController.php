@@ -21,8 +21,8 @@ class CompanyWalletController extends Controller
         try {
             // generate payment link
             $request['name'] = "{$request->user()->first_name} {$request->user()->last_name}";
-            $request['email_address'] = $request->user()->email_address;
-            $request['phone_number'] = $request->user()->phone_number;
+            $request['email'] = $request->user()->email;
+            $request['phone'] = $request->user()->phone;
             $request['consumer_id'] = $request->company->wallet->id;
             $request['consumer_mac'] = 'deposit';
 
