@@ -59,7 +59,7 @@ class CompanyWallet extends Model
     {
         return $this->update([
             'previous_balance' => $this->current_balance,
-            'current_balance' => $this->current_balance, + $amount
+            'current_balance' => $this->current_balance + $amount
         ]);
     }
 

@@ -30,8 +30,8 @@ class CompanyWalletController extends Controller
             // generate payment link
             $request['tx_ref'] = Str::uuid();
             $request['name'] = "{$request->user()->first_name} {$request->user()->last_name}";
-            $request['email'] = $request->user()->phone;
-            $request['phone'] = $request->user()->email;
+            $request['email'] = $request->user()->email;
+            $request['phone'] = $request->user()->phone;
             $request['amount'] = $request->amount;
             $request['currency'] = $request->currency;
             $request['meta'] = [
@@ -43,7 +43,7 @@ class CompanyWalletController extends Controller
             $link = (new FlutterwaveController())->generatePaymentLink($request->all());
 
             // set payment link
-            $request->user()->wallet->payment_link = $link['data']['link'];
+            $request->company->wallet->payment_link = $link['data']['link'];
 
             return response()->json([
                 'status' => true,
@@ -130,6 +130,11 @@ class CompanyWalletController extends Controller
                 // verify transaction
                 $transaction = (new FlutterwaveController())->verifyTransaction($request->transaction_id);
 
+                // find wallet
+                if (!$wallet = CompanyWallet::find($transaction['data']['meta']['consumer_id'])) {
+                    throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!']);
+                }
+
                 // checks duplicate entry
                 if (Payment::where('identity', $transaction['data']['tx_ref'])->first()) {
                     throw ValidationException::withMessages(['Duplicate transaction found.']);
@@ -137,10 +142,10 @@ class CompanyWalletController extends Controller
 
                 // get transaction status
                 $status = match ($transaction['data']['status']) {
-                    'success' => PaymentStatus::SUCCESS(),
-                    'successful' => PaymentStatus::SUCCESS(),
-                    'new' => PaymentStatus::SUCCESS(),
-                    'pending' => PaymentStatus::SUCCESS(),
+                    'success' => PaymentStatus::SUCCESSFUL(),
+                    'successful' => PaymentStatus::SUCCESSFUL(),
+                    'new' => PaymentStatus::SUCCESSFUL(),
+                    'pending' => PaymentStatus::SUCCESSFUL(),
                     default => PaymentStatus::FAILED()
                 };
 
@@ -158,7 +163,7 @@ class CompanyWalletController extends Controller
 
                 // store payment
                 $storePaymentRequest = (new StorePaymentRequest($transaction));
-                $storePaymentRequest['company_wallet_id'] = $request->company->wallet->id;
+                $storePaymentRequest['company_wallet_id'] = $wallet->id;
                 $storePaymentRequest['identity'] = $transaction['data']['tx_ref'];
                 $storePaymentRequest['amount'] = $transaction['data']['amount'];
                 $storePaymentRequest['currency'] = $transaction['data']['currency'];
@@ -169,11 +174,11 @@ class CompanyWalletController extends Controller
                 $storedTransaction = (new PaymentController())->store($storePaymentRequest);
 
                 // credit wallet if success
-                if ($storedTransaction->status->is(PaymentStatus::SUCCESS())) {
-                    $request->company->wallet->credit($amount);
+                if ($storedTransaction->status->is(PaymentStatus::SUCCESSFUL()) && $wallet->credit($amount)) {
+                    return $this->show($request);
+                } else {
+                    throw ValidationException::withMessages(['Error occured, kindly reach out to support ASAP!']);
                 }
-
-                return $this->show($request);
             });
         } catch (\Throwable $th) {
             return response()->json([
