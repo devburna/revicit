@@ -144,6 +144,12 @@ class CompanyWalletController extends Controller
                     default => PaymentStatus::FAILED()
                 };
 
+                // set amount
+                $amount = match ($transaction['data']['currency']) {
+                    'USD' => $transaction['data']['amount'] * env('USD_RATE'),
+                    default => $transaction['data']['amount']
+                };
+
                 // verify it's deposit
                 match ($transaction['data']['meta']['consumer_mac']) {
                     'deposit' => 'deposit',
@@ -164,7 +170,7 @@ class CompanyWalletController extends Controller
 
                 // credit wallet if success
                 if ($storedTransaction->status->is(PaymentStatus::SUCCESS())) {
-                    $request->company->wallet->credit($storedTransaction->amount);
+                    $request->company->wallet->credit($amount);
                 }
 
                 return $this->show($request);
