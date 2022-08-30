@@ -32,7 +32,7 @@ class UpdateServiceBasketRequest extends FormRequest
             'price' => 'numeric',
             'currency' => 'in:ngn,usd',
             'price_capped_at' => 'numeric',
-            'meta.network' => 'string|max:50|in:ayrshare,vonage,zoho',
+            'meta.network' => 'string|max:50|in:ayrshare,vonage,zoho,meta',
         ];
     }
 }

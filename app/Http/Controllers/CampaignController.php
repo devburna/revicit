@@ -82,7 +82,7 @@ class CampaignController extends Controller
                     $request['profile'] = $request->company->socialNetwork->identity;
 
                     // check if platform is connected
-                    if (!$request->company->socialNetwork["{$request->meta['social_network']['platform']}"]) {
+                    if ($request->meta['social_network']['platform'] !== 'whatsapp' && !$request->company->socialNetwork["{$request->meta['social_network']['platform']}"]) {
                         throw ValidationException::withMessages(["Please connect your {$request->meta['social_network']['platform']} account to use this feature."]);
                     }
 
@@ -341,6 +341,12 @@ class CampaignController extends Controller
         // decode meta data
         $request['meta'] = json_decode($request->meta, true);
 
+        // whatsapp
+        if ($request->meta['meta']['social_network']['platform'] === 'whatsapp') {
+            return $this->whatsapp($request, $campaign);
+        }
+
+
         // set campaign id
         $request['campaign_id'] = $campaign->id;
 
@@ -426,6 +432,81 @@ class CampaignController extends Controller
         $storeSocialNetworkPostRequest['platform'] = $response['posts'][0]['postIds'][0]['platform'];
         $storeSocialNetworkPostRequest['meta'] = json_encode($response);
         (new SocialNetworkPostController())->store($storeSocialNetworkPostRequest);
+
+        // set receipt
+        $campaign->quantity = $success;
+        $campaign->success = $success;
+        $campaign->failed = $failed;
+        $campaign->amount = $request->service->price * $success;
+        $campaign->currency = 'NGN';
+
+        // logs to campaign
+        $campaign->logs = $campaignLogs;
+
+        return $campaign;
+    }
+
+    public function whatsapp(StoreCampaignRequest $request, Campaign $campaign)
+    {
+        // set campaign id
+        $request['campaign_id'] = $campaign->id;
+
+        // save campaign  logs
+        $campaignLogs = [];
+
+        // status
+        $success = 0;
+        $failed = 0;
+
+        foreach ($request->meta['meta']['contacts'] as $contact) {
+
+            // find contact
+            if (!$recipient = Contact::find($contact)) {
+                throw ValidationException::withMessages(["Error occured, kindly reach out to support ASAP!"]);
+            };
+
+
+            // get contact info
+            $recipient = Contact::find($contact);
+            $request['recipient_name'] = $recipient->name;
+            $request['recipient_email'] = $recipient->email;
+            $request['recipient_phone'] = $recipient->phone;
+
+            try {
+                // send campaign
+                $response = (new MetaController())->whatsappMessage($request->meta['meta']['social_network']['post'], $request->recipient_phone);
+
+                // add response to request
+                $request['response'] = json_encode($response);
+
+                // increment success count on success
+                $success++;
+
+                // store campaign log
+                $request['meta'] = json_encode($request->all());
+                $request['message'] = 'Delivered';
+                $request['status'] = CampaignLogStatus::SENT();
+                $logs = (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
+
+                // add to campaign logs
+                array_push($campaignLogs, $logs);
+            } catch (\Throwable $th) {
+
+                // increment failed count on failed
+                $failed++;
+
+                // store campaign log
+                $request['meta'] = json_encode($th);
+                $request['message'] = $th->getMessage();
+                $request['status'] = CampaignLogStatus::FAILED();
+                $logs = (new CampaignLogController())->store(new StoreCampaignLogRequest($request->all()));
+
+                // add to campaign logs
+                array_push($campaignLogs, $logs);
+
+                continue;
+            }
+        }
 
         // set receipt
         $campaign->quantity = $success;
