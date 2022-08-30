@@ -152,12 +152,12 @@ class CompanyWalletController extends Controller
 
                 // store payment
                 $storePaymentRequest = (new StorePaymentRequest($transaction));
-                $storePaymentRequest['user_id'] = $request->user()->id;
+                $storePaymentRequest['company_wallet_id'] = $request->company->wallet->id;
                 $storePaymentRequest['identity'] = $transaction['data']['tx_ref'];
-                $storePaymentRequest['reference'] = $transaction['data']['flw_ref'];
-                $storePaymentRequest['type'] = PaymentType::CREDIT();
                 $storePaymentRequest['amount'] = $transaction['data']['amount'];
+                $storePaymentRequest['currency'] = $transaction['data']['currency'];
                 $storePaymentRequest['narration'] = $transaction['data']['narration'];
+                $storePaymentRequest['type'] = PaymentType::CREDIT();
                 $storePaymentRequest['status'] = $status;
                 $storePaymentRequest['meta'] = json_encode($transaction);
                 $storedTransaction = (new PaymentController())->store($storePaymentRequest);
