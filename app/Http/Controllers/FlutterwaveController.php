@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 
 class FlutterwaveController extends Controller
 {
-    private $flutterwaveUrl, $flutterwaveSecretKey, $flutterwaveSecretHash;
+    private $flutterwaveUrl, $flutterwaveSecretKey;
 
     public function __construct()
     {
-        $this->flutterwaveSecretKey = env('FLW_SECRET_KEY');
-        $this->flutterwaveUrl = env('FLW_URL');
-        $this->flutterwaveSecretHash = env('FLW_SECRET_HASH');
+        $this->flutterwaveSecretKey = env('FLUTTERWAVE_SECRET_KEY');
+        $this->flutterwaveUrl = env('FLUTTERWAVE_URL');
     }
 
     // generate payment link
-    public function paymentLink($data)
+    public function generatePaymentLink($data)
     {
         try {
             $response = Http::withHeaders([
@@ -29,11 +27,8 @@ class FlutterwaveController extends Controller
                 'tx_ref' => Str::uuid(),
                 'amount' => $data['amount'],
                 'currency' => $data['currency'],
-                'redirect_url' => url('/dashboard'),
-                'meta' => [
-                    'consumer_id' => $data['consumer_id'],
-                    'consumer_mac' => $data['consumer_mac']
-                ],
+                'redirect_url' => $data['redirect_url'],
+                'meta' => $data['meta'],
                 'customer' => [
                     'name' => $data['name'],
                     'email' => $data['email'],
@@ -46,7 +41,7 @@ class FlutterwaveController extends Controller
             ])->json();
 
             // catch error
-            if ($response['status'] === 'error') {
+            if (!array_key_exists('status', $response) || ($response['status'] !== 'success')) {
                 throw ValidationException::withMessages([$response['message']]);
             }
 
@@ -56,7 +51,7 @@ class FlutterwaveController extends Controller
         }
     }
 
-    // webhook
+    // verify transaction
     public function verifyTransaction($data)
     {
         try {
@@ -66,26 +61,13 @@ class FlutterwaveController extends Controller
             ])->get("{$this->flutterwaveUrl}/transactions/{$data}/verify")->json();
 
             // catch error
-            if (!$response['status'] === 'success') {
+            if (!array_key_exists('status', $response) || ($response['status'] !== 'success')) {
                 throw ValidationException::withMessages([$response['message']]);
             }
 
             return $response;
         } catch (\Throwable $th) {
             throw ValidationException::withMessages([$th->getMessage()]);
-        }
-    }
-
-    public function webHook(Request $request)
-    {
-        // verify hash
-        if (!$request->header('verify-hash') || !$request->header('verify-hash') === $this->flutterwaveSecretHash) {
-            abort(401, 'Unauthorized');
-        }
-
-        // process charge completed event
-        if (array_key_exists('event', $request->all()) && $request->event === 'charge.completed') {
-            return (new PaymentController())->webHook($request->all());
         }
     }
 }

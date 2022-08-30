@@ -227,6 +227,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
         #deposit
         Route::post('', [\App\Http\Controllers\CompanyWalletController::class, 'create']);
+
+        # verify payment
+        Route::patch('', [\App\Http\Controllers\CompanyWalletController::class, 'webHook']);
     });
 
     # payments
