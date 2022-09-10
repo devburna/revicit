@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Company;
+use App\Models\Storefront;
 use Closure;
 use Illuminate\Http\Request;
 
-class CompanyOwner
+class StoreOwner
 {
     /**
      * Handle an incoming request.
@@ -18,19 +18,19 @@ class CompanyOwner
     public function handle(Request $request, Closure $next)
     {
         // verify request header
-        if (!$request->hasHeader('x-company-key')) {
+        if (!$request->hasHeader('x-store-key')) {
             abort(400, 'Bad request');
         };
 
-        // find and verify company policy
-        $company = Company::find($request->header('x-company-key'));
-        if (!$company || !$request->user()->is($company->user)) {
+        // find and verify store policy
+        $storefront = Storefront::find($request->header('x-store-key'));
+        if (!$storefront || !$request->user()->is($storefront->company->user)) {
             abort(403, 'This action is aunthorized');
         }
 
-        // add company data to request
-        $request['company'] = $company;
-        $request['company_id'] = $company->id;
+        // add storefront data to request
+        $request['storefront'] = $storefront;
+        $request['storefront_id'] = $storefront->id;
 
         return $next($request);
     }

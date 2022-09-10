@@ -28,9 +28,22 @@ class CloudinaryController extends Controller
             return [
                 'secure_url' => $response['secure_url'],
                 'resource_type' => $response['resource_type'],
+                'public_id' => $response['public_id'],
             ];
         } catch (\Throwable $th) {
             throw ValidationException::withMessages([$th->getMessage()]);
+        }
+    }
+
+    // delete
+    public function delete($public_id, $resource_type)
+    {
+        try {
+            $upload = (new UploadApi())->destroy($public_id, $resource_type);
+
+            return $upload;
+        } catch (\Throwable $th) {
+            abort(422, $th->getMessage());
         }
     }
 }

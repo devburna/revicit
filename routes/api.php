@@ -100,155 +100,228 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::patch('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company');
 
             # update logo
-            Route::post('', [\App\Http\Controllers\CompanyController::class, 'logo'])->can('update', 'company');
+            Route::post('', [\App\Http\Controllers\CompanyController::class, 'update'])->can('update', 'company');
 
             # toggle
             Route::delete('', [\App\Http\Controllers\CompanyController::class, 'destroy'])->can('delete', 'company');
         });
     });
 
-    # contacts
-    Route::prefix('contacts')->group(function () {
+    # company owner
+    Route::middleware(['companyOwner'])->group(function () {
+        # contacts
+        Route::prefix('contacts')->group(function () {
 
-        # create
-        Route::post('', [\App\Http\Controllers\ContactController::class, 'store'])->middleware(['companyOwner']);
+            # create
+            Route::post('', [\App\Http\Controllers\ContactController::class, 'store']);
 
-        # fetch
-        Route::get('', [\App\Http\Controllers\ContactController::class, 'index'])->middleware(['companyOwner']);
+            # fetch
+            Route::get('', [\App\Http\Controllers\ContactController::class, 'index']);
 
-        # contact
-        Route::prefix('{contact}')->group(function () {
+            # contact
+            Route::prefix('{contact}')->group(function () {
 
-            # details
-            Route::get('', [\App\Http\Controllers\ContactController::class, 'show'])->can('view', 'contact');
+                # details
+                Route::get('', [\App\Http\Controllers\ContactController::class, 'show'])->can('view', 'contact');
 
-            # update details
-            Route::patch('', [\App\Http\Controllers\ContactController::class, 'update'])->can('update', 'contact');
+                # update details
+                Route::patch('', [\App\Http\Controllers\ContactController::class, 'update'])->can('update', 'contact');
 
-            # update logo
-            Route::post('', [\App\Http\Controllers\ContactController::class, 'logo'])->can('update', 'contact');
+                # update logo
+                Route::post('', [\App\Http\Controllers\ContactController::class, 'logo'])->can('update', 'contact');
 
-            # toggle
-            Route::delete('', [\App\Http\Controllers\ContactController::class, 'destroy'])->can('delete', 'contact');
+                # toggle
+                Route::delete('', [\App\Http\Controllers\ContactController::class, 'destroy'])->can('delete', 'contact');
+            });
         });
-    });
 
-    # campaigns
-    Route::prefix('campaigns')->group(function () {
+        # campaigns
+        Route::prefix('campaigns')->group(function () {
 
-        # create
-        Route::post('', [\App\Http\Controllers\CampaignController::class, 'create'])->middleware(['companyOwner']);
+            # create
+            Route::post('', [\App\Http\Controllers\CampaignController::class, 'create']);
 
-        # fetch
-        Route::get('', [\App\Http\Controllers\CampaignController::class, 'index'])->middleware(['companyOwner']);
+            # fetch
+            Route::get('', [\App\Http\Controllers\CampaignController::class, 'index']);
 
-        # campaign
-        Route::prefix('{campaign}')->group(function () {
+            # campaign
+            Route::prefix('{campaign}')->group(function () {
 
-            # details
-            Route::get('', [\App\Http\Controllers\CampaignController::class, 'show'])->can('view', 'campaign');
+                # details
+                Route::get('', [\App\Http\Controllers\CampaignController::class, 'show'])->can('view', 'campaign');
 
-            # update details
-            Route::patch('', [\App\Http\Controllers\CampaignController::class, 'update'])->can('update', 'campaign')->middleware(['companyOwner']);
+                # update details
+                Route::patch('', [\App\Http\Controllers\CampaignController::class, 'update'])->can('update', 'campaign');
 
-            # toggle
-            Route::delete('', [\App\Http\Controllers\CampaignController::class, 'destroy'])->can('delete', 'campaign');
+                # toggle
+                Route::delete('', [\App\Http\Controllers\CampaignController::class, 'destroy'])->can('delete', 'campaign');
+            });
         });
-    });
 
-    # social networks
-    Route::prefix('social-networks')->group(function () {
+        # social networks
+        Route::prefix('social-networks')->group(function () {
 
-        # create
-        Route::post('', [\App\Http\Controllers\AyrshareProfileController::class, 'create'])->middleware(['companyOwner']);
-
-        # details
-        Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'index'])->middleware(['companyOwner']);
-
-        # social network
-        Route::prefix('{ayrshareProfile}')->group(function () {
+            # create
+            Route::post('', [\App\Http\Controllers\AyrshareProfileController::class, 'create']);
 
             # details
-            Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'show'])->can('view', 'ayrshareProfile');
+            Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'index']);
 
-            # update details
-            Route::patch('', [\App\Http\Controllers\AyrshareProfileController::class, 'update'])->can('update', 'ayrshareProfile');
+            # social network
+            Route::prefix('{ayrshareProfile}')->group(function () {
 
-            # toggle
-            Route::delete('', [\App\Http\Controllers\AyrshareProfileController::class, 'destroy'])->can('delete', 'ayrshareProfile');
+                # details
+                Route::get('', [\App\Http\Controllers\AyrshareProfileController::class, 'show'])->can('view', 'ayrshareProfile');
+
+                # update details
+                Route::patch('', [\App\Http\Controllers\AyrshareProfileController::class, 'update'])->can('update', 'ayrshareProfile');
+
+                # toggle
+                Route::delete('', [\App\Http\Controllers\AyrshareProfileController::class, 'destroy'])->can('delete', 'ayrshareProfile');
+            });
         });
-    });
 
-    # social network posts
-    Route::prefix('social-network-posts')->group(function () {
-
-        # details
-        Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'index'])->middleware(['companyOwner']);
-
-        # social network
-        Route::prefix('{socialNetworkPost}')->group(function () {
+        # social network posts
+        Route::prefix('social-network-posts')->group(function () {
 
             # details
-            Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'show'])->can('view', 'socialNetworkPost');
+            Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'index']);
 
-            # delete
-            Route::delete('', [\App\Http\Controllers\SocialNetworkPostController::class, 'destroy'])->can('delete', 'socialNetworkPost');
+            # social network
+            Route::prefix('{socialNetworkPost}')->group(function () {
+
+                # details
+                Route::get('', [\App\Http\Controllers\SocialNetworkPostController::class, 'show'])->can('view', 'socialNetworkPost');
+
+                # delete
+                Route::delete('', [\App\Http\Controllers\SocialNetworkPostController::class, 'destroy'])->can('delete', 'socialNetworkPost');
+            });
         });
-    });
 
-    # service baskets
-    Route::prefix('service-baskets')->group(function () {
+        # service baskets
+        Route::prefix('service-baskets')->group(function () {
 
-        # create
-        Route::post('', [\App\Http\Controllers\ServiceBasketController::class, 'store']);
-
-        # details
-        Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'index']);
-
-        # social network
-        Route::prefix('{serviceBasket}')->group(function () {
+            # create
+            Route::post('', [\App\Http\Controllers\ServiceBasketController::class, 'store']);
 
             # details
-            Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'show'])->withTrashed();
+            Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'index']);
 
-            # update details
-            Route::patch('', [\App\Http\Controllers\ServiceBasketController::class, 'update']);
+            # social network
+            Route::prefix('{serviceBasket}')->group(function () {
 
-            # toggle
-            Route::delete('', [\App\Http\Controllers\ServiceBasketController::class, 'destroy'])->withTrashed();
+                # details
+                Route::get('', [\App\Http\Controllers\ServiceBasketController::class, 'show'])->withTrashed();
+
+                # update details
+                Route::patch('', [\App\Http\Controllers\ServiceBasketController::class, 'update']);
+
+                # toggle
+                Route::delete('', [\App\Http\Controllers\ServiceBasketController::class, 'destroy'])->withTrashed();
+            });
         });
-    });
 
-    # wallet
-    Route::prefix('wallet')->middleware(['companyOwner'])->group(function () {
+        # wallet
+        Route::prefix('wallet')->group(function () {
 
-        #balance
-        Route::get('', [\App\Http\Controllers\CompanyWalletController::class, 'show']);
+            #balance
+            Route::get('', [\App\Http\Controllers\CompanyWalletController::class, 'show']);
 
-        #deposit
-        Route::post('', [\App\Http\Controllers\CompanyWalletController::class, 'create']);
+            #deposit
+            Route::post('', [\App\Http\Controllers\CompanyWalletController::class, 'create']);
 
-        # verify payment
-        Route::patch('', [\App\Http\Controllers\CompanyWalletController::class, 'webHook']);
-    });
+            # verify payment
+            Route::patch('', [\App\Http\Controllers\CompanyWalletController::class, 'webHook']);
+        });
 
-    # payments
-    Route::prefix('payments')->group(function () {
+        # payments
+        Route::prefix('payments')->group(function () {
 
-        # all
-        Route::get('', [\App\Http\Controllers\PaymentController::class, 'index'])->middleware(['companyOwner']);
+            # all
+            Route::get('', [\App\Http\Controllers\PaymentController::class, 'index']);
 
-        # social network
-        Route::prefix('{payment}')->group(function () {
+            # social network
+            Route::prefix('{payment}')->group(function () {
 
-            # details
-            Route::get('', [\App\Http\Controllers\PaymentController::class, 'show'])->can('view', 'payment');
+                # details
+                Route::get('', [\App\Http\Controllers\PaymentController::class, 'show'])->can('view', 'payment');
 
-            # update details
-            Route::patch('', [\App\Http\Controllers\PaymentController::class, 'update'])->can('update', 'payment');
+                # update details
+                Route::patch('', [\App\Http\Controllers\PaymentController::class, 'update'])->can('update', 'payment');
 
-            # toggle
-            Route::delete('', [\App\Http\Controllers\PaymentController::class, 'destroy'])->can('delete', 'payment');
+                # toggle
+                Route::delete('', [\App\Http\Controllers\PaymentController::class, 'destroy'])->can('delete', 'payment');
+            });
+        });
+
+        # storefronts
+        Route::prefix('storefronts')->group(function () {
+
+            # all
+            Route::get('', [\App\Http\Controllers\StorefrontController::class, 'index']);
+
+            # create
+            Route::post('', [\App\Http\Controllers\StorefrontController::class, 'store']);
+
+            # storefront
+            Route::prefix('{storefront}')->group(function () {
+
+                # details
+                Route::get('', [\App\Http\Controllers\StorefrontController::class, 'show'])->can('view', 'storefront')->withTrashed();
+
+                # update details
+                Route::patch('', [\App\Http\Controllers\StorefrontController::class, 'update'])->can('update', 'storefront');
+
+                # update logo
+                Route::post('', [\App\Http\Controllers\StorefrontController::class, 'update'])->can('update', 'storefront');
+
+                # toggle
+                Route::delete('', [\App\Http\Controllers\StorefrontController::class, 'destroy'])->can('delete', 'storefront')->withTrashed();
+            });
+        });
+
+        # store owner
+        Route::middleware(['storeOwner'])->group(function () {
+
+            # products
+            Route::prefix('products')->group(function () {
+
+                # all
+                Route::get('', [\App\Http\Controllers\StorefrontProductController::class, 'index']);
+
+                # create
+                Route::post('', [\App\Http\Controllers\StorefrontProductController::class, 'create']);
+
+                # product
+                Route::prefix('{storefrontProduct}')->group(function () {
+
+                    # details
+                    Route::get('', [\App\Http\Controllers\StorefrontProductController::class, 'show'])->can('view', 'storefrontProduct')->withTrashed();
+
+                    # update details
+                    Route::patch('', [\App\Http\Controllers\StorefrontProductController::class, 'update'])->can('update', 'storefrontProduct');
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontProductController::class, 'destroy'])->can('delete', 'storefrontProduct')->withTrashed();
+                });
+            });
+
+            # product images
+            Route::prefix('product-images')->group(function () {
+
+                # create
+                Route::post('{storefrontProduct}/new', [\App\Http\Controllers\StorefrontProductImageController::class, 'create'])->can('view', 'storefrontProduct');
+
+                # product
+                Route::prefix('{storefrontProductImage}')->group(function () {
+
+                    # update
+                    Route::post('', [\App\Http\Controllers\StorefrontProductImageController::class, 'update'])->can('update', 'storefrontProductImage');
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontProductImageController::class, 'destroy'])->can('delete', 'storefrontProductImage')->withTrashed();
+                });
+            });
         });
     });
 

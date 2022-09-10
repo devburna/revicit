@@ -80,6 +80,21 @@ class Company extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function socialNetwork(): HasOne
+    {
+        return $this->hasOne(AyrshareProfile::class);
+    }
+
+    public function wallet(): HasOne
+    {
+        return $this->hasOne(CompanyWallet::class, 'company_id');
+    }
+
+    public function storefront(): HasOne
+    {
+        return $this->hasOne(Storefront::class)->withTrashed();
+    }
+
     public function contacts(): HasMany
     {
         return $this->hasMany(Contact::class, 'company_id');
@@ -90,18 +105,8 @@ class Company extends Model
         return $this->hasMany(Campaign::class, 'company_id');
     }
 
-    public function socialNetwork(): HasOne
-    {
-        return $this->hasOne(AyrshareProfile::class);
-    }
-
     public function socialNetworkPosts(): HasMany
     {
         return $this->hasMany(SocialNetworkPost::class, 'company_id');
-    }
-
-    public function wallet(): HasOne
-    {
-        return $this->hasOne(CompanyWallet::class, 'company_id');
     }
 }

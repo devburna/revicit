@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\StoreCompanyWalletRequest;
 use App\Http\Requests\UpdateCompanyRequest;
@@ -85,12 +84,23 @@ class CompanyController extends Controller
      */
     public function update(UpdateCompanyRequest $request, Company $company)
     {
+        // upload to cloudinary
+        if ($request->has('image')) {
+            $request['logo_url'] = (new UploadApi())->upload($request->image->path(), [
+                'folder' => config('app.name') . '/companies/',
+                'public_id' => $company->id,
+                'overwrite' => true,
+                'resource_type' => 'image'
+            ])['secure_url'];
+        }
+
         $company->update($request->only([
             'address',
             'email',
             'phone',
             'website',
             'description',
+            'logo_url'
         ]));
 
         return $this->show($company);
@@ -109,28 +119,6 @@ class CompanyController extends Controller
         } else {
             $company->delete();
         }
-
-        return $this->show($company);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\ImageUploadRequest  $request
-     * @param  \App\Models\Company  $company
-     * @return \Illuminate\Http\Response
-     */
-    public function logo(Company $company, ImageUploadRequest $request)
-    {
-        // upload to cloudinary
-        $request['logo_url'] = (new UploadApi())->upload($request->image->path(), [
-            'folder' => config('app.name') . '/companies/',
-            'public_id' => $company->id,
-            'overwrite' => true,
-            'resource_type' => 'image'
-        ])['secure_url'];
-
-        $company->update($request->only(['logo_url']));
 
         return $this->show($company);
     }
