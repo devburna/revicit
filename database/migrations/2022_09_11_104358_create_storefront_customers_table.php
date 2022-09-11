@@ -14,7 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('storefront_customers', function (Blueprint $table) {
-            $table->id();
+            $table->id()->from(time());
+            $table->unsignedBigInteger('storefront_id');
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('email');
+            $table->string('phone')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

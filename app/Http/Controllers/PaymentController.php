@@ -34,7 +34,6 @@ class PaymentController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \App\Http\Requests\StorePaymentRequest  $request
-     * @param  \App\Models\Payment  $payment
      */
     public function store(StorePaymentRequest $request)
     {

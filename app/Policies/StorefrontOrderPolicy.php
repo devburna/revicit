@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\StorefrontCustomer;
+use App\Models\StorefrontOrder;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class StorefrontCustomerPolicy
+class StorefrontOrderPolicy
 {
     use HandlesAuthorization;
 
@@ -25,12 +25,12 @@ class StorefrontCustomerPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontCustomer  $storefrontCustomer
+     * @param  \App\Models\StorefrontOrder  $storefrontOrder
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, StorefrontCustomer $storefrontCustomer)
+    public function view(User $user, StorefrontOrder $storefrontOrder)
     {
-        return $user->is($storefrontCustomer->storefront->company->user);
+        return $user->is($storefrontOrder->storefront->company->user);
     }
 
     /**
@@ -48,47 +48,47 @@ class StorefrontCustomerPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontCustomer  $storefrontCustomer
+     * @param  \App\Models\StorefrontOrder  $storefrontOrder
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, StorefrontCustomer $storefrontCustomer)
+    public function update(User $user, StorefrontOrder $storefrontOrder)
     {
-        return $this->view($user, $storefrontCustomer);
+        return $this->view($user, $storefrontOrder);
     }
 
     /**
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontCustomer  $storefrontCustomer
+     * @param  \App\Models\StorefrontOrder  $storefrontOrder
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, StorefrontCustomer $storefrontCustomer)
+    public function delete(User $user, StorefrontOrder $storefrontOrder)
     {
-        return $this->view($user, $storefrontCustomer);
+        return $this->view($user, $storefrontOrder);
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontCustomer  $storefrontCustomer
+     * @param  \App\Models\StorefrontOrder  $storefrontOrder
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, StorefrontCustomer $storefrontCustomer)
+    public function restore(User $user, StorefrontOrder $storefrontOrder)
     {
-        return $this->view($user, $storefrontCustomer);
+        return $this->view($user, $storefrontOrder);
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontCustomer  $storefrontCustomer
+     * @param  \App\Models\StorefrontOrder  $storefrontOrder
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, StorefrontCustomer $storefrontCustomer)
+    public function forceDelete(User $user, StorefrontOrder $storefrontOrder)
     {
-        return $this->view($user, $storefrontCustomer);
+        return $this->view($user, $storefrontOrder);
     }
 }

@@ -24,8 +24,7 @@ return new class extends Migration
             $table->string('currency');
             $table->string('welcome_message')->nullable();
             $table->string('success_message')->nullable();
-            $table->string('delivery_address')->nullable();
-            $table->string('delivery_note')->nullable();
+            $table->boolean('delivery_note')->default(false);
             $table->string('redirect_after_payment_url')->nullable();
             $table->string('status');
             $table->softDeletes();

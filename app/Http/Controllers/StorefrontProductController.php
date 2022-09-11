@@ -20,7 +20,7 @@ class StorefrontProductController extends Controller
      */
     public function index(Request $request)
     {
-        $storefrontProducts = $request->storefronts->products()->withTrashed()->paginate(20);
+        $storefrontProducts = $request->storefront->products()->withTrashed()->paginate(20);
 
         return response()->json([
             'data' => $storefrontProducts,

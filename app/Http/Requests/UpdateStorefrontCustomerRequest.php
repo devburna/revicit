@@ -13,7 +13,7 @@ class UpdateStorefrontCustomerRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,10 @@ class UpdateStorefrontCustomerRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'first_name' => 'string|max:50',
+            'last_name' => 'string|max:50',
+            'email' => 'email|unique:storefront_customers,email,' . $this->storefrontCustomer->id,
+            'phone' => 'string|max:15'
         ];
     }
 }

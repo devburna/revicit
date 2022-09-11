@@ -27,6 +27,8 @@ return new class extends Migration
             $table->unsignedBigInteger('stock_quantity')->default(0);
             $table->string('item_unit')->nullable();
             $table->string('type');
+            $table->boolean('low_stock_alert')->default(false);
+            $table->unsignedBigInteger('notifiable_stock_quantity')->default(0);
             $table->string('status');
             $table->softDeletes();
             $table->timestamps();

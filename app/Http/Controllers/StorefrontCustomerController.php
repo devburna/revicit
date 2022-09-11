@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreStorefrontCustomerRequest;
 use App\Http\Requests\UpdateStorefrontCustomerRequest;
 use App\Models\StorefrontCustomer;
+use Illuminate\Http\Request;
 
 class StorefrontCustomerController extends Controller
 {
@@ -13,19 +14,15 @@ class StorefrontCustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-    }
+        $storefrontCustomers = $request->storefront->customers()->withTrashed()->paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return response()->json([
+            'data' => $storefrontCustomers,
+            'message' => 'success',
+            'status' => true
+        ]);
     }
 
     /**
@@ -34,9 +31,27 @@ class StorefrontCustomerController extends Controller
      * @param  \App\Http\Requests\StoreStorefrontCustomerRequest  $request
      * @return \Illuminate\Http\Response
      */
+    public function create(StoreStorefrontCustomerRequest $request)
+    {
+        // create customer
+        $storefrontCustomer = $this->store($request);
+        return $this->show($storefrontCustomer, 'message', 201);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \App\Http\Requests\StoreStorefrontCustomerRequest  $request
+     */
     public function store(StoreStorefrontCustomerRequest $request)
     {
-        //
+        return StorefrontCustomer::create($request->only([
+            'storefront_id',
+            'first_name',
+            'last_name',
+            'email',
+            'phone'
+        ]));
     }
 
     /**
@@ -45,20 +60,13 @@ class StorefrontCustomerController extends Controller
      * @param  \App\Models\StorefrontCustomer  $storefrontCustomer
      * @return \Illuminate\Http\Response
      */
-    public function show(StorefrontCustomer $storefrontCustomer)
+    public function show(StorefrontCustomer $storefrontCustomer, $message = 'success', $code = 200)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\StorefrontCustomer  $storefrontCustomer
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(StorefrontCustomer $storefrontCustomer)
-    {
-        //
+        return response()->json([
+            'status' => true,
+            'data' => $storefrontCustomer,
+            'message' => $message
+        ], $code);
     }
 
     /**
@@ -70,7 +78,15 @@ class StorefrontCustomerController extends Controller
      */
     public function update(UpdateStorefrontCustomerRequest $request, StorefrontCustomer $storefrontCustomer)
     {
-        //
+        // update
+        $storefrontCustomer->update($request->only([
+            'first_name',
+            'last_name',
+            'email',
+            'phone'
+        ]));
+
+        return $this->show($storefrontCustomer);
     }
 
     /**
@@ -81,6 +97,12 @@ class StorefrontCustomerController extends Controller
      */
     public function destroy(StorefrontCustomer $storefrontCustomer)
     {
-        //
+        if ($storefrontCustomer->trashed()) {
+            $storefrontCustomer->restore();
+        } else {
+            $storefrontCustomer->delete();
+        }
+
+        return $this->show($storefrontCustomer);
     }
 }

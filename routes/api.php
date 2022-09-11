@@ -322,6 +322,52 @@ Route::middleware('auth:sanctum')->group(function () {
                     Route::delete('', [\App\Http\Controllers\StorefrontProductImageController::class, 'destroy'])->can('delete', 'storefrontProductImage')->withTrashed();
                 });
             });
+
+            # customers
+            Route::prefix('customers')->group(function () {
+
+                # all
+                Route::get('', [\App\Http\Controllers\StorefrontCustomerController::class, 'index']);
+
+                # create
+                Route::post('', [\App\Http\Controllers\StorefrontCustomerController::class, 'create']);
+
+                # product
+                Route::prefix('{storefrontCustomer}')->group(function () {
+
+                    # details
+                    Route::get('', [\App\Http\Controllers\StorefrontCustomerController::class, 'show'])->can('view', 'storefrontCustomer')->withTrashed();
+
+                    # update details
+                    Route::patch('', [\App\Http\Controllers\StorefrontCustomerController::class, 'update'])->can('update', 'storefrontCustomer');
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontCustomerController::class, 'destroy'])->can('delete', 'storefrontCustomer')->withTrashed();
+                });
+            });
+
+            # orders
+            Route::prefix('orders')->group(function () {
+
+                # all
+                Route::get('', [\App\Http\Controllers\StorefrontOrderController::class, 'index']);
+
+                # create
+                Route::post('', [\App\Http\Controllers\StorefrontOrderController::class, 'create']);
+
+                # product
+                Route::prefix('{storefrontOrder}')->group(function () {
+
+                    # details
+                    Route::get('', [\App\Http\Controllers\StorefrontOrderController::class, 'show'])->can('view', 'storefrontOrder')->withTrashed();
+
+                    # update details
+                    Route::patch('', [\App\Http\Controllers\StorefrontOrderController::class, 'update'])->can('update', 'storefrontOrder');
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontOrderController::class, 'destroy'])->can('delete', 'storefrontOrder')->withTrashed();
+                });
+            });
         });
     });
 

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StorefrontProduct extends Model
@@ -34,6 +35,8 @@ class StorefrontProduct extends Model
         'stock_quantity',
         'item_unit',
         'type',
+        'low_stock_alert',
+        'notifiable_stock_quantity',
         'status',
     ];
 
@@ -43,7 +46,7 @@ class StorefrontProduct extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'storefront_id',
+        'storefront_product_id',
         'storefront'
     ];
 
@@ -56,6 +59,7 @@ class StorefrontProduct extends Model
         'quantity' => StorefrontProductQuantity::class,
         'type' => StorefrontProductType::class,
         'status' => StorefrontProductStatus::class,
+        'low_stock_alert' => 'boolean'
     ];
 
     protected function tags(): Attribute
@@ -68,6 +72,11 @@ class StorefrontProduct extends Model
     public function storefront(): BelongsTo
     {
         return $this->belongsTo(Storefront::class, 'storefront_id');
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(StorefrontOrder::class, 'storefront_product_id');
     }
 
     public function images(): HasMany
