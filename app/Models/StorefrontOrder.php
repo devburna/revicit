@@ -6,6 +6,7 @@ use App\Enums\StorefrontOrderStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StorefrontOrder extends Model
@@ -60,5 +61,10 @@ class StorefrontOrder extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(StorefrontCustomer::class, 'storefront_customer_id');
+    }
+
+    public function history(): HasMany
+    {
+        return $this->hasMany(StorefrontOrderHistory::class, 'storefront_order_id');
     }
 }

@@ -6,6 +6,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\PaymentType;
 use App\Enums\StorefrontOrderStatus;
 use App\Http\Requests\StorePaymentRequest;
+use App\Http\Requests\StoreStorefrontOrderHistoryRequest;
 use App\Http\Requests\StoreStorefrontOrderRequest;
 use App\Http\Requests\UpdateStorefrontOrderRequest;
 use App\Models\Payment;
@@ -15,6 +16,7 @@ use App\Models\StorefrontOrder;
 use App\Models\StorefrontProduct;
 use App\Notifications\StorefrontOrderInvoice;
 use App\Notifications\StorefrontOrderNotification;
+use App\Notifications\StorefrontOrderStatus as NotificationsStorefrontOrderStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -29,7 +31,7 @@ class StorefrontOrderController extends Controller
     {
         $storefrontOrders = StorefrontOrder::withTrashed()->whereHas('product', function ($product) use ($request) {
             $product->whereStorefrontId($request->storefront->id);
-        })->with(['product', 'customer'])->paginate(20);
+        })->with(['product', 'customer', 'history'])->paginate(20);
 
         return response()->json([
             'data' => $storefrontOrders,
@@ -102,6 +104,13 @@ class StorefrontOrderController extends Controller
                         $order['status'] = StorefrontOrderStatus::RECEIVED();
                         $storefrontOrder = $this->store(new StoreStorefrontOrderRequest(array_merge($order, $delivery_address)));
 
+                        // create history
+                        $history['storefront_order_id'] = $storefrontOrder->id;
+                        $history['status'] = $storefrontOrder->status;
+                        $history['comment'] = "We've received your order";
+                        $history['meta'] = json_encode($storefrontOrder);
+                        (new StorefrontOrderHistoryController())->store(new StoreStorefrontOrderHistoryRequest($history));
+
                         array_push($total_price, $order['total_price']);
 
                         array_push($orders, $storefrontOrder);
@@ -115,7 +124,7 @@ class StorefrontOrderController extends Controller
                     abort(422, "Amount is invalid. {$request->data['amount']} - " . array_sum($total_price));
                 }
 
-                // store payment
+                // create payment
                 $payment['company_wallet_id'] = $storefront->company->wallet->id;
                 $payment['identity'] = $request->data['reference'];
                 $payment['amount'] = $request->data['amount'];
@@ -174,20 +183,23 @@ class StorefrontOrderController extends Controller
      * @param  \App\Models\StorefrontOrder  $storefrontOrder
      * @return \Illuminate\Http\Response
      */
-    public function show(StorefrontOrder $storefrontOrder)
+    public function show(StorefrontOrder $storefrontOrder, $message = 'success', $code = 200)
     {
-        //
-    }
+        // add product to data
+        $storefrontOrder->product;
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\StorefrontOrder  $storefrontOrder
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(StorefrontOrder $storefrontOrder)
-    {
-        //
+        // add customer to data
+        $storefrontOrder->customer;
+
+
+        // add history to data
+        $storefrontOrder->history;
+
+        return response()->json([
+            'status' => true,
+            'data' => $storefrontOrder,
+            'message' => $message
+        ], $code);
     }
 
     /**
@@ -199,7 +211,36 @@ class StorefrontOrderController extends Controller
      */
     public function update(UpdateStorefrontOrderRequest $request, StorefrontOrder $storefrontOrder)
     {
-        //
+        // set comment
+        $comment = match ($request->status) {
+            'processing' => 'Your order is currently being processed.',
+            'out-for-delivery' => 'Your order has been sent out for delivery.',
+            'delivered' => 'Your order has been delivered.',
+            default => 'Your order has been cancelled, kindly reach out to support for more information.',
+        };
+
+        if ($request->has('status') && $storefrontOrder->status !== $request->status) {
+
+            // create history
+            $history['storefront_order_id'] = $storefrontOrder->id;
+            $history['status'] = $request->status;
+            $history['comment'] = $comment;
+            $history['meta'] = json_encode($storefrontOrder);
+            $history = (new StorefrontOrderHistoryController())->store(new StoreStorefrontOrderHistoryRequest($history));
+
+            // add order to data
+            $history->order;
+
+            // notify customer
+            $storefrontOrder->customer->notify(new NotificationsStorefrontOrderStatus($history));
+        }
+
+        // update
+        $storefrontOrder->update($request->only([
+            'status'
+        ]));
+
+        return $this->show($storefrontOrder);
     }
 
     /**
