@@ -355,7 +355,7 @@ Route::middleware('auth:sanctum')->group(function () {
                 # create
                 Route::post('', [\App\Http\Controllers\StorefrontOrderController::class, 'create']);
 
-                # product
+                # order
                 Route::prefix('{storefrontOrder}')->group(function () {
 
                     # details
@@ -366,6 +366,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
                     # toggle
                     Route::delete('', [\App\Http\Controllers\StorefrontOrderController::class, 'destroy'])->can('delete', 'storefrontOrder')->withTrashed();
+                });
+            });
+
+            # order history
+            Route::prefix('order-history')->group(function () {
+                # history
+                Route::prefix('{storefrontOrderHistory}')->group(function () {
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontOrderHistoryController::class, 'destroy'])->can('delete', 'storefrontOrderHistory')->withTrashed();
                 });
             });
         });
