@@ -139,7 +139,7 @@ class StorefrontOrderController extends Controller
             $db->product->storefront->notify(new StorefrontOrderNotification($db));
 
             // notify customer
-            $db->customer->notify(new StorefrontOrderInvoice($db->payment));
+            $db->customer->notify(new StorefrontOrderInvoice($db));
         } catch (\Throwable $th) {
             abort(422, $th->getMessage());
         }

@@ -2,7 +2,6 @@
 
 namespace App\Notifications;
 
-use App\Models\Payment;
 use App\Models\StorefrontOrder;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -13,16 +12,16 @@ class StorefrontOrderInvoice extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $payment;
+    public $order;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(Payment $payment)
+    public function __construct(StorefrontOrder $order)
     {
-        $this->payment = $payment;
+        $this->order = $order;
     }
 
     /**
@@ -45,11 +44,11 @@ class StorefrontOrderInvoice extends Notification implements ShouldQueue
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject("Your receipt from {$notifiable->storefront->company->name} (ID: {$this->payment->id})")
+            ->subject("Your receipt from {$notifiable->storefront->company->name} (ID: {$this->order->reference})")
             ->greeting("We've received your order")
             ->line("Hi {$notifiable->first_name} {$notifiable->last_name}, thank you for ordering from {$notifiable->storefront->name} by {$notifiable->storefront->company->name}! 🎉")
             ->line('Kindly find a summary below.')
-            ->action('Track my order', url("/storefront/track-order/{$this->payment->id}"));
+            ->action('Track my order', url("/storefront/track-order/{$this->order->reference}"));
     }
 
     /**
