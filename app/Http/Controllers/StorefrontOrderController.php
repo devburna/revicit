@@ -140,6 +140,9 @@ class StorefrontOrderController extends Controller
 
                 $storefrontOrder->payment = $payment;
 
+                // credit wallet
+                $storefront->company->wallet->credit($payment->amount);
+
                 return $storefrontOrder;
             });
 
