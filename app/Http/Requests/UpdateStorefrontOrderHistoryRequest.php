@@ -13,7 +13,7 @@ class UpdateStorefrontOrderHistoryRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class UpdateStorefrontOrderHistoryRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'status' => 'enum_value:' . StorefrontOrderStatus::class,
+            'comment' => 'string|max:50'
         ];
     }
 }

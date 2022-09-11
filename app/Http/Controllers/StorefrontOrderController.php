@@ -251,6 +251,21 @@ class StorefrontOrderController extends Controller
      */
     public function destroy(StorefrontOrder $storefrontOrder)
     {
-        //
+        $storefrontOrder->delete();
+
+        // create history
+        $history['storefront_order_id'] = $storefrontOrder->id;
+        $history['status'] = StorefrontOrderStatus::CANCELLED();
+        $history['comment'] = 'Your order has been cancelled, kindly reach out to support for more information.';
+        $history['meta'] = json_encode($storefrontOrder);
+        $history = (new StorefrontOrderHistoryController())->store(new StoreStorefrontOrderHistoryRequest($history));
+
+        // add order to data
+        $history->order;
+
+        // notify customer
+        $storefrontOrder->customer->notify(new NotificationsStorefrontOrderStatus($history));
+
+        return $this->show($storefrontOrder);
     }
 }

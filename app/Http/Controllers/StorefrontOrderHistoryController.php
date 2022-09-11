@@ -50,7 +50,15 @@ class StorefrontOrderHistoryController extends Controller
      */
     public function update(UpdateStorefrontOrderHistoryRequest $request, StorefrontOrderHistory $storefrontOrderHistory)
     {
-        //
+        $request['comment'] = $request->comment ?? $storefrontOrderHistory->comment;
+
+        // update
+        $storefrontOrderHistory->update($request->only([
+            'status',
+            'comment'
+        ]));
+
+        return $this->show($storefrontOrderHistory);
     }
 
     /**
@@ -61,6 +69,12 @@ class StorefrontOrderHistoryController extends Controller
      */
     public function destroy(StorefrontOrderHistory $storefrontOrderHistory)
     {
-        //
+        if ($storefrontOrderHistory->trashed()) {
+            $storefrontOrderHistory->restore();
+        } else {
+            $storefrontOrderHistory->delete();
+        }
+
+        return $this->show($storefrontOrderHistory);
     }
 }
