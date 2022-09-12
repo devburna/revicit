@@ -31,10 +31,14 @@ class CampaignController extends Controller
      */
     public function index(Request $request)
     {
-        $campaigns = $request->company->campaigns()->orderByDesc('created_at')->paginate(20);
+        $campaigns = $request->company->campaigns()->orderByDesc('created_at');
+
+        if ($request->keyword) {
+            $campaigns = $campaigns->where('name', 'like', $request->keyword);
+        }
 
         return response()->json([
-            'data' => $campaigns,
+            'data' => $campaigns->paginate(20),
             'message' => 'success',
             'status' => true,
         ]);
