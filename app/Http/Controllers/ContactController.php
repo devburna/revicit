@@ -17,10 +17,14 @@ class ContactController extends Controller
      */
     public function index(Request $request)
     {
-        $contacts = $request->company->contacts()->orderByDesc('created_at')->paginate(20);
+        $contacts = $request->company->contacts()->orderByDesc('created_at');
+
+        if ($request->keyword) {
+            $contacts = $contacts->where('name', 'like', $request->keyword);
+        }
 
         return response()->json([
-            'data' => $contacts,
+            'data' => $contacts->paginate(20),
             'message' => 'success',
             'status' => true,
         ]);

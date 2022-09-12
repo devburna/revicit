@@ -21,7 +21,6 @@ class CompanyController extends Controller
     {
         $companies = $request->user()->companies();
 
-
         if ($request->keyword) {
             $companies = $companies->where('name', 'like', $request->keyword);
         }
