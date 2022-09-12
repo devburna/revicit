@@ -323,6 +323,23 @@ Route::middleware('auth:sanctum')->group(function () {
                 });
             });
 
+            # product options
+            Route::prefix('product-options')->group(function () {
+
+                # create
+                Route::post('{storefrontProduct}/new', [\App\Http\Controllers\StorefrontProductOptionController::class, 'store'])->can('view', 'storefrontProduct');
+
+                # option
+                Route::prefix('{storefrontProductOption}')->group(function () {
+
+                    # update
+                    Route::patch('', [\App\Http\Controllers\StorefrontProductOptionController::class, 'update'])->can('update', 'storefrontProductOption');
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontProductOptionController::class, 'destroy'])->can('delete', 'storefrontProductOption')->withTrashed();
+                });
+            });
+
             # customers
             Route::prefix('customers')->group(function () {
 

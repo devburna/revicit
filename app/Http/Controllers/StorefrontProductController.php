@@ -20,7 +20,7 @@ class StorefrontProductController extends Controller
      */
     public function index(Request $request)
     {
-        $storefrontProducts = $request->storefront->products()->withTrashed()->paginate(20);
+        $storefrontProducts = $request->storefront->products()->with(['images', 'options'])->withTrashed()->paginate(20);
 
         return response()->json([
             'data' => $storefrontProducts,
@@ -106,6 +106,9 @@ class StorefrontProductController extends Controller
     {
         // add product images to data
         $storefrontProduct->images;
+
+        // add product options to data
+        $storefrontProduct->options;
 
         return response()->json([
             'status' => true,
