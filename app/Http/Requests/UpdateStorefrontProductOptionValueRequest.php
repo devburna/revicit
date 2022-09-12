@@ -24,10 +24,11 @@ class UpdateStorefrontProductOptionValueRequest extends FormRequest
     public function rules()
     {
         return [
-            'label' => 'string|max:50',
-            'image' => 'mimes:png,jpeg,jpg|max:5000',
-            'price' => 'numeric',
-            'default' => 'boolean'
+            'values' => 'array',
+            'values.*.label' => 'string|max:50',
+            'values.*.image' => 'mimes:jpg,jpeg,png|max:5000',
+            'values.*.price' => 'numeric',
+            'values.*.default' => 'boolean',
         ];
     }
 }

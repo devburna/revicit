@@ -33,9 +33,11 @@ class StorefrontProductOptionValueController extends Controller
             // upload images
             $values = [];
             foreach ($request->values as $value) {
-                $image_url = (new CloudinaryController())->upload(Str::random(24), $value['image'], "{$request->storefront->domain}/products/options/values");
+                if (array_key_exists('image', $value)) {
+                    $image_url = (new CloudinaryController())->upload(Str::random(24), $value['image'], "{$request->storefront->domain}/products/options/values");
 
-                $value['image'] = $image_url;
+                    $value['image'] = $image_url;
+                }
 
                 array_push($values, $value);
             }
@@ -47,8 +49,12 @@ class StorefrontProductOptionValueController extends Controller
 
                 // create value
                 $value['storefront_product_option_id'] = $storefrontProductOption->id;
-                $value['image_url'] = $value['image']['image_url'];
-                $storefrontProductOptionValue = $this->store($request);
+
+                if (array_key_exists('image', $value)) {
+                    $value['image_url'] = $value['image']['image_url'];
+                };
+
+                $storefrontProductOptionValue = $this->store(new StoreStorefrontProductOptionValueRequest($value));
 
                 array_push($storefrontProductOptionValues, $storefrontProductOptionValue);
             }
@@ -75,13 +81,11 @@ class StorefrontProductOptionValueController extends Controller
     public function store(StoreStorefrontProductOptionValueRequest $request)
     {
         return StorefrontProductOptionValue::create($request->only([
-            'storefront_product_id',
+            'storefront_product_option_id',
             'label',
-            'description',
-            'type',
-            'min',
-            'max',
-            'required'
+            'image_url',
+            'price',
+            'default'
         ]));
     }
 
@@ -111,18 +115,10 @@ class StorefrontProductOptionValueController extends Controller
     {
         // update
         $storefrontProductOptionValue->update($request->only([
-            'name',
-            'slug',
-            'description',
-            'tags',
-            'regular_price',
-            'sale_price',
-            'quantity',
-            'stock_keeping_unit',
-            'stock_quantity',
-            'item_unit',
-            'type',
-            'status',
+            'label',
+            'image_url',
+            'price',
+            'default'
         ]));
 
         return $this->show($storefrontProductOptionValue);

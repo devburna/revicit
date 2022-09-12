@@ -25,10 +25,10 @@ class StoreStorefrontProductOptionValueRequest extends FormRequest
     {
         return [
             'values' => 'required|array',
-            'values.*label' => 'required|string|max:50',
-            'values.*image' => 'mimes:jpg,jpeg,png|max:5000',
-            'values.*price' => 'numeric',
-            'values.*default' => 'boolean',
+            'values.*.label' => 'required|string|max:50',
+            'values.*.image' => 'mimes:jpg,jpeg,png|max:5000',
+            'values.*.price' => 'numeric',
+            'values.*.default' => 'boolean',
         ];
     }
 }

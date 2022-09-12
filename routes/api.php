@@ -344,7 +344,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::prefix('product-option-values')->group(function () {
 
                 # create
-                Route::post('{storefrontProductOption}/new', [\App\Http\Controllers\StorefrontProductOptionController::class, 'store'])->can('view', 'storefrontProductOption');
+                Route::post('{storefrontProductOption}/new', [\App\Http\Controllers\StorefrontProductOptionValueController::class, 'create'])->can('view', 'storefrontProductOption');
 
                 # option
                 Route::prefix('{storefrontProductOptionValue}')->group(function () {
