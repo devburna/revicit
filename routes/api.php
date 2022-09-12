@@ -36,7 +36,7 @@ Route::prefix('waitlist')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
 
     # reset-password - reset user's password
-    Route::post('reset-password', [\App\Http\Controllers\Auth\ResetPasswordController::class, 'resetPassword'])->middleware(['ability:reset-password']);
+    Route::post('reset-password', [\App\Http\Controllers\auth\ResetPasswordController::class, 'resetPassword'])->middleware(['ability:reset-password']);
 
     # verify-email - verify user's email address
     Route::prefix('verify-email')->group(function () {
