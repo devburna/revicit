@@ -23,9 +23,10 @@ jobs:
             echo 'Pull code'
             git pull origin dev
             composer install --no-interaction --prefer-dist --optimize-autoloader
+            cp example.env .env
             chown -R www-data:www-data ./storage/
-            php artisan migrate --force
             php artisan key:generate
+            php artisan migrate --force
             php artisan queue:restart
             php artisan optimize:clear
             php artisan db:seed
