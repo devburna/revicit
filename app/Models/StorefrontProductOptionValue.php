@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Enums\StorefrontProductOptionType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class StorefrontProductOption extends Model
+class StorefrontProductOptionValue extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -19,13 +17,11 @@ class StorefrontProductOption extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'storefront_product_id',
+        'storefront_product_option_id',
         'label',
-        'description',
-        'type',
-        'min',
-        'max',
-        'required'
+        'image_url',
+        'price',
+        'default'
 
     ];
     /**
@@ -34,7 +30,7 @@ class StorefrontProductOption extends Model
      * @var array<int, string>
      */
     protected $hidden = [
-        'storefront_product_id'
+        'storefront_product_option_id'
     ];
 
     /**
@@ -43,17 +39,11 @@ class StorefrontProductOption extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'type' => StorefrontProductOptionType::class,
-        'required' => 'boolean'
+        'default' => 'boolean'
     ];
 
-    public function product(): BelongsTo
+    public function option(): BelongsTo
     {
-        return $this->belongsTo(StorefrontProduct::class, 'storefront_product_id');
-    }
-
-    public function values(): HasMany
-    {
-        return $this->hasMany(StorefrontProductOptionValue::class, 'storefront_product_option_id');
+        return $this->belongsTo(StorefrontProductOption::class, 'storefront_product_option_id');
     }
 }

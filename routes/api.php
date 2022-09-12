@@ -340,6 +340,23 @@ Route::middleware('auth:sanctum')->group(function () {
                 });
             });
 
+            # product option
+            Route::prefix('product-option-values')->group(function () {
+
+                # create
+                Route::post('{storefrontProductOption}/new', [\App\Http\Controllers\StorefrontProductOptionController::class, 'store'])->can('view', 'storefrontProductOption');
+
+                # option
+                Route::prefix('{storefrontProductOptionValue}')->group(function () {
+
+                    # update
+                    Route::patch('', [\App\Http\Controllers\StorefrontProductOptionValueController::class, 'update'])->can('update', 'storefrontProductOptionValue');
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontProductOptionValueController::class, 'destroy'])->can('delete', 'storefrontProductOptionValue')->withTrashed();
+                });
+            });
+
             # customers
             Route::prefix('customers')->group(function () {
 
