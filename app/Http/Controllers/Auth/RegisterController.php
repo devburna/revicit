@@ -66,8 +66,10 @@ class RegisterController extends Controller
 
             // create email verification token
             $token = $user->createToken('email-verification', ['verify-email-address'])->plainTextToken;
-
+            $user->token = $token;
             $user->notify(new VerifyEmail($user));
+
+            unset($user->token);
 
             return response()->json([
                 'data' => [
