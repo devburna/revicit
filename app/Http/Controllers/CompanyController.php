@@ -19,10 +19,15 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
-        $companies = $request->user()->companies()->paginate(20);
+        $companies = $request->user()->companies();
+
+
+        if ($request->keyword) {
+            $companies = $companies->where('name', 'like', $request->keyword);
+        }
 
         return response()->json([
-            'data' => $companies,
+            'data' => $companies->paginate(20),
             'message' => 'success',
             'status' => true
         ]);
