@@ -438,9 +438,6 @@ Route::prefix('company/{company}')->group(function () {
     Route::post('', [\App\Http\Controllers\ContactController::class, 'store']);
 });
 
-# flutterwave webhook
-Route::post('flutterwave', [\App\Http\Controllers\FlutterwaveController::class, 'webHook']);
-
 # ayrshare webhook
 Route::prefix('ayrshare')->group(function () {
 
