@@ -14,6 +14,8 @@ use App\Models\Storefront;
 use App\Models\StorefrontCustomer;
 use App\Models\StorefrontOrder;
 use App\Models\StorefrontProduct;
+use App\Models\StorefrontProductOption;
+use App\Models\StorefrontProductOptionValue;
 use App\Notifications\StorefrontOrderInvoice;
 use App\Notifications\StorefrontOrderNotification;
 use App\Notifications\StorefrontOrderStatus as NotificationsStorefrontOrderStatus;
@@ -93,16 +95,43 @@ class StorefrontOrderController extends Controller
                         // validate product
                         $product = StorefrontProduct::find($item['product']);
 
+                        // check for options
+                        $options = [];
+                        if (array_key_exists('options', $item)) {
+                            foreach ($item['options'] as $option) {
+
+                                // find option
+                                $_option = StorefrontProductOption::find($option['id']);
+
+                                // check for option values
+                                if (array_key_exists('values', $option)) {
+                                    $values = [];
+                                    foreach ($option['values'] as $value) {
+
+                                        // find option
+                                        $_value = StorefrontProductOptionValue::find($value['id']);
+
+                                        array_push($total_price, $value['price']);
+                                        array_push($values, $_value);
+                                    }
+                                }
+
+                                $_option['values'] = $values;
+
+                                array_push($options, $_option);
+                            }
+                        }
+
                         // create order
                         $order['storefront_customer_id'] = $_customer->id;
                         $order['storefront_product_id'] = $product->id;
                         $order['reference'] = $request->data['reference'];
-                        $order['quantity'] = $item['quantity'];
                         $order['price'] = $item['price'];
                         $order['total_price'] = $item['quantity'] * $item['price'];
-                        $order['quantity'] = $product->sale_price ?? $product->regular_price;
+                        $order['quantity'] = $item['quantity'];
                         $order['status'] = StorefrontOrderStatus::RECEIVED();
-                        $storefrontOrder = $this->store(new StoreStorefrontOrderRequest(array_merge($order, $delivery_address)));
+                        $order['meta'] = json_encode($options);
+                        $storefrontOrder = $this->store(new StoreStorefrontOrderRequest($order));
 
                         // create history
                         $history['storefront_order_id'] = $storefrontOrder->id;
@@ -176,7 +205,8 @@ class StorefrontOrderController extends Controller
             'state',
             'country',
             'notes',
-            'status'
+            'status',
+            'meta'
         ]));
     }
 

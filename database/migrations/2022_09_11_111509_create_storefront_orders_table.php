@@ -24,9 +24,10 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
-            $table->longText('country')->nullable();
+            $table->string('country')->nullable();
             $table->string('notes')->nullable();
             $table->string('status');
+            $table->longText('meta');
             $table->softDeletes();
             $table->timestamps();
         });
