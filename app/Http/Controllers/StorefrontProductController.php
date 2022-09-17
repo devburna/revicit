@@ -108,7 +108,7 @@ class StorefrontProductController extends Controller
         $storefrontProduct->images;
 
         // add product options to data
-        $storefrontProduct->options()->with(['values']);
+        $storefrontProduct->options;
 
         return response()->json([
             'status' => true,

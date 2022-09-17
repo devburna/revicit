@@ -86,6 +86,6 @@ class StorefrontProduct extends Model
 
     public function options(): HasMany
     {
-        return $this->hasMany(StorefrontProductOption::class, 'storefront_product_id');
+        return $this->hasMany(StorefrontProductOption::class, 'storefront_product_id')->with(['values']);
     }
 }
