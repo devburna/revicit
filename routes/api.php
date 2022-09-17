@@ -411,6 +411,20 @@ Route::middleware('auth:sanctum')->group(function () {
                     Route::delete('', [\App\Http\Controllers\StorefrontOrderHistoryController::class, 'destroy'])->can('delete', 'storefrontOrderHistory')->withTrashed();
                 });
             });
+
+            # order reviews
+            Route::prefix('order-reviews')->group(function () {
+
+                # create
+                Route::post('{storefrontOrder}', [\App\Http\Controllers\StorefrontOrderReviewController::class, 'store']);
+
+                # review
+                Route::prefix('{storefrontOrderReview}')->group(function () {
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontOrderReviewController::class, 'destroy'])->can('delete', 'storefrontOrderReview')->withTrashed();
+                });
+            });
         });
     });
 

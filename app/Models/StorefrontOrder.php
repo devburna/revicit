@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class StorefrontOrder extends Model
@@ -62,7 +63,6 @@ class StorefrontOrder extends Model
         );
     }
 
-
     public function product(): BelongsTo
     {
         return $this->belongsTo(StorefrontProduct::class, 'storefront_product_id');
@@ -76,5 +76,10 @@ class StorefrontOrder extends Model
     public function history(): HasMany
     {
         return $this->hasMany(StorefrontOrderHistory::class, 'storefront_order_id');
+    }
+
+    public function review(): HasOne
+    {
+        return $this->hasOne(StorefrontOrder::class, 'storefront_order_id');
     }
 }
