@@ -425,6 +425,29 @@ Route::middleware('auth:sanctum')->group(function () {
                     Route::delete('', [\App\Http\Controllers\StorefrontOrderReviewController::class, 'destroy'])->can('delete', 'storefrontOrderReview')->withTrashed();
                 });
             });
+
+            # order delivery agents
+            Route::prefix('order-delivery')->group(function () {
+
+                # all
+                Route::get('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'index']);
+
+                # create
+                Route::post('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'create']);
+
+                # order-delivery-agent
+                Route::prefix('{storefrontOrder}')->group(function () {
+
+                    # details
+                    Route::get('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'show'])->can('view', 'storefrontOrder')->withTrashed();
+
+                    # update details
+                    Route::patch('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'update'])->can('update', 'storefrontOrder');
+
+                    # toggle
+                    Route::delete('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'destroy'])->can('delete', 'storefrontOrder')->withTrashed();
+                });
+            });
         });
     });
 

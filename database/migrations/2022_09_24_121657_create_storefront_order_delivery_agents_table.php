@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('storefront_order_deliveries', function (Blueprint $table) {
+        Schema::create('storefront_order_delivery_agents', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
         });
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('storefront_order_deliveries');
+        Schema::dropIfExists('storefront_order_delivery_agents');
     }
 };

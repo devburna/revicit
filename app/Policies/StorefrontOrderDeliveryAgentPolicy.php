@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\StorefrontOrderDelivery;
+use App\Models\StorefrontOrderDeliveryAgent;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class StorefrontOrderDeliveryPolicy
+class StorefrontOrderDeliveryAgentPolicy
 {
     use HandlesAuthorization;
 
@@ -25,10 +25,10 @@ class StorefrontOrderDeliveryPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontOrderDelivery  $storefrontOrderDelivery
+     * @param  \App\Models\StorefrontOrderDeliveryAgent  $storefrontOrderDeliveryAgent
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, StorefrontOrderDelivery $storefrontOrderDelivery)
+    public function view(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
         //
     }
@@ -48,10 +48,10 @@ class StorefrontOrderDeliveryPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontOrderDelivery  $storefrontOrderDelivery
+     * @param  \App\Models\StorefrontOrderDeliveryAgent  $storefrontOrderDeliveryAgent
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, StorefrontOrderDelivery $storefrontOrderDelivery)
+    public function update(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
         //
     }
@@ -60,10 +60,10 @@ class StorefrontOrderDeliveryPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontOrderDelivery  $storefrontOrderDelivery
+     * @param  \App\Models\StorefrontOrderDeliveryAgent  $storefrontOrderDeliveryAgent
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, StorefrontOrderDelivery $storefrontOrderDelivery)
+    public function delete(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
         //
     }
@@ -72,10 +72,10 @@ class StorefrontOrderDeliveryPolicy
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontOrderDelivery  $storefrontOrderDelivery
+     * @param  \App\Models\StorefrontOrderDeliveryAgent  $storefrontOrderDeliveryAgent
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, StorefrontOrderDelivery $storefrontOrderDelivery)
+    public function restore(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
         //
     }
@@ -84,10 +84,10 @@ class StorefrontOrderDeliveryPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\StorefrontOrderDelivery  $storefrontOrderDelivery
+     * @param  \App\Models\StorefrontOrderDeliveryAgent  $storefrontOrderDeliveryAgent
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, StorefrontOrderDelivery $storefrontOrderDelivery)
+    public function forceDelete(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
         //
     }
