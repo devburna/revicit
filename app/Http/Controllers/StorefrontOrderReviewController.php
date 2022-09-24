@@ -18,9 +18,14 @@ class StorefrontOrderReviewController extends Controller
      */
     public function store(StoreStorefrontOrderReviewRequest $request, StorefrontOrder $storefrontOrder)
     {
+        if ($storefrontOrder->review) {
+            return $this->show($storefrontOrder->review);
+        }
+
         $request['storefront_order_id'] = $storefrontOrder->id;
 
         $storefrontOrderReview = StorefrontOrderReview::create($request->only([
+            'storefront_order_id',
             'rating',
             'comment'
         ]));

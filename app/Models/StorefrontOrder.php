@@ -80,7 +80,7 @@ class StorefrontOrder extends Model
 
     public function review(): HasOne
     {
-        return $this->hasOne(StorefrontOrder::class, 'storefront_order_id');
+        return $this->hasOne(StorefrontOrderReview::class, 'storefront_order_id');
     }
 
     public function shipping(): HasOne
