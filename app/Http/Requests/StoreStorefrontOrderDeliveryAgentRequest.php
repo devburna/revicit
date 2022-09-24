@@ -13,7 +13,7 @@ class StoreStorefrontOrderDeliveryAgentRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,12 @@ class StoreStorefrontOrderDeliveryAgentRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'phone' => 'required|string',
+            'company_name' => 'string|max:50',
+            'tracking_link' => 'string',
+            'default' => 'boolean',
         ];
     }
 }

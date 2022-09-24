@@ -82,4 +82,9 @@ class StorefrontOrder extends Model
     {
         return $this->hasOne(StorefrontOrder::class, 'storefront_order_id');
     }
+
+    public function shipping(): HasOne
+    {
+        return $this->hasOne(StorefrontOrderDeliveryAgent::class, 'storefront_order_id');
+    }
 }

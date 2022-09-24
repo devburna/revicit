@@ -30,7 +30,7 @@ class StorefrontOrderDeliveryAgentPolicy
      */
     public function view(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
-        //
+        return $user->is($storefrontOrderDeliveryAgent->order->product->storefront->company->user);
     }
 
     /**
@@ -53,7 +53,7 @@ class StorefrontOrderDeliveryAgentPolicy
      */
     public function update(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
-        //
+        return $this->view($user, $storefrontOrderDeliveryAgent);
     }
 
     /**
@@ -65,7 +65,7 @@ class StorefrontOrderDeliveryAgentPolicy
      */
     public function delete(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
-        //
+       return $this->view($user, $storefrontOrderDeliveryAgent);
     }
 
     /**
@@ -77,7 +77,7 @@ class StorefrontOrderDeliveryAgentPolicy
      */
     public function restore(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
-        //
+       return $this->view($user, $storefrontOrderDeliveryAgent);
     }
 
     /**
@@ -89,6 +89,6 @@ class StorefrontOrderDeliveryAgentPolicy
      */
     public function forceDelete(User $user, StorefrontOrderDeliveryAgent $storefrontOrderDeliveryAgent)
     {
-        //
+       return $this->view($user, $storefrontOrderDeliveryAgent);
     }
 }

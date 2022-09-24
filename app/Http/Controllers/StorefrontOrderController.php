@@ -33,7 +33,7 @@ class StorefrontOrderController extends Controller
     {
         $storefrontOrders = StorefrontOrder::withTrashed()->whereHas('product', function ($product) use ($request) {
             $product->whereStorefrontId($request->storefront->id);
-        })->with(['product', 'customer', 'history'])->paginate(20);
+        })->with(['product', 'customer', 'history', 'shipping'])->paginate(20);
 
         return response()->json([
             'data' => $storefrontOrders,

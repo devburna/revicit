@@ -427,25 +427,19 @@ Route::middleware('auth:sanctum')->group(function () {
             });
 
             # order delivery agents
-            Route::prefix('order-delivery')->group(function () {
-
-                # all
-                Route::get('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'index']);
+            Route::prefix('order-delivery-agents')->group(function () {
 
                 # create
-                Route::post('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'create']);
+                Route::post('{storefrontOrder}', [\App\Http\Controllers\StorefrontOrderDeliveryAgentController::class, 'create'])->can('view', 'storefrontOrder');
 
-                # order-delivery-agent
-                Route::prefix('{storefrontOrder}')->group(function () {
-
-                    # details
-                    Route::get('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'show'])->can('view', 'storefrontOrder')->withTrashed();
+                # order delivery agent
+                Route::prefix('{storefrontOrderDeliveryAgent}')->group(function () {
 
                     # update details
-                    Route::patch('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'update'])->can('update', 'storefrontOrder');
+                    Route::patch('', [\App\Http\Controllers\StorefrontOrderDeliveryAgentController::class, 'update'])->can('update', 'storefrontOrderDeliveryAgent');
 
                     # toggle
-                    Route::delete('', [\App\Http\Controllers\StorefrontOrderDeliveryController::class, 'destroy'])->can('delete', 'storefrontOrder')->withTrashed();
+                    Route::delete('', [\App\Http\Controllers\StorefrontOrderDeliveryAgentController::class, 'destroy'])->can('delete', 'storefrontOrderDeliveryAgent')->withTrashed();
                 });
             });
         });
